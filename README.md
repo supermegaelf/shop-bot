@@ -1,6 +1,7 @@
 # Marzban Shop
 
 It is a Telegram bot shop powered by aiogram that provides VPN sales via Telegram
+This project is a fork. [Original project](https://github.com/gunsh1p/marzban-shop).
 
 ## Table of Contents
 
@@ -29,7 +30,7 @@ It is a Telegram bot shop powered by aiogram that provides VPN sales via Telegra
 #### Setup
 
 ```bash
-git clone https://github.com/gunsh1p/marzban-shop.git
+git clone https://github.com/maxmenkov/marzban-shop.git
 cd marzban-shop
 docker compose build
 ```
@@ -93,6 +94,7 @@ docker compose up -d
 | PANEL_PASS | Panel password |
 | WEBHOOK_URL | Webhook adress (url) (more deteails [here](#about-webhook)) |
 | WEBHOOK_PORT | Webhook port |
+| RENEW_NOTIFICATION_TIME | Scheduled time for exececute notify renew subscription task in format HH:mm |
 
 #### Difference between host and global
 
@@ -109,12 +111,6 @@ PANEL_GLOBAL - address for issuing subscriptions. It is used for substitution of
 To receive responses from the Telegram server and payment provider servers, webhook is used. This should be the address to which all these servers will contact. It must be a domain with TLS 1.2 or higher. Requests should be routed to the port you specified in .env in the WEBHOOK_PORT variable.
 In addition, for YooKassa to work correctly, you will need to specify a webhook url in your personal account with the following value at the end of /yookassa_payment (e.g. <https://my-awesome-webhook.example.com/yookassa_payment>) and select all values that begin with payment
 
-### To Do
-
-- [ ] Storing items in db
-- [ ] Web-panel for admins
-- [ ] Code refactoring
-
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -128,20 +124,7 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Donation
-
-- BTC: `bc1qmrwu6uv00xcvsjvjkwnaw2ky6aenhjgqewg0w4`
-- LTC: `ltc1qrl3fp7cwwxsun2fsk60zxgncuutkrydwgju6a2`
-- USDT (TRC-20): `TJUUhJpeaZBBXpG6yUtzLsQmT3XQjViowV`
-- ETH: `0x052D18812fA247Ce6853a6D95213CEbdb45c6277`
-- TON: `UQBtG5NZECAH7wc2MrHnoVTv1mRzC9z-vqB-5cUpUaMJbptZ`
-
 ### License
 
 The project is under the [GPL-3.0](https://github.com/gunsh1p/marzban-shop/blob/main/LICENSE) licence
 
-### Contacts
-
-Email: <bertollo@gunship.su>
-
-Telegram: [@blackbloodredkiss](https://t.me/blackbloodredkiss)
