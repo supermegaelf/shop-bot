@@ -59,8 +59,7 @@ msgstr ""
 
 #: bot/handlers/messages.py:41
 msgid ""
-"You can find out more about your subscription by following this <a href="
-"\"{link}\">link</a>"
+"Subscription page ⬇️"
 msgstr ""
 
 #: bot/handlers/messages.py:52
@@ -130,4 +129,8 @@ msgid ""
 "Your VPN subscription expires at the end of the day tomorrow.\n️"
 "\n"
 "To renew it, just go to the \"Join 🏄🏻  <200d>♂️\" section and make a payment."
+msgstr ""
+
+#: bot/keyboards/subscription.py:11
+msgid "Follow 🔗"
 msgstr ""

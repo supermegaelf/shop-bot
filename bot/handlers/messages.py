@@ -5,7 +5,7 @@ from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 
 from .commands import start
-from keyboards import get_buy_menu_keyboard, get_back_keyboard, get_main_menu_keyboard
+from keyboards import get_buy_menu_keyboard, get_back_keyboard, get_main_menu_keyboard, get_subscription_keyboard
 from db.methods import can_get_test_sub, update_test_subscription_state, get_marzban_profile_db
 from utils import marzban_api
 import glv
@@ -27,9 +27,7 @@ async def profile(message: Message):
     if user is None:
         await message.answer(_("You haven't the VPN profile. Just buy the subscription to join out family"), reply_markup=get_main_menu_keyboard())
         return
-    await message.answer(_("You can find out more about your subscription by following this <a href=\"{link}\">link</a>").format(
-                        link=glv.config['PANEL_GLOBAL'] + user['subscription_url']), 
-                        reply_markup=get_back_keyboard())
+    await message.answer(_("Subscription page ⬇️"), reply_markup=get_subscription_keyboard(glv.config['PANEL_GLOBAL'] + user['subscription_url']))
 
 @router.message(F.text == __("ℹ️Information"))
 async def information(message: Message):
