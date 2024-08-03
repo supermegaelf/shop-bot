@@ -30,6 +30,7 @@ services:
             WEBHOOK_URL: ${WEBHOOK_URL}
             WEBHOOK_PORT: ${WEBHOOK_PORT}
             RENEW_NOTIFICATION_TIME: ${RENEW_NOTIFICATION_TIME}
+            TG_INFO_CHANEL: ${TG_INFO_CHANEL}
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
