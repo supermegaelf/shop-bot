@@ -43,15 +43,14 @@ async def test_subscription(message: Message):
     result = await can_get_test_sub(message.from_user.id)
     if result:
         await message.answer(
-            _(get_answer_msg(result=result)),
+            _("Your subscription is available in the \"My subscription 👤\" section."),
             reply_markup=get_main_menu_keyboard())
         return
     result = await get_marzban_profile_db(message.from_user.id)
     result = await marzban_api.generate_test_subscription(result.vpn_id)
     await update_test_subscription_state(message.from_user.id)
-    answer_messege = get_answer_msg(result=result)
     await message.answer(
-        _(answer_messege),
+        _(get_answer_msg(result=result)),
         reply_markup=get_main_menu_keyboard()
     )
     
