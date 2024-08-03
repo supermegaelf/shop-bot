@@ -43,7 +43,7 @@ async def test_subscription(message: Message):
     result = await can_get_test_sub(message.from_user.id)
     if result:
         await message.answer(
-            _("Your subscription is available in the \"My subscription 👤\" section."),
+            _(get_answer_msg(result)),
             reply_markup=get_main_menu_keyboard())
         return
     result = await get_marzban_profile_db(message.from_user.id)
