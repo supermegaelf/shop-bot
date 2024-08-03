@@ -50,7 +50,8 @@ async def test_subscription(message: Message):
     result = await marzban_api.generate_test_subscription(result.vpn_id)
     await update_test_subscription_state(message.from_user.id)
     await message.answer(
-        _(get_answer_msg(result=result)),
+        _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.").format(
+            link=glv.config['TG_INFO_CHANEL']),
         reply_markup=get_main_menu_keyboard()
     )
     
@@ -60,8 +61,6 @@ async def start_text(message: Message):
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
-
-def get_answer_msg(result):
     if glv.config['TG_INFO_CHANEL'] is None:
         return "Thank you for choice ❤️\n️\nSubscribe so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section."
     else:
