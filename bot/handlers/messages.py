@@ -43,7 +43,7 @@ async def test_subscription(message: Message):
     result = await can_get_test_sub(message.from_user.id)
     if result:
         await message.answer(
-            _(get_answer_msg(result)),
+            _(get_answer_msg(result=result)),
             reply_markup=get_main_menu_keyboard())
         return
     result = await get_marzban_profile_db(message.from_user.id)
@@ -64,7 +64,7 @@ def register_messages(dp: Dispatcher):
 
 def get_answer_msg(result):
     if glv.config['TG_INFO_CHANEL'] is None:
-        return "Thank you for choice ❤️\n️\nSubscribe so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in <a href=\"{subscription_link}  My subscription /a>."
+        return "Thank you for choice ❤️\n️\nSubscribe so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section."
     else:
-        return "Thank you for choice ❤️\n️\n<a href=\"{tg_info_link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in <a href=\"{subscription_link}\n  My subscription /a>."
+        return "Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section."
         

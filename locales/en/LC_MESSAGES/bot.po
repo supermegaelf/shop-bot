@@ -65,9 +65,9 @@ msgstr ""
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"<a href=\"{tg_info_link}.\">Subscribe</a> so you don't miss any announcements ✅\n️"
+"<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️"
 "\n"
-"Your subscription is purchased and available in <a href=\"{subscription_link}\n  My subscription /a>."
+"Your subscription is purchased and available in the \"My subscription 👤\" section."
 msgstr ""
 
 #: bot/app/routes.py:44
@@ -76,7 +76,7 @@ msgid ""
 "\n"
 "Subscribe so you don't miss any announcements ✅\n️"
 "\n"
-"Your subscription is purchased and available in <a href=\"{subscription_link}\n  My subscription /a>."
+"Your subscription is purchased and available in the \"My subscription 👤\" section."
 msgstr ""
 
 #: bot/keyboards/back.py:7
