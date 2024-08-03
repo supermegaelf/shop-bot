@@ -156,9 +156,3 @@ msgstr ""
 #: bot/keyboards/subscription.py:11
 msgid "Follow 🔗"
 msgstr "Перейти 🔗"
-
-#~ msgid "Subscription"
-#~ msgstr "Подписка на"
-
-#~ msgid "Tariff - {title}"
-#~ msgstr "Тариф - {title}"
