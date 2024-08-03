@@ -61,8 +61,4 @@ async def start_text(message: Message):
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
-    if glv.config['TG_INFO_CHANEL'] is None:
-        return "Thank you for choice ❤️\n️\nSubscribe so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section."
-    else:
-        return "Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section."
         
