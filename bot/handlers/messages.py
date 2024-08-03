@@ -61,4 +61,3 @@ async def start_text(message: Message):
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
-        

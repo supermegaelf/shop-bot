@@ -25,7 +25,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         callback.from_user.language_code)
     await callback.message.answer(
         _("To be paid - {amount}₽ ⬇️").format(
-            amount=result['amount']
+            amount=int(result['amount'])
         ),
         reply_markup=get_pay_keyboard(result['url']))
     await callback.answer()
