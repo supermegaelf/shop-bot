@@ -65,18 +65,18 @@ msgstr ""
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"<a href=\"{link}.\">Subscribe</a> so you don't miss any announcements ✅\n️"
+"<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️"
 "\n"
-"Your subscription is purchased and available in \"My subscription 👤\"."
+"Your subscription is purchased and available in the \"My subscription 👤\" section."
 msgstr ""
 
 #: bot/app/routes.py:44
 msgid ""
 "Thank you for your choice ❤️\n️"
 "\n"
-"<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️"
+"Subscribe so you don't miss any announcements ✅\n️"
 "\n"
-"Your subscription is purchased and available in \"My subscription 👤\"."
+"Your subscription is purchased and available in the \"My subscription 👤\" section."
 msgstr ""
 
 #: bot/keyboards/back.py:7
