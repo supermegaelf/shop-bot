@@ -9,7 +9,8 @@ async def notify_users_to_renew_sub():
     marzban_users_to_notify = await get_marzban_users_to_notify()
     if marzban_users_to_notify is None:
         return None
-    for vpn_id in list_vpn_id:
+    for marzban_user in marzban_users_to_notify:
+        vpn_id = user['username']
         user = await get_marzban_profile_by_vpn_id(vpn_id)
         if user is None:
             continue
@@ -30,6 +31,7 @@ def filter_users_to_notify(user):
     user_expire_date = user['expire']
     if user_expire_date is None:
         return False
-    from_date = int(time.time()) + 60 * 60 * 12
-    to_date = from_date + 60 * 60 * 24
-    return from_date < user_expire_date < to_date
+    
+    now = int(time.time())
+    after_tomorrow = today + 60 * 60 * 36
+    return now < user_expire_date < after_tomorrow
