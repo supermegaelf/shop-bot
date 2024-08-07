@@ -2,6 +2,7 @@ import asyncio
 import time
 
 from db.methods import get_marzban_profile_by_vpn_id
+from utils import marzban_api
 
 import glv
 
