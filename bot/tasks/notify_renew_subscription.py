@@ -21,7 +21,7 @@ async def notify_users_to_renew_sub():
             continue
         message = get_i18n_string("Hello, {name} 👋🏻\n\nThank you for using our service ❤️\n\nYour VPN subscription expires {day}, at the end of the day.\n️\nTo renew it, just go to the \"Join 🏄🏻‍♂️\" section and make a payment.", chat_member.user.language_code).format(
             name=chat_member.user.first_name,
-            day=get_expiration_day_str(user))
+            day=get_expiration_day_str(user, chat_member.user.language_code))
         await glv.bot.send_message(user.tg_id, message)
 
 async def get_marzban_users_to_notify():
@@ -31,7 +31,7 @@ async def get_marzban_users_to_notify():
     users = res['users']
     return filter(filter_users_to_notify, users)
 
-def filter_users_to_notify(user, lang):
+def filter_users_to_notify(user):
     user_expire_date = user['expire']
     if user_expire_date is None:
         return False
@@ -40,7 +40,7 @@ def filter_users_to_notify(user, lang):
     after_tomorrow = now + 60 * 60 * 36
     return now < user_expire_date < after_tomorrow
 
-def get_expiration_day_str(user, ):
+def get_expiration_day_str(user, lang):
     if user['expire'] < int(time.time()) + 60 * 60 * 12:
         return get_i18n_string("today")
     return get_i18n_string("tomorrow")
