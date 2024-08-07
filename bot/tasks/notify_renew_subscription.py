@@ -42,5 +42,5 @@ def filter_users_to_notify(user):
 
 def get_expiration_day_str(user, lang):
     if user['expire'] < int(time.time()) + 60 * 60 * 12:
-        return get_i18n_string("today")
-    return get_i18n_string("tomorrow")
+        return get_i18n_string("today", lang)
+    return get_i18n_string("tomorrow", lang)
