@@ -125,11 +125,19 @@ msgid ""
 "\n"
 "Thank you for using our service ❤️\n️"
 "\n"
-"Your VPN subscription expires at the end of the day tomorrow.\n️"
+"Your VPN subscription expires {day}, at the end of the day.\n️"
 "\n"
 "To renew it, just go to the \"Join 🏄🏻‍♂️\" section and make a payment."
 msgstr ""
 
 #: bot/keyboards/subscription.py:11
 msgid "Follow 🔗"
+msgstr ""
+
+#: bot/tasks/notify_expired.py:42
+msgid "today"
+msgstr ""
+
+#: bot/tasks/notify_expired.py:42
+msgid "tomorrow"
 msgstr ""
