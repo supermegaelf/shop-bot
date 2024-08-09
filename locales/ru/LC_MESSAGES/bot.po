@@ -81,20 +81,6 @@ msgstr ""
 "\n"
 "Подписка оплачена и доступна в разделе Моя подписка 👤.\n"
 
-#: bot/handlers/messages.py
-msgid ""
-"Thank you for choice ❤️\n️"
-"\n"
-"Subscribe so you don't miss any announcements ✅\n️"
-"\n"
-"Your subscription is purchased and available in the \"My subscription 👤\" section."
-msgstr ""
-"Благодарим за ваш выбор ❤️\n️"
-"\n"
-"Подпишитесь, чтобы не пропустить объявления ✅\n️"
-"\n"
-"Подписка оплачена и доступна в разделе Моя подписка 👤."
-
 #: bot/keyboards/back.py:7
 msgid "⏪ Back"
 msgstr "⏪ Назад"

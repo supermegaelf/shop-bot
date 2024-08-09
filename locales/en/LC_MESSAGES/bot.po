@@ -70,15 +70,6 @@ msgid ""
 "Your subscription is purchased and available in the \"My subscription 👤\" section."
 msgstr ""
 
-#: bot/app/routes.py:44
-msgid ""
-"Thank you for your choice ❤️\n️"
-"\n"
-"Subscribe so you don't miss any announcements ✅\n️"
-"\n"
-"Your subscription is purchased and available in the \"My subscription 👤\" section."
-msgstr ""
-
 #: bot/keyboards/back.py:7
 msgid "⏪ Back"
 msgstr ""
