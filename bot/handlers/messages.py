@@ -6,7 +6,7 @@ from aiogram.utils.i18n import lazy_gettext as __
 
 from .commands import start
 from keyboards import get_buy_menu_keyboard, get_back_keyboard, get_main_menu_keyboard, get_subscription_keyboard
-from db.methods import can_get_test_sub, update_test_subscription_state, get_marzban_profile_db
+from db.methods import had_test_sub, update_test_subscription_state, get_marzban_profile_db
 from utils import marzban_api
 import glv
 
@@ -20,7 +20,7 @@ async def buy(message: Message):
 async def profile(message: Message):
     user = await marzban_api.get_marzban_profile(message.from_user.id)
     if user is None:
-        await message.answer(_("Your profile is not active at the moment.\n️\nYou can choose \"5 days free 🆓\" or \"Join 🏄🏻‍♂️\"."), reply_markup=get_main_menu_keyboard())
+        await message.answer(_("Your profile is not active at the moment.\n️\nYou can choose \"5 days free 🆓\" or \"Join 🏄🏻‍♂️\"."), reply_markup=get_main_menu_keyboard(False))
         return
     await message.answer(_("Subscription page ⬇️"), reply_markup=get_subscription_keyboard(glv.config['PANEL_GLOBAL'] + user['subscription_url']))
 
@@ -40,11 +40,11 @@ async def support(message: Message):
 
 @router.message(F.text == __("5 days free 🆓"))
 async def test_subscription(message: Message):
-    result = await can_get_test_sub(message.from_user.id)
+    result = await had_test_sub(message.from_user.id)
     if result:
         await message.answer(
             _("Your subscription is available in the \"My subscription 👤\" section."),
-            reply_markup=get_main_menu_keyboard())
+            reply_markup=get_main_menu_keyboard(True))
         return
     result = await get_marzban_profile_db(message.from_user.id)
     result = await marzban_api.generate_test_subscription(result.vpn_id)
@@ -52,7 +52,7 @@ async def test_subscription(message: Message):
     await message.answer(
         _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.").format(
             link=glv.config['TG_INFO_CHANEL']),
-        reply_markup=get_main_menu_keyboard()
+        reply_markup=get_main_menu_keyboard(True)
     )
     
 @router.message(F.text == __("⏪ Back"))

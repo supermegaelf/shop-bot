@@ -132,3 +132,7 @@ msgstr ""
 #: bot/tasks/notify_expired.py:42
 msgid "tomorrow"
 msgstr ""
+
+#: bot/keyboards/main_menu.py:11
+msgid "Payment 🏄🏻‍♂️"
+msgstr ""

@@ -31,7 +31,7 @@ async def get_marzban_profile_by_vpn_id(vpn_id: str):
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
     return result    
 
-async def can_get_test_sub(tg_id: int) -> bool:
+async def had_test_sub(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
