@@ -8,7 +8,7 @@ def get_main_menu_keyboard(trial_expired:bool, lang=None) -> ReplyKeyboardMarkup
     
     kb = [
         [
-            KeyboardButton(text=get_i18n_str("Payment 🏄🏻‍♂️" if trial_expired else "Join 🏄🏻‍♂️", lang)),
+            KeyboardButton(text=get_i18n_str("Join 🏄🏻‍♂️", lang)),
         ],
         [
             KeyboardButton(text=get_i18n_str("Support ❤️", lang))
