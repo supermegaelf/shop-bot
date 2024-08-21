@@ -27,7 +27,7 @@ def get_main_menu_keyboard(trial_expired:bool, lang=None) -> ReplyKeyboardMarkup
     if not trial_expired and glv.config['TEST_PERIOD']:
         kb.insert(0, [KeyboardButton(text=get_i18n_str("5 days free 🆓", lang)),])
 
-    return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)   
+    return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, is_persistent=True)   
 
 def get_i18n_str(text: str, lang = None):
     if lang is None:
