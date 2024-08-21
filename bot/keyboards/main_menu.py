@@ -4,39 +4,32 @@ from aiogram.utils.i18n import gettext as _
 from utils import get_i18n_string
 import glv
 
-def get_main_menu_keyboard(lang=None) -> ReplyKeyboardMarkup:
-    if lang is None:
-        kb = [
-            [
-                KeyboardButton(text=_("Join 🏄🏻‍♂️")),
-            ],
-            [
-                KeyboardButton(text=_("My subscription 👤")),
-                KeyboardButton(text=_("Frequent questions ℹ️"))
-            ],
-            [
-                KeyboardButton(text=_("Support ❤️"))
-            ]
-        ]
-        
-        if glv.config['TEST_PERIOD']:
-            kb.insert(0, [KeyboardButton(text=_("5 days free 🆓")),])
-        
-        return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+def get_main_menu_keyboard(trial_expired:bool, lang=None) -> ReplyKeyboardMarkup:
+    
     kb = [
         [
-            KeyboardButton(text=get_i18n_string("Join 🏄🏻‍♂️", lang)),
+            KeyboardButton(text=get_i18n_str("Join 🏄🏻‍♂️", lang)),
         ],
         [
-            KeyboardButton(text=get_i18n_string("My subscription 👤", lang)),
-            KeyboardButton(text=get_i18n_string("Frequent questions ℹ️", lang))
-        ],
-        [
-            KeyboardButton(text=get_i18n_string("Support ❤️", lang))
+            KeyboardButton(text=get_i18n_str("Support ❤️", lang))
         ]
     ]
+
+    kb_raw = [
+            KeyboardButton(text=get_i18n_str("Frequent questions ℹ️", lang))
+    ]
+
+    if trial_expired:
+        kb_raw.insert(0, KeyboardButton(text=get_i18n_str("My subscription 👤", lang)))
+    
+    kb.insert(1, kb_raw)
         
-    if glv.config['TEST_PERIOD']:
-        kb.insert(0, [KeyboardButton(text=get_i18n_string("5 days free 🆓", lang)),])
+    if not trial_expired and glv.config['TEST_PERIOD']:
+        kb.insert(0, [KeyboardButton(text=get_i18n_str("5 days free 🆓", lang)),])
 
     return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)   
+
+def get_i18n_str(text: str, lang = None):
+    if lang is None:
+        return _(text)
+    return get_i18n_string(text, lang)
