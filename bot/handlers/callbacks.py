@@ -40,7 +40,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         await callback.answer()
         return
     
-    good = goods.get(callback)
+    good = goods.get(callback.data)
     price = good['price']['stars']
     prices = [LabeledPrice(label="XTR", amount=price)]  
     await callback.message.answer_invoice(
