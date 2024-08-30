@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 
 from aiogram import Router, F
 from aiogram import Dispatcher
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 
-from keyboards import get_payment_keyboard, get_pay_keyboard
+from keyboards import get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard
+
 from utils import goods, yookassa, cryptomus
 
 router = Router(name="callbacks-router") 
@@ -28,6 +29,30 @@ async def callback_payment_method_select(callback: CallbackQuery):
             amount=int(result['amount'])
         ),
         reply_markup=get_pay_keyboard(result['url']))
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("pay_stars_"))
+async def callback_payment_method_select(callback: CallbackQuery):
+    await callback.message.delete()
+    data = callback.data.replace("pay_stars_", "")
+    if data not in goods.get_callbacks():
+        await callback.answer()
+        return
+    
+    good = goods.get(callback)
+    price = good['price']['stars']
+    prices = [LabeledPrice(label="XTR", amount=price)]  
+    await callback.message.answer_invoice(
+        title= _("To be paid - {amount}⭐️ ⬇️").format(
+            amount=int(price)
+        ),
+        currency="XTR",
+        description=_("User telegram stars to pay for subscription"),
+        prices=prices,
+        payload=good['months'],
+        reply_markup=get_xtr_pay_keyboard(price)
+    )
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_crypto_"))
