@@ -6,6 +6,8 @@ from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 
+import logging
+
 from keyboards import get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard
 
 from utils import goods, yookassa, cryptomus
@@ -39,8 +41,9 @@ async def callback_payment_method_select(callback: CallbackQuery):
     if data not in goods.get_callbacks():
         await callback.answer()
         return
-    
+    logging.info(f"callback.data: {callback.data}")
     good = goods.get(callback.data)
+    logging.info(f"good: {good}")
     price = good['price']['stars']
     prices = [LabeledPrice(label="XTR", amount=price)]  
     await callback.message.answer_invoice(
