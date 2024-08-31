@@ -158,3 +158,7 @@ msgstr "завтра"
 #: bot/keyboards/main_menu.py:11
 msgid "Payment 🏄🏻‍♂️"
 msgstr "Оплата 🏄🏻‍♂️"
+
+#: bot/handlers/callbacks.py:52
+msgid "To be paid - {amount}⭐️ ⬇️"
+msgstr "К оплате - {amount}⭐️ ⬇️"
