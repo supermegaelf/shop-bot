@@ -12,6 +12,7 @@ from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_applicati
 from handlers.commands import register_commands
 from handlers.messages import register_messages
 from handlers.callbacks import register_callbacks
+from handlers.payments import register_payments
 from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment
 from tasks import register
@@ -31,6 +32,7 @@ def setup_routers():
     register_commands(glv.dp)
     register_messages(glv.dp)
     register_callbacks(glv.dp)
+    register_payments(glv.dp)
 
 def setup_middlewares():
     i18n = I18n(path=Path(__file__).parent / 'locales', default_locale='en', domain='bot')

@@ -24,7 +24,7 @@ async def success_payment(message: Message):
     await message.answer(
         text = _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.").format(
             link=glv.config['PANEL_GLOBAL'] + result['subscription_url']),
-        reply_markup=get_main_menu_keyboard(True, message.from_user.language_code)
+        reply_markup=get_main_menu_keyboard(True, message.from_user.language_code))
     
 def register_payments(dp: Dispatcher):
     dp.include_router(router)
