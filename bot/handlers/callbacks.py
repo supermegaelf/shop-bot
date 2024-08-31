@@ -53,6 +53,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         currency="XTR",
         description=_("User telegram stars to pay for subscription"),
         prices=prices,
+        provider_token="",
         payload=good['months'],
         reply_markup=get_xtr_pay_keyboard(price)
     )
