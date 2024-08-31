@@ -54,7 +54,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         description=_("User telegram stars to pay for subscription"),
         prices=prices,
         provider_token="",
-        payload=good['months'],
+        payload=data,
         reply_markup=get_xtr_pay_keyboard(price)
     )
     await callback.answer()
