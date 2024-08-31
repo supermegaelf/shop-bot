@@ -41,8 +41,8 @@ async def callback_payment_method_select(callback: CallbackQuery):
     if data not in goods.get_callbacks():
         await callback.answer()
         return
-    logging.info(f"callback.data: {callback.data}")
-    good = goods.get(callback.data)
+    logging.info(f"callback.data: {data}")
+    good = goods.get(data)
     logging.info(f"good: {good}")
     price = good['price']['stars']
     prices = [LabeledPrice(label="XTR", amount=price)]  
