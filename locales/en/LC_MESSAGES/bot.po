@@ -144,3 +144,7 @@ msgstr ""
 #: bot/handlers/callbacks.py:50
 msgid "Payment"
 msgstr ""
+
+#: bot/keyboards/xtr_pay.py:6
+msgid "Pay ⭐️"
+msgstr ""
