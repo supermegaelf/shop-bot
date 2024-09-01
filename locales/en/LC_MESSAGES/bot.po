@@ -103,11 +103,11 @@ msgid "5 days free 🆓"
 msgstr ""
 
 #: bot/keyboards/pay.py:9
-msgid "Pay 💳"
+msgid "Pay"
 msgstr ""
 
 #: bot/keyboards/payments.py:23
-msgid "YooKassa - {price}₽"
+msgid "YooKassa (₽)"
 msgstr ""
 
 #: bot/tasks/notify_expired.py:22
@@ -135,4 +135,16 @@ msgstr ""
 
 #: bot/keyboards/main_menu.py:11
 msgid "Payment 🏄🏻‍♂️"
+msgstr ""
+
+#: bot/handlers/callbacks.py:52
+msgid "To be paid - {amount}⭐️ ⬇️"
+msgstr ""
+
+#: bot/handlers/callbacks.py:50
+msgid "Subscription for {amount} month"
+msgstr ""
+
+#: bot/keyboards/xtr_pay.py:6
+msgid "Pay"
 msgstr ""

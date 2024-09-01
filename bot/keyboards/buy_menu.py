@@ -11,7 +11,8 @@ def get_buy_menu_keyboard() -> InlineKeyboardMarkup:
             text=_("{title} - {price_ru}₽").format(
                 title=good['title'],
                 price_en=good['price']['en'],
-                price_ru=good['price']['ru']
+                price_ru=good['price']['ru'],
+                price_stars=good['price']['stars']
                 ), 
             callback_data=good['callback'])
         )

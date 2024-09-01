@@ -3,7 +3,8 @@
         "title": "Simple VPN",
         "price": {
             "en": 1,
-            "ru": 100
+            "ru": 100,
+            "stars": 50
         },
         "callback": "simple_vpn",
         "months": 1

@@ -24,7 +24,8 @@ config = {
     'WEBHOOK_URL': os.environ.get('WEBHOOK_URL'),
     'WEBHOOK_PORT': int(os.environ.get('WEBHOOK_PORT')),
     'RENEW_NOTIFICATION_TIME': str(os.environ.get('RENEW_NOTIFICATION_TIME')),
-    'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL')
+    'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
+    'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true'
 }
 
 bot: Bot = None

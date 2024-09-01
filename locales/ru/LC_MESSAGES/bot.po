@@ -27,6 +27,10 @@ msgstr "К оплате - {amount}₽ ⬇️"
 msgid "To be paid - {amount}$ ⬇️"
 msgstr "️К оплате - {amount}$ ⬇️"
 
+#: bot/handlers/callbacks.py:48
+msgid "To be paid - {amount}$ ⬇️"
+msgstr "️К оплате - {amount}$ ⬇️"
+
 #: bot/handlers/callbacks.py:59
 msgid "Select payment method ⬇️"
 msgstr "Выберите способ оплаты ⬇️"
@@ -114,12 +118,12 @@ msgid "5 days free 🆓"
 msgstr "5 дней бесплатно 🆓"
 
 #: bot/keyboards/pay.py:9
-msgid "Pay 💳"
-msgstr "Оплатить 💳"
+msgid "Pay"
+msgstr "Оплатить"
 
 #: bot/keyboards/payments.py:23
-msgid "YooKassa - {price}₽"
-msgstr "ЮKassa - {price}₽"
+msgid "YooKassa (₽)"
+msgstr "ЮKassa (₽)"
 
 #: bot/tasks/notify_renew_sub.py:21
 msgid ""
@@ -154,3 +158,15 @@ msgstr "завтра"
 #: bot/keyboards/main_menu.py:11
 msgid "Payment 🏄🏻‍♂️"
 msgstr "Оплата 🏄🏻‍♂️"
+
+#: bot/handlers/callbacks.py:52
+msgid "To be paid - {amount}⭐️ ⬇️"
+msgstr "К оплате - {amount}⭐️ ⬇️"
+
+#: bot/handlers/callbacks.py:50
+msgid "Subscription for {amount} month"
+msgstr "Подписка {amount} мес."
+
+#: bot/keyboards/xtr_pay.py:6
+msgid "Pay"
+msgstr "Оплатить"
