@@ -47,7 +47,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     price = good['price']['stars']
     prices = [LabeledPrice(label="XTR", amount=price)]  
     await callback.message.answer_invoice(
-        title= _("Payment"),
+        title= _("Subscription"),
         currency="XTR",
         description=_("To be paid - {amount}⭐️").format(
             amount=int(price)
