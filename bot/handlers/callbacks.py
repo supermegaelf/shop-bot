@@ -49,7 +49,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.answer_invoice(
         title= _("Payment"),
         currency="XTR",
-        description=_("To be paid - {amount}⭐️").format(
+        description=_("To be paid - {amount}⭐️ ⬇️").format(
             amount=int(price)
         ),
         prices=prices,
