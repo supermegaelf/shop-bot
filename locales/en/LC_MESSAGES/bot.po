@@ -103,7 +103,7 @@ msgid "5 days free 🆓"
 msgstr ""
 
 #: bot/keyboards/pay.py:9
-msgid "Pay 💳"
+msgid "Pay"
 msgstr ""
 
 #: bot/keyboards/payments.py:23
