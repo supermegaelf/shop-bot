@@ -168,5 +168,5 @@ msgid "Payment"
 msgstr "Оплата"
 
 #: bot/keyboards/xtr_pay.py:6
-msgid "Pay"
-msgstr "Оплатить"
+msgid "Pay ⭐️"
+msgstr "Оплатить ⭐️"
