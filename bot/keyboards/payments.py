@@ -28,7 +28,7 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
     if crypt:
         builder.row(
             InlineKeyboardButton(
-                text=f"Cryptomus - {good['price']['en']}$",
+                text=f"Cryptomus ($)",
                 callback_data=f"pay_crypto_{good['callback']}"
             )
         )
