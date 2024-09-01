@@ -36,7 +36,7 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
     if stars:
         builder.row(
             InlineKeyboardButton(
-                text=f"Telegram Stars - {good['price']['stars']}⭐️",
+                text=f"Telegram Stars (⭐️)",
                 callback_data=f"pay_stars_{good['callback']}"
             )
         )
