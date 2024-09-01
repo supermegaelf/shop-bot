@@ -21,9 +21,7 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
     if yoo:
         builder.row(
             InlineKeyboardButton(
-                text=_("YooKassa - {price}₽").format(
-                    price=good['price']['ru']
-                ),
+                text=_("YooKassa (₽)"),
                 callback_data=f"pay_kassa_{good['callback']}"
             )
         )

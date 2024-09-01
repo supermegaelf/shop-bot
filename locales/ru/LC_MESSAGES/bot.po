@@ -122,8 +122,8 @@ msgid "Pay 💳"
 msgstr "Оплатить 💳"
 
 #: bot/keyboards/payments.py:23
-msgid "YooKassa - {price}₽"
-msgstr "ЮKassa - {price}₽"
+msgid "YooKassa (₽)"
+msgstr "ЮKassa (₽)"
 
 #: bot/tasks/notify_renew_sub.py:21
 msgid ""

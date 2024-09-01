@@ -107,7 +107,7 @@ msgid "Pay 💳"
 msgstr ""
 
 #: bot/keyboards/payments.py:23
-msgid "YooKassa - {price}₽"
+msgid "YooKassa (₽)"
 msgstr ""
 
 #: bot/tasks/notify_expired.py:22
