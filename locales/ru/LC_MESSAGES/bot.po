@@ -118,8 +118,8 @@ msgid "5 days free 🆓"
 msgstr "5 дней бесплатно 🆓"
 
 #: bot/keyboards/pay.py:9
-msgid "Pay 💳"
-msgstr "Оплатить 💳"
+msgid "Pay"
+msgstr "Оплатить"
 
 #: bot/keyboards/payments.py:23
 msgid "YooKassa (₽)"
