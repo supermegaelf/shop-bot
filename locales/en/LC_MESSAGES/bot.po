@@ -142,7 +142,7 @@ msgid "To be paid - {amount}⭐️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:50
-msgid "Subscription"
+msgid "Payment"
 msgstr ""
 
 #: bot/keyboards/xtr_pay.py:6
