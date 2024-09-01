@@ -138,7 +138,7 @@ msgid "Payment 🏄🏻‍♂️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:52
-msgid "To be paid - {amount}⭐️ ⬇️"
+msgid "To be paid - {amount}⭐️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:50
