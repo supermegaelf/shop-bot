@@ -164,8 +164,8 @@ msgid "To be paid - {amount}⭐️ ⬇️"
 msgstr "К оплате - {amount}⭐️ ⬇️"
 
 #: bot/handlers/callbacks.py:50
-msgid "Payment"
-msgstr "Оплата"
+msgid "Subscription for {amount} month"
+msgstr "Подписка {amount} мес."
 
 #: bot/keyboards/xtr_pay.py:6
 msgid "Pay"
