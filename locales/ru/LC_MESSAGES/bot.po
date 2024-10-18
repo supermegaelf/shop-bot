@@ -95,7 +95,7 @@ msgstr "{title} - {price_ru}₽"
 
 #: bot/keyboards/main_menu.py:11
 msgid "Join 🏄🏻‍♂️"
-msgstr "Присоединиться 🏄🏻‍♂️"
+msgstr "Присоединиться/Продлить 🏄🏻‍♂️"
 
 #: bot/keyboards/main_menu.py:14
 msgid "My subscription 👤"
@@ -141,7 +141,7 @@ msgstr ""
 "\n"
 "Ваша VPN-подписка истекает {day}, в конце дня.\n️"
 "\n"
-"Чтобы продлить её, достаточно перейти в раздел \"Присоединиться 🏄🏻‍♂️\" и произвести оплату."
+"Чтобы продлить её, достаточно перейти в раздел \"Присоединиться\/Продлить 🏄🏻‍♂️\" и произвести оплату."
 
 #: bot/keyboards/subscription.py:11
 msgid "Follow 🔗"

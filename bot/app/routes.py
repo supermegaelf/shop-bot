@@ -40,11 +40,11 @@ async def check_crypto_payment(request: Request):
     if data['status'] in ['paid', 'paid_over']:
         good = goods.get(payment.callback)
         user = await get_marzban_profile_db(payment.tg_id)
-        result = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.", payment.lang)
         await glv.bot.send_message(payment.chat_id,
             text.format(
-                link=glv.config['PANEL_GLOBAL'] + result['subscription_url']
+                link=glv.config['TG_INFO_CHANEL']
             ),
             reply_markup=get_main_menu_keyboard(True, payment.lang)
         )
@@ -74,11 +74,11 @@ async def check_yookassa_payment(request: Request):
     if data['status'] in ['succeeded']:
         good = goods.get(payment.callback)
         user = await get_marzban_profile_db(payment.tg_id)
-        result = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.", payment.lang)
         await glv.bot.send_message(payment.chat_id,
             text.format(
-                link=glv.config['PANEL_GLOBAL'] + result['subscription_url']
+                link=glv.config['TG_INFO_CHANEL']
             ),
             reply_markup=get_main_menu_keyboard(True, payment.lang)
         )

@@ -79,7 +79,7 @@ msgid "{title} - {price_ru}₽"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:11
-msgid "Join 🏄🏻‍♂️"
+msgid "Join🏄🏻‍♂️"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:14
