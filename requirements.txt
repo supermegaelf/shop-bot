@@ -8,5 +8,4 @@ requests
 pyCryptomusAPI
 yookassa
 alembic
-wait-for-it
 aioschedule
