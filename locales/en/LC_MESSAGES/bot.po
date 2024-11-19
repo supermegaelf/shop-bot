@@ -42,13 +42,6 @@ msgstr ""
 msgid "Choose the appropriate tariff ⬇️"
 msgstr ""
 
-#: bot/handlers/messages.py:38
-msgid ""
-"Your profile is not active at the moment.\n️"
-"\n"
-"You can choose \"5 days free 🆓\" or \"Join 🏄🏻‍♂️\"."
-msgstr ""
-
 #: bot/handlers/messages.py:41
 msgid "Subscription page ⬇️"
 msgstr ""
@@ -79,7 +72,7 @@ msgid "{title} - {price_ru}₽"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:11
-msgid "Join🏄🏻‍♂️"
+msgid "Access to VPN 🏄🏻‍♂️"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:14
@@ -94,16 +87,15 @@ msgstr ""
 msgid "Support ❤️"
 msgstr ""
 
+msgid "Help 🕊"
+msgstr ""
+
 #: bot/handlers/messages.py:32
 msgid "Follow the <a href=\"{link}\">link</a> 🔗" 
 msgstr ""
 
 #: bot/keyboards/main_menu.py:23
 msgid "5 days free 🆓"
-msgstr ""
-
-#: bot/keyboards/pay.py:9
-msgid "Pay"
 msgstr ""
 
 #: bot/keyboards/payments.py:23
@@ -122,7 +114,7 @@ msgid ""
 msgstr ""
 
 #: bot/keyboards/subscription.py:11
-msgid "Follow 🔗"
+msgid "Install ⚙️"
 msgstr ""
 
 #: bot/tasks/notify_expired.py:42
@@ -133,16 +125,15 @@ msgstr ""
 msgid "tomorrow"
 msgstr ""
 
-#: bot/keyboards/main_menu.py:11
-msgid "Payment 🏄🏻‍♂️"
-msgstr ""
-
 #: bot/handlers/callbacks.py:52
 msgid "To be paid - {amount}⭐️ ⬇️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:50
 msgid "Subscription for {amount} month"
+msgstr ""
+
+msgid "Payment 💳"
 msgstr ""
 
 #: bot/keyboards/xtr_pay.py:6

@@ -94,8 +94,8 @@ msgid "{title} - {price_ru}₽"
 msgstr "{title} - {price_ru}₽"
 
 #: bot/keyboards/main_menu.py:11
-msgid "Join 🏄🏻‍♂️"
-msgstr "Присоединиться/Продлить 🏄🏻‍♂️"
+msgid "Access to VPN 🏄🏻‍♂️"
+msgstr "Доступ к VPN 🏄🏻‍♂️"
 
 #: bot/keyboards/main_menu.py:14
 msgid "My subscription 👤"
@@ -109,6 +109,9 @@ msgstr "Частые вопросы ℹ️"
 msgid "Support ❤️"
 msgstr "Поддержка ❤️"
 
+msgid "Help 🕊"
+msgstr "Помощь 🕊"
+
 #: bot/handlers/messages.py:32
 msgid "Follow the <a href=\"{link}\">link</a> 🔗"
 msgstr "Перейти по <a href=\"{link}\">ссылке</a> 🔗"
@@ -116,10 +119,6 @@ msgstr "Перейти по <a href=\"{link}\">ссылке</a> 🔗"
 #: bot/keyboards/main_menu.py:23
 msgid "5 days free 🆓"
 msgstr "5 дней бесплатно 🆓"
-
-#: bot/keyboards/pay.py:9
-msgid "Pay"
-msgstr "Оплатить"
 
 #: bot/keyboards/payments.py:23
 msgid "YooKassa (₽)"
@@ -133,7 +132,7 @@ msgid ""
 "\n"
 "Your VPN subscription expires {day}, at the end of the day.\n️"
 "\n"
-"To renew it, just go to the \"Join 🏄🏻‍♂️\" section and make a payment."
+"To renew it, just go to the \"Access to VPN 🏄🏻‍♂️\" section and make a payment."
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
 "\n"
@@ -144,8 +143,8 @@ msgstr ""
 "Чтобы продлить её, достаточно перейти в раздел \"Присоединиться/Продлить 🏄🏻‍♂️\" и произвести оплату."
 
 #: bot/keyboards/subscription.py:11
-msgid "Follow 🔗"
-msgstr "Перейти 🔗"
+msgid "Install ⚙️"
+msgstr "Установить ⚙️"
 
 #: bot/tasks/notify_expired.py:42
 msgid "today"
@@ -155,10 +154,6 @@ msgstr "сегодня"
 msgid "tomorrow"
 msgstr "завтра"
 
-#: bot/keyboards/main_menu.py:11
-msgid "Payment 🏄🏻‍♂️"
-msgstr "Оплата 🏄🏻‍♂️"
-
 #: bot/handlers/callbacks.py:52
 msgid "To be paid - {amount}⭐️ ⬇️"
 msgstr "К оплате - {amount}⭐️ ⬇️"
@@ -166,6 +161,9 @@ msgstr "К оплате - {amount}⭐️ ⬇️"
 #: bot/handlers/callbacks.py:50
 msgid "Subscription for {amount} month"
 msgstr "Подписка {amount} мес."
+
+msgid "Payment 💳"
+msgstr "Оплата 💳"
 
 #: bot/keyboards/xtr_pay.py:6
 msgid "Pay"

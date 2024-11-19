@@ -8,7 +8,7 @@ import glv
 
 async def notify_users_to_renew_sub():
     marzban_users_to_notify = await get_marzban_users_to_notify()
-    if marzban_users_to_notify is None:
+    if not marzban_users_to_notify:
         return None
     
     for marzban_user in marzban_users_to_notify:
@@ -29,7 +29,7 @@ async def get_marzban_users_to_notify():
     if res is None:
         return None
     users = res['users']
-    return filter(filter_users_to_notify, users)
+    return list(filter(filter_users_to_notify, users))
 
 def filter_users_to_notify(user):
     user_expire_date = user['expire']

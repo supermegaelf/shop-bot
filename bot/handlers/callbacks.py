@@ -4,13 +4,12 @@ from aiogram import Router, F
 from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
-from aiogram.utils.i18n import lazy_gettext as __
 
-import logging
+from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard, get_buy_menu_keyboard
+from db.methods import is_trial_available, disable_trial_availability, get_marzban_profile_db
 
-from keyboards import get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard
-
-from utils import goods, yookassa, cryptomus
+from utils import goods, yookassa, cryptomus, marzban_api
+import glv
 
 router = Router(name="callbacks-router") 
 
@@ -41,9 +40,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     if data not in goods.get_callbacks():
         await callback.answer()
         return
-    logging.info(f"callback.data: {data}")
     good = goods.get(data)
-    logging.info(f"good: {good}")
     price = good['price']['stars']
     months = good['months']
     prices = [LabeledPrice(label="XTR", amount=price)]  
@@ -81,6 +78,28 @@ async def callback_payment_method_select(callback: CallbackQuery):
         ),
         reply_markup=get_pay_keyboard(result['url']))
     await callback.answer()
+
+@router.callback_query(F.data == ("trial"))
+async def callback_trial(callback: CallbackQuery):
+    await callback.message.delete()
+    result = await is_trial_available(callback.from_user.id)
+    if not result:
+        await callback.answer(
+            _("Your subscription is available in the \"Access to VPN 🏄🏼‍♂️\" section."),
+            reply_markup=get_main_menu_keyboard())
+        return
+    result = await get_marzban_profile_db(callback.from_user.id)
+    result = await marzban_api.generate_test_subscription(result.vpn_id)
+    await disable_trial_availability(callback.from_user.id)
+    await callback.answer(
+        _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏼‍♂️\" section.").format(
+            link=glv.config['TG_INFO_CHANEL']),
+        reply_markup=get_main_menu_keyboard()
+    )
+
+@router.callback_query(F.data == ("payment"))
+async def callback_payment(callback: CallbackQuery):
+    await callback.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get_buy_menu_keyboard())
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery):

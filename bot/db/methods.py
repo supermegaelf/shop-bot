@@ -12,7 +12,7 @@ async def create_vpn_profile(tg_id: int):
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
-        if result != None:
+        if result is not None:
             return
         hash = hashlib.md5(str(tg_id).encode()).hexdigest()
         sql_query = insert(VPNUsers).values(tg_id=tg_id, vpn_id=hash)
@@ -31,15 +31,15 @@ async def get_marzban_profile_by_vpn_id(vpn_id: str):
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
     return result    
 
-async def had_test_sub(tg_id: int) -> bool:
+async def is_trial_available(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
     return result.test
 
-async def update_test_subscription_state(tg_id):
+async def disable_trial_availability(tg_id):
     async with engine.connect() as conn:
-        sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(test=True)
+        sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(test=False)
         await conn.execute(sql_q)
         await conn.commit()
 
