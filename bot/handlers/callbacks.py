@@ -84,14 +84,14 @@ async def callback_trial(callback: CallbackQuery):
     await callback.message.delete()
     result = await is_trial_available(callback.from_user.id)
     if not result:
-        await callback.answer(
+        await callback.message.answer(
             _("Your subscription is available in the \"Access to VPN 🏄🏼‍♂️\" section."),
             reply_markup=get_main_menu_keyboard())
         return
     result = await get_marzban_profile_db(callback.from_user.id)
     result = await marzban_api.generate_test_subscription(result.vpn_id)
     await disable_trial_availability(callback.from_user.id)
-    await callback.answer(
+    await callback.message.answer(
         _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏼‍♂️\" section.").format(
             link=glv.config['TG_INFO_CHANEL']),
         reply_markup=get_main_menu_keyboard()
@@ -99,19 +99,19 @@ async def callback_trial(callback: CallbackQuery):
 
 @router.callback_query(F.data == ("payment"))
 async def callback_payment(callback: CallbackQuery):
-    await callback.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get_buy_menu_keyboard())
+    await callback.message.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get_buy_menu_keyboard())
 
 @router.callback_query(F.data == ("faq"))
 async def callback_payment(callback: CallbackQuery):
-    await callback.answer(_("faq text"), reply_markup=get_back_keyboard())
+    await callback.message.answer(_("faq text"), reply_markup=get_back_keyboard())
 
 @router.callback_query(F.data == ("tos"))
 async def callback_payment(callback: CallbackQuery):
-    await callback.answer("terms of service", reply_markup=get_back_keyboard())
+    await callback.message.answer("terms of service", reply_markup=get_back_keyboard())
 
 @router.callback_query(F.data == ("back"))
 async def callback_payment(callback: CallbackQuery):
-    await callback.answer("help description", reply_markup=get_help_keyboard())
+    await callback.message.answer("help description", reply_markup=get_help_keyboard())
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery):
