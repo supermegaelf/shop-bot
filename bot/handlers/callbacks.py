@@ -5,7 +5,7 @@ from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
 
-from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard, get_buy_menu_keyboard
+from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard, get_buy_menu_keyboard, get_back_keyboard, get_help_keyboard
 from db.methods import is_trial_available, disable_trial_availability, get_marzban_profile_db
 
 from utils import goods, yookassa, cryptomus, marzban_api
@@ -100,6 +100,18 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == ("payment"))
 async def callback_payment(callback: CallbackQuery):
     await callback.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get_buy_menu_keyboard())
+
+@router.callback_query(F.data == ("faq"))
+async def callback_payment(callback: CallbackQuery):
+    await callback.answer(_("faq text"), reply_markup=get_back_keyboard())
+
+@router.callback_query(F.data == ("tos"))
+async def callback_payment(callback: CallbackQuery):
+    await callback.answer("terms of service", reply_markup=get_back_keyboard())
+
+@router.callback_query(F.data == ("back"))
+async def callback_payment(callback: CallbackQuery):
+    await callback.answer("help description", reply_markup=get_help_keyboard())
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery):

@@ -80,7 +80,10 @@ msgid "My subscription 👤"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:15
-msgid "Frequent questions ℹ️"
+msgid "Frequent questions 📝"
+msgstr ""
+
+msgid "Terms of service 📃"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:18

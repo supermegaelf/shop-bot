@@ -8,10 +8,8 @@ def get_main_menu_keyboard(lang=None) -> ReplyKeyboardMarkup:
     kb = [
         [
             KeyboardButton(text=get_i18n_str("Access to VPN 🏄🏻‍♂️", lang)),
-        ],
-        [
             KeyboardButton(text=get_i18n_str("Help 🕊", lang))
-        ]
+        ],
     ]
 
     return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True, is_persistent=True)   

@@ -102,8 +102,11 @@ msgid "My subscription 👤"
 msgstr "Моя подписка 👤"
 
 #: bot/keyboards/main_menu.py:15
-msgid "Frequent questions ℹ️"
-msgstr "Частые вопросы ℹ️"
+msgid "Frequent questions 📝"
+msgstr "Частые вопросы 📝"
+
+msgid "Terms of service 📃"
+msgstr "Условия использования 📃"
 
 #: bot/keyboards/main_menu.py:18
 msgid "Support ❤️"

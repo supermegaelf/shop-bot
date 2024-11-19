@@ -21,7 +21,7 @@ def get_user_profile_keyboard(trial_available:bool, subscription_url:str) -> Inl
     builder.row(
         InlineKeyboardButton(
             text=_("Payment 💳"),
-            web_app="payment"
+            callback_data="payment"
         )
     )
     return builder.as_markup()

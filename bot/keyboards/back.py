@@ -1,11 +1,11 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.i18n import gettext as _
 
-def get_back_keyboard() -> ReplyKeyboardMarkup:
+def get_back_keyboard() -> InlineKeyboardMarkup:
     kb = [
         [
-            KeyboardButton(text=_("⏪ Back")),
+            InlineKeyboardButton(text=_("⏪ Back"), callback_data='back'),
         ]
     ]
     
-    return ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True)
+    return InlineKeyboardButton(keyboard=kb, resize_keyboard=True)
