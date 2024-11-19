@@ -31,3 +31,18 @@ async def help(message: Message):
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
+
+def get_profile_menu_string(marzban_profile):
+    status = 'disabled'
+    days_left = 0
+    data_used = 0
+    data_limit = 100
+    if marzban_profile:
+        status = marzban_profile['status']
+        now = int(time.time())
+        if marzban_profile['expire'] > now:
+            days_left = (now - marzban_profile['expire'])//86400
+        data_used = marzban_profile['used_traffic']//1073741824
+        data_limit = marzban_profile['data_limit']//1073741824
+    
+    return f"Статус подписки: {status}\n\nОсталось дней: {days_left}\n\nТрафик: {data_used} GB/{data_limit} GB"
