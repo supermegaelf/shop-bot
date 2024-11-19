@@ -16,7 +16,7 @@ router = Router(name="messages-router")
 @router.message(F.text == __("Access to VPN 🏄🏻‍♂️"))
 async def profile(message: Message):
     marzban_profile = await marzban_api.get_marzban_profile(message.from_user.id)
-    trial_available = is_trial_available(message.from_user.id)
+    trial_available = await is_trial_available(message.from_user.id)
     message_text = get_profile_menu_string(marzban_profile)
     await message.answer(message_text, reply_markup=get_user_profile_keyboard(trial_available, glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url'] if marzban_profile else ""))
     
@@ -38,6 +38,6 @@ def get_profile_menu_string(marzban_profile):
         if marzban_profile['expire'] > now:
             days_left = (now - marzban_profile['expire'])//86400
         data_used = marzban_profile['used_traffic']//1073741824
-        data_limit = marzban_profile['data_limit']//1073741824
+        data_limit = marzban_profile['data_limit']//1073741824 if marzban_profile['data_limit'] else 2000
     
     return f"Статус подписки: {status}\n\nОсталось дней: {days_left}\n\nТрафик: {data_used} GB/{data_limit} GB"
