@@ -49,16 +49,6 @@ msgstr ""
 msgid "Choose the appropriate tariff ⬇️"
 msgstr "Выберите подходящий тариф ⬇️"
 
-#: bot/handlers/messages.py:38
-msgid ""
-"Your profile is not active at the moment.\n️"
-"\n"
-"You can choose \"5 days free 🆓\" or \"Join 🏄🏻‍♂️\"."
-msgstr ""
-"Ваш профиль не активен в данный момент.\n️"
-"\n"
-"Вы можете выбрать \"5 дней бесплатно 🆓\" или \"Присоединиться 🏄🏻‍♂️\"."
-
 #: bot/handlers/messages.py:41
 msgid "Subscription page ⬇️"
 msgstr "Страница подписки ⬇️"
@@ -143,7 +133,7 @@ msgstr ""
 "\n"
 "Ваша VPN-подписка истекает {day}, в конце дня.\n️"
 "\n"
-"Чтобы продлить её, достаточно перейти в раздел \"Присоединиться/Продлить 🏄🏻‍♂️\" и произвести оплату."
+"Чтобы продлить её, достаточно перейти в раздел \"Доступ к VPN 🏄🏻‍♂️\" и произвести оплату."
 
 #: bot/keyboards/subscription.py:11
 msgid "Install ⚙️"

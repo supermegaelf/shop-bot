@@ -113,7 +113,7 @@ msgid ""
 "\n"
 "Your VPN subscription expires {day}, at the end of the day.\n️"
 "\n"
-"To renew it, just go to the \"Join 🏄🏻‍♂️\" section and make a payment."
+"To renew it, just go to the \"Access to VPN 🏄🏻‍♂️\" section and make a payment."
 msgstr ""
 
 #: bot/keyboards/subscription.py:11

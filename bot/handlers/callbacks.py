@@ -102,15 +102,15 @@ async def callback_payment(callback: CallbackQuery):
     await callback.message.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get_buy_menu_keyboard())
 
 @router.callback_query(F.data == ("faq"))
-async def callback_payment(callback: CallbackQuery):
-    await callback.message.answer(_("faq text"), reply_markup=get_back_keyboard())
+async def callback_frequent_questions(callback: CallbackQuery):
+    await callback.message.answer("faq text", reply_markup=get_back_keyboard())
 
 @router.callback_query(F.data == ("tos"))
-async def callback_payment(callback: CallbackQuery):
+async def callback_terms_of_service(callback: CallbackQuery):
     await callback.message.answer("terms of service", reply_markup=get_back_keyboard())
 
 @router.callback_query(F.data == ("back"))
-async def callback_payment(callback: CallbackQuery):
+async def callback_back(callback: CallbackQuery):
     await callback.message.answer("help description", reply_markup=get_help_keyboard())
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
