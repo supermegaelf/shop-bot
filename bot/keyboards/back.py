@@ -8,4 +8,4 @@ def get_back_keyboard() -> InlineKeyboardMarkup:
         ]
     ]
     
-    return InlineKeyboardMarkup(keyboard=kb)
+    return InlineKeyboardMarkup(inline_keyboard=kb)
