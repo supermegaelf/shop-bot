@@ -17,7 +17,7 @@ router = Router(name="callbacks-router")
 async def callback_month_amount_select(callback: CallbackQuery):
     await callback.message.delete()
     months = callback.data.replace("months_", "")
-    await callback.message.answer("Выберете тариф", reply_markup=get_buy_menu_keyboard(months))
+    await callback.message.answer(text="Выберете тариф", reply_markup=get_buy_menu_keyboard(months))
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_kassa_"))
