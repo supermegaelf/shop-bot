@@ -7,11 +7,9 @@ from utils import goods
 
 def get_buy_menu_keyboard(months) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    logging.info(months)
     subscription_opts = goods.get()
-    logging.info(subscription_opts)
-    filtered_goods = list(filter(lambda good: good['months'] == months, subscription_opts))
-    logging.info(filtered_goods)
+    months = int(months)
+    filtered_goods = list(filter(lambda good: int(good['months']) == months, subscription_opts))
     for good in filtered_goods:
         builder.row(InlineKeyboardButton(
             text=_("{title} - {price_ru}₽").format(
