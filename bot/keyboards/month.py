@@ -13,7 +13,7 @@ def get_month_keyboard() -> InlineKeyboardMarkup:
         if сurrent_min_price is None or сurrent_min_price > good['price']['ru']:
             month_to_min_price[good['months']] = good['price']['ru']
 
-    for month, price in month_to_min_price:
+    for month, price in month_to_min_price.items():
         builder.row(InlineKeyboardButton(
             text=f"{month} мес. от {price}₽", 
             callback_data=f"month_{month}")
