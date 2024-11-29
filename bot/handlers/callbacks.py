@@ -107,7 +107,7 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == ("payment"))
 async def callback_payment(callback: CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get())
+    await callback.message.answer(_("Choose the appropriate tariff ⬇️"), reply_markup=get_month_keyboard())
 
 @router.callback_query(F.data == ("faq"))
 async def callback_frequent_questions(callback: CallbackQuery):
