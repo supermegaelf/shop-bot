@@ -8,8 +8,8 @@ def get_month_keyboard() -> InlineKeyboardMarkup:
     subscription_opts = goods.get()
     month_to_min_price = dict()
     for good in subscription_opts:
-        if month_to_min_price[good['month']] is None or month_to_min_price[good['month']] > good['price']['ru']:
-            month_to_min_price[good['month']] = good['price']['ru']
+        if month_to_min_price[good['months']] is None or month_to_min_price[good['months']] > good['price']['ru']:
+            month_to_min_price[good['months']] = good['price']['ru']
     for month, price in month_to_min_price:
         builder.row(InlineKeyboardButton(
             text=f"{month} мес. от {price}₽", 

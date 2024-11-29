@@ -13,11 +13,11 @@ import glv
 
 router = Router(name="callbacks-router") 
 
-@router.callback_query(F.data.startswith("month_"))
+@router.callback_query(F.data.startswith("months_"))
 async def callback_month_amount_select(callback: CallbackQuery):
     await callback.message.delete()
-    month = callback.data.replace("month_", "")
-    await callback.message.answer("Выберете тариф", reply_markup=get_buy_menu_keyboard(month))
+    months = callback.data.replace("months_", "")
+    await callback.message.answer("Выберете тариф", reply_markup=get_buy_menu_keyboard(months))
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_kassa_"))
