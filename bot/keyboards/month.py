@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from utils import goods
 
-def get_month_keyboard() -> InlineKeyboardMarkup:
+def get_months_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     subscription_opts = goods.get()
     month_to_min_price = dict()

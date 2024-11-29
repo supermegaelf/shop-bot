@@ -150,3 +150,30 @@ msgstr "Hello 👋\n\n\"
 
 msgid "message_profile_data"
 msgstr "Subscription status: {status}\n\nDays left: {days_left}\n\nTraffic: {data_used} GB/{data_limit} GB"
+
+msgid "Select the number of months ⬇️"
+msgstr ""
+
+msgid "Select the action ⬇️"
+msgstr ""
+
+msgid "What issue did you encounter?"
+msgstr ""
+
+msgid "🔌 Can't set up VPN"
+msgstr ""
+
+msgid "message_set_up_vpn"
+msgid "Go to the section 🏄🏼‍♂️ VPN Access, click Install ⚙️, select the required platform, and review the installation instructions once again."
+
+msgid "⛔️ VPN doesn't work"
+msgstr ""
+
+msgid "message_doesnt_work"
+msgstr "1️⃣ Make sure your subscription is active."
+"2️⃣ Restart your device, as network settings might have been reset."
+"3️⃣ Refresh your subscription in the app."
+"4️⃣ Switch to a different protocol if available."
+
+msgid "🆘 Contact support"
+msgstr ""
