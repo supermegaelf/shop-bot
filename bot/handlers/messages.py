@@ -36,8 +36,8 @@ def get_profile_menu_string(marzban_profile):
         status = marzban_profile['status']
         now = int(time.time())
         if marzban_profile['expire'] > now:
-            days_left = (marzban_profile['expire'] - now)//86400
-        data_used = marzban_profile['used_traffic']//1073741824
-        data_limit = marzban_profile['data_limit']//1073741824 if marzban_profile['data_limit'] else 0
+            days_left = (marzban_profile['expire'] - now) // 86400
+        data_used = marzban_profile['used_traffic'] // 1073741824
+        data_limit = marzban_profile['data_limit'] // 1073741824 if marzban_profile['data_limit'] else 0
     
     return f"Статус подписки: {status}\n\nОсталось дней: {days_left}\n\nТрафик: {data_used} GB/{data_limit} GB"

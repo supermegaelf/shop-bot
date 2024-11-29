@@ -6,3 +6,4 @@ from .pay import get_pay_keyboard
 from .user_profile import get_user_profile_keyboard
 from .xtr_pay import get_xtr_pay_keyboard
 from .help import get_help_keyboard
+from .month import get_month_keyboard
