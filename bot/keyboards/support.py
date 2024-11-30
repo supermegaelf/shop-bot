@@ -15,6 +15,9 @@ def get_support_keyboard() -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text=_("Contact support 🆘"), url=glv.config['SUPPORT_LINK'])
         ],
+        [
+            InlineKeyboardButton(text=_("⏪ Back"), callback_data='help')
+        ],
     ]
    
    return InlineKeyboardMarkup(inline_keyboard=kb)

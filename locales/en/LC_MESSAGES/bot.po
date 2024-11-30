@@ -213,3 +213,7 @@ msgstr ""
 
 msgid "on_hold"
 msgstr ""
+
+msgid "message_terms_of_service"
+msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n" 
+"Refunds are not provided. The use of torrent clients for downloading or sharing files is prohibited. By subscribing, you confirm your agreement with the terms of use."

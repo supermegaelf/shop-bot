@@ -19,7 +19,7 @@ def get_help_keyboard() -> InlineKeyboardMarkup:
 def get_back_to_help_keyboard() -> InlineKeyboardMarkup:
     kb = [
         [
-            InlineKeyboardButton(text=_("⏪ Back"), callback_data='back_to_help')
+            InlineKeyboardButton(text=_("⏪ Back"), callback_data='help')
         ]
     ] 
     return InlineKeyboardMarkup(inline_keyboard=kb)

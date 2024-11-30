@@ -121,8 +121,8 @@ async def callback_terms_of_service(callback: CallbackQuery):
     await callback.message.delete()
     await callback.message.answer(text=_("message_terms_of_service"), reply_markup=get_back_to_help_keyboard())
 
-@router.callback_query(F.data == ("back_to_help"))
-async def callback_back(callback: CallbackQuery):
+@router.callback_query(F.data == ("help"))
+async def callback_help(callback: CallbackQuery):
     await callback.message.delete()
     await callback.message.answer(text=_("Select the action ⬇️"), reply_markup=get_help_keyboard())
 

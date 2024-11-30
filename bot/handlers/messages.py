@@ -36,7 +36,7 @@ async def profile(message: Message):
     
 @router.message(F.text == __("Help 🕊"))
 async def help(message: Message):
-    await message.answer(text=_('What issue did you encounter?'), reply_markup=get_help_keyboard())
+    await message.answer(text=_("Select the action ⬇️"), reply_markup=get_help_keyboard())
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
