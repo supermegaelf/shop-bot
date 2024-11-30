@@ -114,7 +114,7 @@ async def callback_payment(callback: CallbackQuery):
 @router.callback_query(F.data == ("faq"))
 async def callback_frequent_questions(callback: CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer("faq text", reply_markup=get_back_to_help_keyboard())
+    await callback.message.answer(_("message_frequent_questions").format(shop_name=glv.config['SHOP_NAME']), reply_markup=get_back_to_help_keyboard())
 
 @router.callback_query(F.data == ("tos"))
 async def callback_terms_of_service(callback: CallbackQuery):
