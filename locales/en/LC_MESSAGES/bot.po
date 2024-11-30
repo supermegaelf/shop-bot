@@ -164,7 +164,7 @@ msgid "Can't set up VPN 🔌"
 msgstr ""
 
 msgid "message_set_up_vpn"
-msgid "Go to the section 🏄🏼‍♂️ VPN Access, click Install ⚙️, select the required platform, and review the installation instructions once again."
+msgstr "Go to the section 🏄🏼‍♂️ VPN Access, click Install ⚙️, select the required platform, and review the installation instructions once again."
 
 msgid "VPN doesn't work ⛔️"
 msgstr ""
@@ -178,8 +178,8 @@ msgstr "1️⃣ Make sure your subscription is active.\n"
 msgid "Contact support 🆘"
 msgstr ""
 
-msgid: "message_frequent_questions"
-msgstr: "1. What is a VPN?\n\n"
+msgid "message_frequent_questions"
+msgstr "1. What is a VPN?\n\n"
 "This is a service that allows you to connect to another geographic location, create a channel between you and the server, and route all your internet traffic through that server. This is useful for bypassing censorship, accessing restricted services in your country, and keeping your traffic private.\n\n"
 "2. Why {shop_name}?\n\n"
 "{shop_name} offers numerous advantages:\n\n" 
@@ -197,7 +197,7 @@ msgstr: "1. What is a VPN?\n\n"
 "There are no limits on the number of devices; the only restriction applies to traffic."
 
 msgid "subscription_data"
-msgstr "Статус подписки: {status}\n\nПодписка истекает: {expire_date} 📆\n\nТрафик: {data_used} GB / {data_limit} GB 🌐"
+msgstr "Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\Traffic: {data_used} GB / {data_limit} GB 🌐"
 
 msgid "active"
 msgstr ""
