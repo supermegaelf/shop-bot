@@ -62,7 +62,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         prices=prices,
         provider_token="",
         payload=data,
-        reply_markup=get_xtr_pay_keyboard(price)
+        reply_markup=get_xtr_pay_keyboard()
     )
     await callback.answer()
 
