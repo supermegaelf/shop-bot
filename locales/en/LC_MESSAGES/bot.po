@@ -179,8 +179,7 @@ msgid "🆘 Contact support"
 msgstr ""
 
 msgid: "message_frequent_questions"
-msgstr: 
-"1. What is a VPN?\n\n"
+msgstr: "1. What is a VPN?\n\n"
 "This is a service that allows you to connect to another geographic location, create a channel between you and the server, and route all your internet traffic through that server. This is useful for bypassing censorship, accessing restricted services in your country, and keeping your traffic private.\n\n"
 "2. Why {shop_name}\n\n"
 "{shop_name} offers numerous advantages:\n" 
