@@ -181,7 +181,7 @@ msgstr ""
 msgid: "message_frequent_questions"
 msgstr: "1. What is a VPN?\n\n"
 "This is a service that allows you to connect to another geographic location, create a channel between you and the server, and route all your internet traffic through that server. This is useful for bypassing censorship, accessing restricted services in your country, and keeping your traffic private.\n\n"
-"2. Why {shop_name}\n\n"
+"2. Why {shop_name}?\n\n"
 "{shop_name} offers numerous advantages:\n\n" 
 "🟢5-day free trial\n" 
 "🟢easy setup\n" 
@@ -195,3 +195,21 @@ msgstr: "1. What is a VPN?\n\n"
 "No, we cannot. The technologies we use conceal and encrypt all your traffic as it travels between you and our servers. We don’t care which websites you visit; our goal is to ensure unrestricted access to internet services.\n\n"
 "5. How many devices can I connect?\n\n"
 "There are no limits on the number of devices; the only restriction applies to traffic."
+
+msgid "subscription_data"
+msgstr "Статус подписки: {status}\n\nПодписка истекает: {expire_date} 📆\n\nТрафик: {data_used} GB / {data_limit} GB 🌐"
+
+msgid "active"
+msgstr ""
+
+msgid "disabled"
+msgstr ""
+
+msgid "limited"
+msgstr ""
+
+msgid "expired"
+msgstr ""
+
+msgid "on_hold"
+msgstr ""

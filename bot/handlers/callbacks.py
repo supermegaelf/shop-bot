@@ -5,9 +5,9 @@ from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
 
-from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard, \
-    get_buy_menu_keyboard, get_back_to_help_keyboard, get_help_keyboard, get_months_keyboard, get_support_keyboard, \
-    get_back_keyboard
+from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, \
+    get_buy_menu_keyboard, get_xtr_pay_keyboard, get_back_to_help_keyboard, get_help_keyboard, \
+    get_months_keyboard, get_support_keyboard, get_back_keyboard
 from db.methods import is_trial_available, disable_trial_availability, get_marzban_profile_db
 
 from utils import goods, yookassa, cryptomus, marzban_api
