@@ -22,7 +22,7 @@ async def profile(message: Message):
     
 @router.message(F.text == __("Help 🕊"))
 async def help(message: Message):
-    await message.answer("help section description", reply_markup=get_help_keyboard())
+    await message.answer(text=_('What issue did you encounter?'), reply_markup=get_help_keyboard())
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
@@ -40,4 +40,4 @@ def get_profile_menu_string(marzban_profile):
         data_used = marzban_profile['used_traffic'] // 1073741824
         data_limit = marzban_profile['data_limit'] // 1073741824 if marzban_profile['data_limit'] else 0
     
-    return f"Статус подписки: {status}\n\nОсталось дней: {days_left}\n\nТрафик: {data_used} GB/{data_limit} GB"
+    return f"Статус подписки: {status}\n\nОсталось дней: {days_left}\n\nТрафик: {data_used} GB / {data_limit} GB"
