@@ -6,7 +6,8 @@ from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
 
 from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, get_xtr_pay_keyboard, \
-    get_buy_menu_keyboard, get_back_to_help_keyboard, get_help_keyboard, get_months_keyboard, get_support_keyboard
+    get_buy_menu_keyboard, get_back_to_help_keyboard, get_help_keyboard, get_months_keyboard, get_support_keyboard, \
+    get_back_keyboard
 from db.methods import is_trial_available, disable_trial_availability, get_marzban_profile_db
 
 from utils import goods, yookassa, cryptomus, marzban_api
@@ -129,6 +130,16 @@ async def callback_back(callback: CallbackQuery):
 async def callback_terms_of_service(callback: CallbackQuery):
     await callback.message.delete()
     await callback.message.answer(text=_("What issue did you encounter?"), reply_markup=get_support_keyboard())
+
+@router.callback_query(F.data == ("set_up_problem"))
+async def callback_back(callback: CallbackQuery):
+    await callback.message.delete()
+    await callback.message.answer(text=_("message_set_up_vpn"), reply_markup=get_back_keyboard('support'))
+
+@router.callback_query(F.data == ("working_problem"))
+async def callback_back(callback: CallbackQuery):
+    await callback.message.delete()
+    await callback.message.answer(text=_("message_working_problem"), reply_markup=get_back_keyboard('support'))
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery):

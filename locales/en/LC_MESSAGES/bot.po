@@ -169,10 +169,10 @@ msgid "Go to the section 🏄🏼‍♂️ VPN Access, click Install ⚙️, sel
 msgid "⛔️ VPN doesn't work"
 msgstr ""
 
-msgid "message_doesnt_work"
-msgstr "1️⃣ Make sure your subscription is active."
-"2️⃣ Restart your device, as network settings might have been reset."
-"3️⃣ Refresh your subscription in the app."
+msgid "message_working_problem"
+msgstr "1️⃣ Make sure your subscription is active.\n"
+"2️⃣ Restart your device, as network settings might have been reset.\n"
+"3️⃣ Refresh your subscription in the app.\n"
 "4️⃣ Switch to a different protocol if available."
 
 msgid "🆘 Contact support"

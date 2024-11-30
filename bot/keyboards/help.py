@@ -9,11 +9,11 @@ def get_help_keyboard() -> InlineKeyboardMarkup:
     builder.row(InlineKeyboardButton(text=_("Support ❤️"), callback_data='support'))
     builder.row(InlineKeyboardButton(text=_("Frequent questions 📝"), callback_data='faq'))
 
-    if glv.config['RULES_LINK']:
-        builder.row(InlineKeyboardButton(text=_("Terms of service 📃"), url=glv.config['RULES_LINK']))
+    if glv.config['RULES_LINK'] is None:
+        builder.row(InlineKeyboardButton(text=_("Terms of service 📃"), callback_data='tos')) 
     else:
-        builder.row(InlineKeyboardButton(text=_("Terms of service 📃"), callback_data='tos'))
-    
+        builder.row(InlineKeyboardButton(text=_("Terms of service 📃"), url=glv.config['RULES_LINK']))
+        
     return builder.as_markup()
 
 def get_back_to_help_keyboard() -> InlineKeyboardMarkup:
