@@ -129,8 +129,8 @@ async def generate_test_subscription(username: str):
             'proxies': ps["proxies"],
             'inbounds': ps["inbounds"],
             'expire': get_test_subscription(glv.config['PERIOD_LIMIT']),
-            'data_limit': 0,
-            'data_limit_reset_strategy': "no_reset",
+            'data_limit': 107374182400,
+            'data_limit_reset_strategy': "month",
         }
         result = await panel.add_user(user)
     return result
@@ -151,8 +151,8 @@ async def generate_marzban_subscription(username: str, good):
             'proxies': ps["proxies"],
             'inbounds': ps["inbounds"],
             'expire': get_subscription_end_date(good['months']),
-            'data_limit': 0,
-            'data_limit_reset_strategy': "no_reset",
+            'data_limit': good['data_limit'],
+            'data_limit_reset_strategy': "month",
         }
         result = await panel.add_user(user)
     return result
