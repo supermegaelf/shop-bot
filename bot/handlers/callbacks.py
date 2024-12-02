@@ -19,7 +19,7 @@ router = Router(name="callbacks-router")
 async def callback_month_amount_select(callback: CallbackQuery):
     await callback.message.delete()
     months = callback.data.replace("months_", "")
-    await callback.message.answer(text=_("Choose the appropriate tariff ⬇️"), reply_markup=get_buy_menu_keyboard(months))
+    await callback.message.answer(text=_("Select the appropriate amount of traffic ⬇️"), reply_markup=get_buy_menu_keyboard(months))
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_kassa_"))
@@ -109,7 +109,7 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == ("payment"))
 async def callback_payment(callback: CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer(_("Select the number of months ⬇️"), reply_markup=get_months_keyboard())
+    await callback.message.answer(_("Select payment period ⬇️"), reply_markup=get_months_keyboard())
 
 @router.callback_query(F.data == ("faq"))
 async def callback_frequent_questions(callback: CallbackQuery):

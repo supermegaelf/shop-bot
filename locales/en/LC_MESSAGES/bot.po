@@ -39,7 +39,7 @@ msgid ""
 msgstr ""
 
 #: bot/handlers/messages.py:29
-msgid "Choose the appropriate tariff ⬇️"
+msgid "Select the appropriate amount of traffic ⬇️"
 msgstr ""
 
 #: bot/handlers/messages.py:41
@@ -68,7 +68,7 @@ msgid "⏪ Back"
 msgstr ""
 
 #: bot/keyboards/buy_menu.py:11
-msgid "{title} - {price_ru}₽"
+msgid "{title} — {price_ru}₽"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:11
@@ -148,7 +148,7 @@ msgstr "Hello 👋\n\n\"
 "We noticed that you did not renew your subscription 😢\n\n\"
 "If you have any comments or questions about the entire service, please write. Your opinion is important to us!"
 
-msgid "Select the number of months ⬇️"
+msgid "Select payment period ⬇️"
 msgstr ""
 
 msgid "Select the action ⬇️"
@@ -180,12 +180,12 @@ msgstr "1. What is a VPN?\n\n"
 "This is a service that allows you to connect to another geographic location, create a channel between you and the server, and route all your internet traffic through that server. This is useful for bypassing censorship, accessing restricted services in your country, and keeping your traffic private.\n\n"
 "2. Why {shop_name}?\n\n"
 "{shop_name} offers numerous advantages:\n\n" 
-"•5-day free trial\n" 
-"•easy setup\n" 
-"•fast, secure, private, and anonymous\n" 
-"•unlimited traffic\n" 
-"•personal access delivered via Telegram for enhanced privacy\n" 
-"•dedicated customer support\n\n"
+"• 5-day free trial\n" 
+"• easy setup\n" 
+"• fast, secure, private, and anonymous\n" 
+"• unlimited traffic\n" 
+"• personal access delivered via Telegram for enhanced privacy\n" 
+"• dedicated customer support\n\n"
 "3. Why shouldn't you use free VPNs?\n\n"
 "Free VPN providers need to make money somehow, so they often track and sell user data, show intrusive ads, and utilize the computing power of your devices.\n\n"
 "4. Can you view my traffic?\n\n"
