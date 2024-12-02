@@ -20,7 +20,7 @@ def get_user_profile_keyboard(trial_available:bool, subscription_url:str) -> Inl
         )
     builder.row(
         InlineKeyboardButton(
-            text=_("Payment 💳"),
+            text=_("Pay 💳"),
             callback_data="payment"
         )
     )
