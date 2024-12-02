@@ -120,6 +120,9 @@ msgstr ""
 msgid "Install ⚙️"
 msgstr ""
 
+msgid "Share 🔗"
+msgstr ""
+
 #: bot/tasks/notify_expired.py:42
 msgid "today"
 msgstr ""

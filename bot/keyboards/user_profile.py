@@ -18,6 +18,12 @@ def get_user_profile_keyboard(trial_available:bool, subscription_url:str) -> Inl
                 web_app=WebAppInfo(url=subscription_url)
             )
         )
+        builder.row(
+            InlineKeyboardButton(
+                text=_("Share 🔗"),
+                switch_inline_query=subscription_url
+            )
+        )
     builder.row(
         InlineKeyboardButton(
             text=_("Pay 💳"),

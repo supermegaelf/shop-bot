@@ -139,6 +139,9 @@ msgstr ""
 msgid "Install ⚙️"
 msgstr "Установить ⚙️"
 
+msgid "Share 🔗"
+msgstr "Поделиться 🔗"
+
 #: bot/tasks/notify_expired.py:42
 msgid "today"
 msgstr "сегодня"
