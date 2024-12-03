@@ -57,8 +57,8 @@ msgstr "Страница подписки ⬇️"
 msgid "Follow the <a href=\"{link}\">link</a> and ask us a question. We are always happy to help 🤗"
 msgstr "Перейдите по <a href=\"{link}\">ссылке</a> и задайте нам вопрос. Мы всегда рады помочь 🤗"
 
-msgid "Follow the <a href=\"{link}\">link</a> to connect to {shop_name} 🏄🏻‍♂️"
-msgstr "Перейдите по <a href=\"{link}\">ссылке</a> чтобы подключиться к {shop_name} 🏄🏻‍♂️"
+msgid "\n\nGo to the subscription page to connect to the VPN:\n"
+msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN:\n"
 
 #: bot/handlers/messages.py:64
 msgid "Your subscription is available in the \"Access to VPN 🏄🏻‍♂️\" section."

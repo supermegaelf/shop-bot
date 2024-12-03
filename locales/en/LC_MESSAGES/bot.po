@@ -50,7 +50,7 @@ msgstr ""
 msgid "Follow the <a href=\"{link}\">link</a> and ask us a question. We are always happy to help 🤗"
 msgstr ""
 
-msgid "Follow the <a href=\"{link}\">link</a> to connect to {shop_name} 🏄🏻‍♂️"
+msgid "\n\nGo to the subscription page to connect to the VPN:\n"
 msgstr ""
 
 #: bot/handlers/messages.py:64
