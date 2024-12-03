@@ -2,6 +2,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup,  WebAppInf
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
+import glv 
+
 def get_user_profile_keyboard(trial_available:bool, subscription_url:str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     if trial_available:
@@ -21,7 +23,10 @@ def get_user_profile_keyboard(trial_available:bool, subscription_url:str) -> Inl
         builder.row(
             InlineKeyboardButton(
                 text=_("Share 🔗"),
-                switch_inline_query=subscription_url
+                switch_inline_query=_("Follow the <a href=\"{link}\">link</a> to connect to {shop_name} 🏄🏻‍♂️").format(
+                    link=subscription_url,
+                    shop_name=glv.config['SHOP_NAME']
+                )
             )
         )
     builder.row(

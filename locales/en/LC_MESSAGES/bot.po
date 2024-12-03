@@ -50,6 +50,9 @@ msgstr ""
 msgid "Follow the <a href=\"{link}\">link</a> and ask us a question. We are always happy to help 🤗"
 msgstr ""
 
+msgid "Follow the <a href=\"{link}\">link</a> to connect to {shop_name} 🏄🏻‍♂️"
+msgstr ""
+
 #: bot/handlers/messages.py:64
 msgid "Your subscription is available in the \"My subscription 👤\" section."
 msgstr ""
@@ -217,3 +220,6 @@ msgstr ""
 msgid "message_terms_of_service"
 msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n" 
 "Refunds are not provided. The use of torrent clients for downloading or sharing files is prohibited. By subscribing, you confirm your agreement with the terms of use."
+
+msgid "{months} months – from {price}₽"
+msgstr ""
