@@ -39,7 +39,7 @@ async def check_crypto_payment(request: Request):
         good = goods.get(payment.callback)
         user = await get_marzban_profile_db(payment.tg_id)
         await marzban_api.generate_marzban_subscription(user.vpn_id, good)
-        text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.", payment.lang)
+        text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section.", payment.lang)
         await glv.bot.send_message(payment.tg_id,
             text.format(
                 link=glv.config['TG_INFO_CHANEL']
@@ -73,7 +73,7 @@ async def check_yookassa_payment(request: Request):
         good = goods.get(payment.callback)
         user = await get_marzban_profile_db(payment.tg_id)
         await marzban_api.generate_marzban_subscription(user.vpn_id, good)
-        text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"My subscription 👤\" section.", payment.lang)
+        text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section.", payment.lang)
         await glv.bot.send_message(payment.tg_id,
             text.format(
                 link=glv.config['TG_INFO_CHANEL']
