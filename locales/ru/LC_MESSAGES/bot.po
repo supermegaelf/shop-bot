@@ -20,16 +20,13 @@ msgstr ""
 "X-Generator: Poedit 2.0.2\n"
 
 #: bot/handlers/callbacks.py:27
-msgid "To be paid - {amount}₽ ⬇️"
-msgstr "К оплате - {amount}₽ ⬇️"
+msgid "To be paid – {amount} ₽ ⬇️"
+msgstr "К оплате – {amount} ₽ ⬇️"
 
 #: bot/handlers/callbacks.py:48
-msgid "To be paid - {amount}$ ⬇️"
-msgstr "️К оплате - {amount}$ ⬇️"
+msgid "To be paid – {amount} $ ⬇️"
+msgstr "️К оплате – {amount} $ ⬇️"
 
-#: bot/handlers/callbacks.py:48
-msgid "To be paid - {amount}$ ⬇️"
-msgstr "️К оплате - {amount}$ ⬇️"
 
 #: bot/handlers/callbacks.py:59
 msgid "Select payment method ⬇️"
@@ -57,8 +54,8 @@ msgstr "Страница подписки ⬇️"
 msgid "Follow the <a href=\"{link}\">link</a> and ask us a question. We are always happy to help 🤗"
 msgstr "Перейдите по <a href=\"{link}\">ссылке</a> и задайте нам вопрос. Мы всегда рады помочь 🤗"
 
-msgid "\n\nGo to the subscription page to connect to the VPN:\n"
-msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN:\n"
+msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
+msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN:\n{link}"
 
 #: bot/handlers/messages.py:64
 msgid "Your subscription is available in the \"Access to VPN 🏄🏻‍♂️\" section."
@@ -83,8 +80,8 @@ msgid "⏪ Back"
 msgstr "⏪ Назад"
 
 #: bot/keyboards/buy_menu.py:11
-msgid "{title} — {price_ru}₽"
-msgstr "{title} — {price_ru}₽"
+msgid "{title} — {price_ru} ₽"
+msgstr "{title} — {price_ru} ₽"
 
 #: bot/keyboards/main_menu.py:11
 msgid "Access to VPN 🏄🏻‍♂️"
@@ -154,8 +151,8 @@ msgid "tomorrow"
 msgstr "завтра"
 
 #: bot/handlers/callbacks.py:52
-msgid "To be paid - {amount}⭐️ ⬇️"
-msgstr "К оплате - {amount}⭐️ ⬇️"
+msgid "To be paid – {amount} ⭐️ ⬇️"
+msgstr "К оплате – {amount} ⭐️ ⬇️"
 
 #: bot/handlers/callbacks.py:50
 msgid "Subscription for {amount} month"
@@ -243,8 +240,8 @@ msgstr "истекла ⛔️"
 msgid "on_hold"
 msgstr "приостановлена ⚠️"
 
-msgid "{months} months – from {price}₽"
-msgstr "{months} мес. – от {price}₽"
+msgid "{months} months – from {price} ₽"
+msgstr "{months} мес. – от {price} ₽"
 
 msgid "Card 💳"
 msgstr "Банковская карта 💳"

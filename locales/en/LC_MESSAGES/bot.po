@@ -20,11 +20,11 @@ msgstr ""
 "X-Generator: Poedit 2.0.2\n"
 
 #: bot/handlers/callbacks.py:27
-msgid "To be paid - {amount}₽ ⬇️"
+msgid "To be paid – {amount} ₽ ⬇️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:48
-msgid "To be paid - {amount}$ ⬇️"
+msgid "To be paid – {amount} $ ⬇️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:59
@@ -50,7 +50,7 @@ msgstr ""
 msgid "Follow the <a href=\"{link}\">link</a> and ask us a question. We are always happy to help 🤗"
 msgstr ""
 
-msgid "\n\nGo to the subscription page to connect to the VPN:\n"
+msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
 msgstr ""
 
 #: bot/handlers/messages.py:64
@@ -71,7 +71,7 @@ msgid "⏪ Back"
 msgstr ""
 
 #: bot/keyboards/buy_menu.py:11
-msgid "{title} — {price_ru}₽"
+msgid "{title} — {price_ru} ₽"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:11
@@ -135,7 +135,7 @@ msgid "tomorrow"
 msgstr ""
 
 #: bot/handlers/callbacks.py:52
-msgid "To be paid - {amount}⭐️ ⬇️"
+msgid "To be paid – {amount} ⭐️ ⬇️"
 msgstr ""
 
 #: bot/handlers/callbacks.py:50
@@ -221,7 +221,7 @@ msgid "message_terms_of_service"
 msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n" 
 "Refunds are not provided. The use of torrent clients for downloading or sharing files is prohibited. By subscribing, you confirm your agreement with the terms of use."
 
-msgid "{months} months – from {price}₽"
+msgid "{months} months – from {price} ₽"
 msgstr ""
 
 msgid "Card 💳"

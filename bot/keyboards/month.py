@@ -16,7 +16,7 @@ def get_months_keyboard() -> InlineKeyboardMarkup:
 
     for months, price in month_to_min_price.items():
         builder.row(InlineKeyboardButton(
-            text=_("{months} months – from {price}₽").format(
+            text=_("{months} months – from {price} ₽").format(
                 months=months,
                 price=price
             ), 
