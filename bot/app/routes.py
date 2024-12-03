@@ -7,6 +7,7 @@ from db.methods import (
     get_marzban_profile_db,
     get_payment,
     delete_payment,
+    confirm_payment,
     PaymentPlatform
 )
 from keyboards import get_main_menu_keyboard
@@ -45,7 +46,7 @@ async def check_crypto_payment(request: Request):
             ),
             reply_markup=get_main_menu_keyboard(True, payment.lang)
         )
-        await delete_payment(payment.payment_uuid)
+        await confirm_payment(payment.payment_uuid)
     if data['status'] == 'cancel':
         await delete_payment(payment.payment_uuid)
     return web.Response()
@@ -79,7 +80,7 @@ async def check_yookassa_payment(request: Request):
             ),
             reply_markup=get_main_menu_keyboard(True, payment.lang)
         )
-        await delete_payment(payment.payment_id)
+        await confirm_payment(payment.payment_id)
     if data['status'] == 'canceled':
         await delete_payment(payment.payment_id)
     return web.Response()
