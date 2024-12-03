@@ -74,8 +74,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         return
     result = await cryptomus.create_payment(
         callback.from_user.id, 
-        data, 
-        callback.message.chat.id, 
+        data,
         callback.from_user.language_code)
     now = datetime.now()
     expire_date = (now + timedelta(minutes=60)).strftime("%d/%m/%Y, %H:%M")
