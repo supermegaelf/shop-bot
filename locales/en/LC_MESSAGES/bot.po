@@ -71,7 +71,7 @@ msgid "⏪ Back"
 msgstr ""
 
 #: bot/keyboards/buy_menu.py:11
-msgid "{title} — {price_ru} ₽"
+msgid "{title} – {price_ru} ₽"
 msgstr ""
 
 #: bot/keyboards/main_menu.py:11

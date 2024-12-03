@@ -80,8 +80,8 @@ msgid "⏪ Back"
 msgstr "⏪ Назад"
 
 #: bot/keyboards/buy_menu.py:11
-msgid "{title} — {price_ru} ₽"
-msgstr "{title} — {price_ru} ₽"
+msgid "{title} – {price_ru} ₽"
+msgstr "{title} – {price_ru} ₽"
 
 #: bot/keyboards/main_menu.py:11
 msgid "Access to VPN 🏄🏻‍♂️"
