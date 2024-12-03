@@ -2,7 +2,7 @@ import time
 import hashlib
 import aiohttp
 
-from db.methods import add_cryptomus_payment
+from db.methods import add_payment, PaymentPlatform
 from utils import goods
 from utils.webhook_data import get_sign
 import glv
@@ -31,7 +31,7 @@ async def create_payment(tg_id: int, callback: str, chat_id: int, lang_code: str
                 response = (await resp.json())['result']
             else:
                 raise Exception(f"Error: {resp.status}; Body: {await resp.text()}; Data: {data}")
-    await add_cryptomus_payment(tg_id, callback, chat_id, lang_code, response)
+    await add_payment(tg_id, callback, lang_code, response, PaymentPlatform.cryptomus)
     return {
         "url": response['url'],
         "amount": response['amount']

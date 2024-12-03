@@ -5,9 +5,9 @@ from aiohttp import web
 
 from db.methods import (
     get_marzban_profile_db,
-    get_yookassa_payment,
-    get_cryptomus_payment,
-    delete_payment
+    get_payment,
+    delete_payment,
+    PaymentPlatform
 )
 from keyboards import get_main_menu_keyboard
 from utils import webhook_data, goods, marzban_api
@@ -31,7 +31,7 @@ async def check_crypto_payment(request: Request):
     data = await request.json()
     if not webhook_data.check(data, glv.config['CRYPTO_TOKEN']):
         return web.Response(status=403)
-    payment = await get_cryptomus_payment(data['order_id'])
+    payment = await get_payment(data['order_id'], PaymentPlatform.cryptomus)
     if payment == None:
         return web.Response()
     if data['status'] in ['paid', 'paid_over']:
@@ -65,7 +65,7 @@ async def check_yookassa_payment(request: Request):
     if f:
         return web.Response(status=403)
     data = (await request.json())['object']
-    payment = await get_yookassa_payment(data['id'])
+    payment = await get_payment(data['id'], PaymentPlatform.yookassa)
     if payment == None:
         return web.Response()
     if data['status'] in ['succeeded']:

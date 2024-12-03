@@ -1,7 +1,7 @@
 from yookassa import Configuration
 from yookassa import Payment
 
-from db.methods import add_yookassa_payment
+from db.methods import add_payment, PaymentPlatform
 from utils import goods
 import glv
 
@@ -39,7 +39,7 @@ async def create_payment(tg_id: int, callback: str, chat_id: int, lang_code: str
             ]
         }
         })
-    await add_yookassa_payment(tg_id, callback, chat_id, lang_code, resp.id)
+    await add_payment(tg_id, callback, chat_id, lang_code, resp.id, PaymentPlatform.yookassa)
     return {
         "url": resp.confirmation.confirmation_url,
         "amount": resp.amount.value

@@ -1,10 +1,16 @@
 import hashlib
+from enum import Enum
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete
 
-from db.models import YPayments, CPayments, VPNUsers
+from db.models import YPayments, CPayments, VPNUsers, Payments
 import glv
+
+class PaymentPlatform(Enum):
+    yookassa = 0
+    cryptomus = 1
+    telegram = 2
 
 engine = create_async_engine(glv.config['DB_URL'])
 
@@ -43,35 +49,27 @@ async def disable_trial_availability(tg_id):
         await conn.execute(sql_q)
         await conn.commit()
 
-async def add_yookassa_payment(tg_id: int, callback: str, chat_id: int, lang_code: str, payment_id) -> dict:
+async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform) -> dict:
     async with engine.connect() as conn:
-        sql_q = insert(YPayments).values(tg_id=tg_id, payment_id=payment_id, chat_id=chat_id, callback=callback, lang=lang_code)
+        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, platform=platform.value)
         await conn.execute(sql_q)
         await conn.commit()
 
-async def add_cryptomus_payment(tg_id: int, callback: str, chat_id: int, lang_code: str, data) -> dict:
+async def get_payment(payment_id, platform:PaymentPlatform) -> Payments:
     async with engine.connect() as conn:
-        sql_q = insert(CPayments).values(tg_id=tg_id, payment_uuid=data['order_id'], order_id=data['order_id'], chat_id=chat_id, callback=callback, lang=lang_code)
+        sql_q = select(Payments).where(Payments.payment_id == payment_id and Payments.platform == platform.value)
+        payment: Payments = (await conn.execute(sql_q)).fetchone()
+    return payment
+
+async def confirm_payment(payment_id):
+    async with engine.connect() as conn:
+        sql_q = update(Payments).where(Payments.payment_id == payment_id).values(confirmed=True)
         await conn.execute(sql_q)
         await conn.commit()
-
-async def get_yookassa_payment(payment_id) -> YPayments:
-    async with engine.connect() as conn:
-        sql_q = select(YPayments).where(YPayments.payment_id == payment_id)
-        payment: YPayments = (await conn.execute(sql_q)).fetchone()
-    return payment
-
-async def get_cryptomus_payment(order_id) -> CPayments:
-    async with engine.connect() as conn:
-        sql_q = select(CPayments).where(CPayments.order_id == order_id)
-        payment: CPayments = (await conn.execute(sql_q)).fetchone()
-    return payment
 
 async def delete_payment(payment_id):
     async with engine.connect() as conn:
-        sql_q = delete(YPayments).where(YPayments.payment_id == payment_id)
+        sql_q = delete(Payments).where(Payments.payment_id == payment_id)
         await conn.execute(sql_q)
         await conn.commit()
-        sql_q = delete(CPayments).where(CPayments.payment_uuid == payment_id)
-        await conn.execute(sql_q)
-        await conn.commit()
+    
