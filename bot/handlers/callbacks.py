@@ -32,7 +32,6 @@ async def callback_payment_method_select(callback: CallbackQuery):
     result = await yookassa.create_payment(
         callback.from_user.id, 
         data, 
-        callback.message.chat.id, 
         callback.from_user.language_code)
     await callback.message.answer(
         _("To be paid - {amount}₽ ⬇️").format(

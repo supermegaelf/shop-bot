@@ -8,7 +8,7 @@ import glv
 if glv.config['YOOKASSA_SHOPID'] and glv.config['YOOKASSA_TOKEN']:
     Configuration.configure(glv.config['YOOKASSA_SHOPID'], glv.config['YOOKASSA_TOKEN'])
 
-async def create_payment(tg_id: int, callback: str, chat_id: int, lang_code: str) -> dict:
+async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
     good = goods.get(callback)
     resp = Payment.create({
         "amount": {
@@ -39,7 +39,7 @@ async def create_payment(tg_id: int, callback: str, chat_id: int, lang_code: str
             ]
         }
         })
-    await add_payment(tg_id, callback, chat_id, lang_code, resp.id, PaymentPlatform.yookassa)
+    await add_payment(tg_id, callback, lang_code, resp.id, PaymentPlatform.yookassa)
     return {
         "url": resp.confirmation.confirmation_url,
         "amount": resp.amount.value

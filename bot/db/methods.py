@@ -4,7 +4,7 @@ from enum import Enum
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete
 
-from db.models import YPayments, CPayments, VPNUsers, Payments
+from db.models import VPNUsers, Payments
 import glv
 
 class PaymentPlatform(Enum):
