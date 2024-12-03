@@ -23,10 +23,7 @@ def get_user_profile_keyboard(trial_available:bool, subscription_url:str) -> Inl
         builder.row(
             InlineKeyboardButton(
                 text=_("Share 🔗"),
-                switch_inline_query=_("\n\nGo to the subscription page to connect to the VPN:\n").format(
-                    link=subscription_url,
-                    shop_name=glv.config['SHOP_NAME']
-                )
+                switch_inline_query=_("\n\nGo to the subscription page to connect to the VPN:\n{link}").format(link=subscription_url)
             )
         )
     builder.row(
