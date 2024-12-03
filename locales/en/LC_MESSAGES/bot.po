@@ -223,3 +223,9 @@ msgstr "The service is provided exclusively for establishing a secure network co
 
 msgid "{months} months – from {price}₽"
 msgstr ""
+
+msgid "Card 💳"
+msgstr ""
+
+msgid "Cryptocurrency 💲"
+msgstr ""

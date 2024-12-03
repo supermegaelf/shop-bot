@@ -245,3 +245,9 @@ msgstr "приостановлена ⚠️"
 
 msgid "{months} months – from {price}₽"
 msgstr "{months} мес. – от {price}₽"
+
+msgid "Card 💳"
+msgstr "Банковская карта 💳"
+
+msgid "Cryptocurrency 💲"
+msgstr "Криптовалюта 💲"
