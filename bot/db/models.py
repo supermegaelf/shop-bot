@@ -19,6 +19,6 @@ class Payments(Base):
     lang = Column(String(64))
     payment_id = Column(String(64))
     callback = Column(String(64))
-    platform=Column(Integer)
+    type=Column(Integer)
     created_at=Column(DateTime, default=datetime.now())
     confirmed=Column(Boolean, default=False)

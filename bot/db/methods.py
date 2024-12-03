@@ -51,13 +51,13 @@ async def disable_trial_availability(tg_id):
 
 async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform) -> dict:
     async with engine.connect() as conn:
-        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, platform=platform.value)
+        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value)
         await conn.execute(sql_q)
         await conn.commit()
 
 async def get_payment(payment_id, platform:PaymentPlatform) -> Payments:
     async with engine.connect() as conn:
-        sql_q = select(Payments).where(Payments.payment_id == payment_id and Payments.platform == platform.value)
+        sql_q = select(Payments).where(Payments.payment_id == payment_id and Payments.type == platform.value)
         payment: Payments = (await conn.execute(sql_q)).fetchone()
     return payment
 
