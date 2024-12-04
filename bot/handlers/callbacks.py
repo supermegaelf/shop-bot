@@ -55,7 +55,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.answer_invoice(
         title= _("Subscription for {amount} month").format(amount=months),
         currency="XTR",
-        description=_("To be paid - {amount} ⭐️ ⬇️").format(
+        description=_("To be paid – {amount} ⭐️ ⬇️").format(
             amount=int(price)
         ),
         prices=prices,
