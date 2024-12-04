@@ -44,7 +44,7 @@ async def check_crypto_payment(request: Request):
             text.format(
                 link=glv.config['TG_INFO_CHANEL']
             ),
-            reply_markup=get_main_menu_keyboard(True, payment.lang)
+            reply_markup=get_main_menu_keyboard(payment.lang)
         )
         await confirm_payment(payment.payment_id)
     if data['status'] == 'cancel':
@@ -78,7 +78,7 @@ async def check_yookassa_payment(request: Request):
             text.format(
                 link=glv.config['TG_INFO_CHANEL']
             ),
-            reply_markup=get_main_menu_keyboard(True, payment.lang)
+            reply_markup=get_main_menu_keyboard(payment.lang)
         )
         await confirm_payment(payment.payment_id)
     if data['status'] == 'canceled':
