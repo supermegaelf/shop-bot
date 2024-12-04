@@ -3,8 +3,6 @@ from pathlib import Path
 
 import logging 
 
-_ = gettext.gettext
-
 domain = 'bot'
 localedir = 'locales'
 
