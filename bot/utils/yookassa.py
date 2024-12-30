@@ -39,7 +39,7 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
             ]
         }
         })
-    await add_payment(tg_id, callback, lang_code, resp.id, PaymentPlatform.yookassa)
+    await add_payment(tg_id, callback, lang_code, resp.id, PaymentPlatform.YOOKASSA)
     return {
         "url": resp.confirmation.confirmation_url,
         "amount": resp.amount.value

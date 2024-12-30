@@ -8,13 +8,13 @@ from db.models import VPNUsers, Payments
 import glv
 
 class PaymentPlatform(Enum):
-    yookassa = 0
-    cryptomus = 1
-    telegram = 2
+    YOOKASSA = 0
+    CRYPTOMUS = 1
+    TELEGRAM = 2
 
 engine = create_async_engine(glv.config['DB_URL'])
 
-async def create_vpn_profile(tg_id: int):
+async def create_vpn_user(tg_id: int):
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
@@ -25,7 +25,7 @@ async def create_vpn_profile(tg_id: int):
         await conn.execute(sql_query)
         await conn.commit()
 
-async def get_marzban_profile_db(tg_id: int) -> VPNUsers:
+async def get_vpn_user(tg_id: int) -> VPNUsers:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
@@ -49,9 +49,9 @@ async def disable_trial_availability(tg_id):
         await conn.execute(sql_q)
         await conn.commit()
 
-async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform) -> dict:
+async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False) -> dict:
     async with engine.connect() as conn:
-        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value)
+        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed)
         await conn.execute(sql_q)
         await conn.commit()
 

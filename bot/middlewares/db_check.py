@@ -2,7 +2,7 @@ from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
-from db.methods import create_vpn_profile
+from db.methods import create_vpn_user
 
 class DBCheck(BaseMiddleware):
     async def __call__(
@@ -12,6 +12,6 @@ class DBCheck(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
         user = data["event_from_user"]
-        await create_vpn_profile(user.id)
+        await create_vpn_user(user.id)
         result = await handler(event, data)
         return result

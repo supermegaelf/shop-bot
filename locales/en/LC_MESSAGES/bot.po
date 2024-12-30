@@ -168,7 +168,7 @@ msgstr "Go to the section 🏄🏼‍♂️ VPN Access, click Install ⚙️, se
 msgid "VPN doesn't work ⛔️"
 msgstr ""
 
-msgid "message_working_problem"
+msgid "message_usage_problem"
 msgstr "1️⃣ Make sure your subscription is active.\n"
 "2️⃣ Restart your device, as network settings might have been reset.\n"
 "3️⃣ Refresh your subscription in the app.\n"
@@ -225,3 +225,9 @@ msgstr ""
 
 msgid "Cryptocurrency 💲"
 msgstr ""
+
+msgid "Buy more traffic ➕"
+msgstr ""
+
+msgid "Oops! Something went wrong..."
+msgid ""

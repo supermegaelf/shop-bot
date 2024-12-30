@@ -3,7 +3,7 @@ from aiogram.types import Message, PreCheckoutQuery
 from aiogram.utils.i18n import gettext as _
 
 from utils import goods, marzban_api
-from db.methods import get_marzban_profile_db
+from db.methods import get_vpn_user, add_payment, PaymentPlatform
 from keyboards import get_main_menu_keyboard
 
 import glv
@@ -19,8 +19,13 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
 @router.message(F.successful_payment)
 async def success_payment(message: Message):
     good = goods.get(message.successful_payment.invoice_payload)
-    user = await get_marzban_profile_db(message.from_user.id)
-    await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+    user = await get_vpn_user(message.from_user.id)
+    if good['type'] == 'renew':
+        await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+    else:
+        await marzban_api.update_subscription_data_limit(user.vpn_id)
+    
+    await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)
     await message.answer(
         text = _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section.").format(
             link=glv.config['TG_INFO_CHANEL']),

@@ -4,11 +4,10 @@ from aiogram.utils.i18n import gettext as _
 
 from utils import goods
 
-def get_buy_menu_keyboard(months) -> InlineKeyboardMarkup:
+def get_buy_menu_keyboard(months: int, purchase_type: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    subscription_opts = goods.get()
-    months = int(months)
-    filtered_goods = list(filter(lambda good: good['months'] == months, subscription_opts))
+    filtered_goods = [good for good in goods.get() if good['months'] == months and good["type"] == purchase_type]
+    
     for good in filtered_goods:
         builder.row(InlineKeyboardButton(
             text=_("{title} – {price_ru} ₽").format(
@@ -17,4 +16,5 @@ def get_buy_menu_keyboard(months) -> InlineKeyboardMarkup:
             ), 
             callback_data=good['callback'])
         )
+    
     return builder.as_markup()

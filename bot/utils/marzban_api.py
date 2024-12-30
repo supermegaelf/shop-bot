@@ -2,7 +2,7 @@ import time
 import aiohttp
 import requests
 
-from db.methods import get_marzban_profile_db
+from db.methods import get_vpn_user
 import glv
 
 PROTOCOLS = {
@@ -107,7 +107,7 @@ async def check_if_user_exists(name: str) -> bool:
         return False
 
 async def get_marzban_profile(tg_id: int):
-    result = await get_marzban_profile_db(tg_id)
+    result = await get_vpn_user(tg_id)
     res = await check_if_user_exists(result.vpn_id)
     if not res:
         return None
@@ -156,6 +156,13 @@ async def generate_marzban_subscription(username: str, good):
             'data_limit_reset_strategy': "month",
         }
         result = await panel.add_user(user)
+    return result
+
+async def update_subscription_data_limit(username: str, good):
+    user = await panel.get_user(username)
+    user['status'] = 'active'
+    user['data_limit'] = user['data_limit'] + good['data_limit']
+    result = await panel.modify_user(username, user)
     return result
 
 def get_test_subscription(hours: int, additional= False) -> int:

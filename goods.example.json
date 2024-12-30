@@ -1,12 +1,26 @@
 [
     {
         "title": "Simple VPN",
+        "type": "renew",
         "price": {
             "en": 1,
             "ru": 100,
             "stars": 50
         },
         "callback": "simple_vpn",
+        "data_limit": 214748364800,
+        "months": 1
+    },
+    {
+        "title": "Increase data limit for VPN",
+        "type": "update",
+        "price": {
+            "en": 1,
+            "ru": 100,
+            "stars": 50
+        },
+        "callback": "increase_data_limit",
+        "data_limit": 107374182400,
         "months": 1
     }
 ]

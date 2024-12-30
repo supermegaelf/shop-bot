@@ -4,7 +4,7 @@ from aiohttp.web_request import Request
 from aiohttp import web
 
 from db.methods import (
-    get_marzban_profile_db,
+    get_vpn_user,
     get_payment,
     delete_payment,
     confirm_payment,
@@ -32,13 +32,16 @@ async def check_crypto_payment(request: Request):
     data = await request.json()
     if not webhook_data.check(data, glv.config['CRYPTO_TOKEN']):
         return web.Response(status=403)
-    payment = await get_payment(data['order_id'], PaymentPlatform.cryptomus)
+    payment = await get_payment(data['order_id'], PaymentPlatform.CRYPTOMUS)
     if payment == None:
         return web.Response()
     if data['status'] in ['paid', 'paid_over']:
         good = goods.get(payment.callback)
-        user = await get_marzban_profile_db(payment.tg_id)
-        await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        user = await get_vpn_user(payment.tg_id)
+        if good['type'] == 'renew':
+            await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        else:
+            await marzban_api.update_subscription_data_limit(user.vpn_id)
         text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section.", payment.lang)
         await glv.bot.send_message(payment.tg_id,
             text.format(
@@ -66,13 +69,16 @@ async def check_yookassa_payment(request: Request):
     if f:
         return web.Response(status=403)
     data = (await request.json())['object']
-    payment = await get_payment(data['id'], PaymentPlatform.yookassa)
+    payment = await get_payment(data['id'], PaymentPlatform.YOOKASSA)
     if payment == None:
         return web.Response()
     if data['status'] in ['succeeded']:
         good = goods.get(payment.callback)
-        user = await get_marzban_profile_db(payment.tg_id)
-        await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        user = await get_vpn_user(payment.tg_id)
+        if good['type'] == 'renew':
+            await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        else:
+            await marzban_api.update_subscription_data_limit(user.vpn_id)
         text = get_i18n_string("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️\nYour subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section.", payment.lang)
         await glv.bot.send_message(payment.tg_id,
             text.format(
