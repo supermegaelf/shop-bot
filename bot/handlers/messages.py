@@ -33,7 +33,6 @@ async def profile(message: Message):
         data_limit = "–"
         subscription_limited = False
     
-    subscription_limited = marzban_profile and marzban_profile['data_limit']
     await message.answer(text=_("subscription_data").format(status = status, expire_date = expire_date, data_used = data_used, data_limit = data_limit), 
                          reply_markup=get_user_profile_keyboard(trial_available, subscription_limited, url))
     

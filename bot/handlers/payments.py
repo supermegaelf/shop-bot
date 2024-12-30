@@ -23,7 +23,7 @@ async def success_payment(message: Message):
     if good['type'] == 'renew':
         await marzban_api.generate_marzban_subscription(user.vpn_id, good)
     else:
-        await marzban_api.update_subscription_data_limit(user.vpn_id)
+        await marzban_api.update_subscription_data_limit(user.vpn_id, good)
     
     await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)
     await message.answer(

@@ -11,7 +11,7 @@ def get_user_profile_keyboard(trial_available:bool, subscription_limited: bool, 
                 callback_data="trial"
             )
         )
-    if subscription_limited:
+    if not subscription_limited:
         builder.row(
             InlineKeyboardButton(
                 text=_("Buy more traffic ➕"),
