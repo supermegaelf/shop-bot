@@ -253,4 +253,4 @@ msgid "Buy more traffic ➕"
 msgstr "Докупить трафик ➕"
 
 msgid "Oops! Something went wrong..."
-msgid "Упс! Что-то пошло не так..."
+msgstr "Упс! Что-то пошло не так..."
