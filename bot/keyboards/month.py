@@ -5,9 +5,9 @@ from collections import defaultdict
 
 from utils import goods
 
-def get_months_keyboard(subscription_type) -> InlineKeyboardMarkup:
+def get_months_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    subscription_opts = [good for good in goods.get() if good["type"] == subscription_type]
+    subscription_opts = [good for good in goods.get() if good["type"] == "renew"]
     month_to_min_price = defaultdict(lambda: float('inf'))
 
     for good in subscription_opts:

@@ -21,7 +21,7 @@ def upgrade() -> None:
     sa.Column('id', sa.BigInteger(), autoincrement=True, nullable=False),
     sa.Column('tg_id', sa.BigInteger(), nullable=True),
     sa.Column('lang', sa.String(length=64), nullable=True),
-    sa.Column('payment_id', sa.String(length=64), nullable=True),
+    sa.Column('payment_id', sa.String(length=128), nullable=True),
     sa.Column('type', sa.Integer(), nullable=True),
     sa.Column('callback', sa.String(length=64), nullable=True),
     sa.Column('confirmed', sa.Boolean(), nullable=True),
