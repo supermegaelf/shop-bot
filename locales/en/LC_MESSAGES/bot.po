@@ -63,7 +63,7 @@ msgid ""
 "\n"
 "<a href=\"{link}\">Subscribe</a> not to miss announcements ✅\n️"
 "\n"
-"Subscription is available in \"Access VPN 🏄🏻‍♂️\" section."
+"Subscription is available in \"Access to VPN 🏄🏻‍♂️\" section."
 msgstr ""
 
 #: bot/keyboards/back.py:7
