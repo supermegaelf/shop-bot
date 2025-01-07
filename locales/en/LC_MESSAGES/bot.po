@@ -61,9 +61,9 @@ msgstr ""
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️"
+"<a href=\"{link}\">Subscribe</a> not to miss announcements ✅\n️"
 "\n"
-"Your subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section."
+"Subscription is available in \"Access VPN 🏄🏻‍♂️\" section."
 msgstr ""
 
 #: bot/keyboards/back.py:7

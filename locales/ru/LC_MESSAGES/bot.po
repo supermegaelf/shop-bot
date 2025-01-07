@@ -65,15 +65,15 @@ msgstr "Ваша подписка доступна в разделе \"Дост�
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"<a href=\"{link}\">Subscribe</a> so you don't miss any announcements ✅\n️"
+"<a href=\"{link}\">Subscribe</a> not to miss announcements ✅\n️"
 "\n"
-"Your subscription is purchased and available in the \"Access to VPN 🏄🏻‍♂️\" section."
+"Subscription is available in \"Access VPN 🏄🏻‍♂️\" section."
 msgstr ""
 "Благодарим за ваш выбор ❤️\n️"
 "\n"
 "<a href=\"{link}\">Подпишитесь</a>, чтобы не пропустить объявления ✅\n️"
 "\n"
-"Подписка оплачена и доступна в разделе \"Доступ к VPN 🏄🏻‍♂️\".\n"
+"Подписка доступна в разделе \"Доступ к VPN 🏄🏻‍♂️\"\n"
 
 #: bot/keyboards/back.py:7
 msgid "⏪ Back"
