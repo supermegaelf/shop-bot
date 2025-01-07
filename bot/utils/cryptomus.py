@@ -15,7 +15,7 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
         "amount": str(good['price']['en']),
         "currency": "USD",
         "order_id": o_id,
-        "lifetime": 1800,
+        "lifetime": 3600,
         "url_callback": glv.config['WEBHOOK_URL'] + "/cryptomus_payment",
         "is_payment_multiple": False
     }
