@@ -231,3 +231,10 @@ msgstr ""
 
 msgid "Oops! Something went wrong..."
 msgstr ""
+
+msgid "message_confirm_tos"
+msgstr ""
+"Please note ⚠️\n\n"
+"By making a payment, you agree to the terms of use of our service.\n"
+"Before purchasing, please review the section:\n\n"
+"\"Help 🕊\"––>\"Terms of Use 📃\""

@@ -172,6 +172,7 @@ async def callback_usage_problem(callback: CallbackQuery):
 async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.delete()
     good = goods.get(callback.data)
+    await callback.message.answer(text=_("message_confirm_tos"), reply_markup=get_payment_keyboard(good))
     await callback.message.answer(text=_("Select payment method ⬇️"), reply_markup=get_payment_keyboard(good))
     await callback.answer()
 
