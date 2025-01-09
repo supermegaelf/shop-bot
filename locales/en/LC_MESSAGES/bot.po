@@ -230,4 +230,4 @@ msgid "Buy more traffic ➕"
 msgstr ""
 
 msgid "Oops! Something went wrong..."
-msgid ""
+msgstr ""
