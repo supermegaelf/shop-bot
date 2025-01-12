@@ -12,6 +12,9 @@ def get_support_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text=_("VPN doesn't work ⛔️"), callback_data='usage_problem')
         ],
         [
+            InlineKeyboardButton(text=_("Other question ❔"), url=glv.config['SUPPORT_LINK'])
+        ],
+        [
             InlineKeyboardButton(text=_("⏪ Back"), callback_data='help')
         ],
     ]
