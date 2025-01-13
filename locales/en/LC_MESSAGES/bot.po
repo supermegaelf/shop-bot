@@ -34,7 +34,7 @@ msgstr ""
 #: bot/handlers/commands.py:17
 msgid "message_welcome"
 msgstr ""
-"Hello, {name} 👋\n"
+"Hello, {name} 👋🏻\n"
 "\n"
 "Thank you for choosing our service ❤️\n\n"
 "We provide fast and secure internet access.\n\n"
@@ -158,7 +158,7 @@ msgid "Pay"
 msgstr ""
 
 msgid "message_notify_expired_sub"
-msgstr "Hello 👋\n\n\"
+msgstr "Hello 👋🏻\n\n\"
 "We noticed that you did not renew your subscription 😢\n\n\"
 "If you have any comments or questions about the entire service, please write. Your opinion is important to us!"
 
