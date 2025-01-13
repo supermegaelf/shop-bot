@@ -231,19 +231,19 @@ msgstr "<b>1. Что такое VPN?</b>\n\n"
 msgid "subscription_data"
 msgstr "Статус подписки: {status}\n\nПодписка истекает: {expire_date} 📆\n\nТрафик: {data_used} GB / {data_limit} GB 🌐"
 
-msgid "active"
+msgid "active ✅"
 msgstr "активна ✅"
 
-msgid "disabled"
+msgid "disabled ⛔️"
 msgstr "disabled ⛔️"
 
-msgid "limited"
+msgid "limited ⚠️"
 msgstr "ограничена ⚠️"
 
-msgid "expired"
+msgid "expired ⛔️"
 msgstr "истекла ⛔️"
 
-msgid "on_hold"
+msgid "on_hold ⚠️"
 msgstr "приостановлена ⚠️"
 
 msgid "{months} months – from {price} ₽"
