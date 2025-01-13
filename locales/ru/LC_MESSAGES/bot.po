@@ -235,7 +235,7 @@ msgid "active ✅"
 msgstr "активна ✅"
 
 msgid "disabled ⛔️"
-msgstr "disabled ⛔️"
+msgstr "отключена ⛔️"
 
 msgid "limited ⚠️"
 msgstr "ограничена ⚠️"

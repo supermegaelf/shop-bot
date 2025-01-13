@@ -210,19 +210,19 @@ msgstr "<b>1. What is a VPN?</b>\n\n"
 msgid "subscription_data"
 msgstr "Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\nTraffic: {data_used} GB / {data_limit} GB 🌐"
 
-msgid "active"
+msgid "active ✅"
 msgstr ""
 
-msgid "disabled"
+msgid "disabled ⛔️"
 msgstr ""
 
-msgid "limited"
+msgid "limited ⚠️"
 msgstr ""
 
-msgid "expired"
+msgid "expired ⛔️"
 msgstr ""
 
-msgid "on_hold"
+msgid "on_hold ⚠️"
 msgstr ""
 
 msgid "message_terms_of_service"
