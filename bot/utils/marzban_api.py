@@ -14,7 +14,7 @@ PROTOCOLS = {
         {
             "flow": "xtls-rprx-vision"
         },
-        ["VLESS Reality Steal Oneself"]
+        ["VLESS Reality Steal Oneself", "VLESS WS Tls"]
     ],
     "trojan": [
         {},
