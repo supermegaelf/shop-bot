@@ -181,10 +181,9 @@ msgid "VPN doesn't work ⛔️"
 msgstr ""
 
 msgid "message_usage_problem"
-msgstr "1️⃣ Make sure your subscription is active.\n"
-"2️⃣ Restart your device, as network settings might have been reset.\n"
-"3️⃣ Refresh your subscription in the app.\n"
-"4️⃣ Switch to a different protocol if available."
+msgstr "1️⃣ Make sure your subscription is active in \"Access to VPN 🏄🏻‍♂️\" section.\n"
+"\n"
+"2️⃣ Restart your device, as network settings might have been reset."
 
 msgid "It didn't work 🆘"
 msgstr ""
