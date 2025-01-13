@@ -51,7 +51,7 @@ services:
             MARIADB_USER: ${DB_USER}
             MARIADB_PASSWORD: ${DB_PASS}
         volumes:
-            - "mysql-data:/var/lib/marzban/mysql/db-backup"
+            - "mysql-data:/var/lib/mysql"
         healthcheck:
             test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
             start_period: 10s
