@@ -203,7 +203,7 @@ msgstr "<b>1. What is a VPN?</b>\n\n"
 "You can connect any number of devices, the limitation only applies to the amount of traffic."
 
 msgid "subscription_data"
-msgstr "Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\Traffic: {data_used} GB / {data_limit} GB 🌐"
+msgstr "Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\nTraffic: {data_used} GB / {data_limit} GB 🌐"
 
 msgid "active"
 msgstr ""
