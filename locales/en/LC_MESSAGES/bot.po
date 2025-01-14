@@ -210,20 +210,20 @@ msgstr "<b>1. What is a VPN?</b>\n\n"
 msgid "subscription_data"
 msgstr "Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\nTraffic: {data_used} GB / {data_limit} GB 🌐"
 
-msgid "active ✅"
-msgstr ""
+msgid "active"
+msgstr "active ✅"
 
-msgid "disabled ⛔️"
-msgstr ""
+msgid "disabled"
+msgstr "disabled ⛔️"
 
-msgid "limited ⚠️"
-msgstr ""
+msgid "limited"
+msgstr "limited ⚠️"
 
-msgid "expired ⛔️"
-msgstr ""
+msgid "expired"
+msgstr "expired ⛔️"
 
-msgid "on_hold ⚠️"
-msgstr ""
+msgid "on_hold"
+msgstr "on_hold ⚠️"
 
 msgid "message_terms_of_service"
 msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n" 
