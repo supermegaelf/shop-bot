@@ -159,7 +159,7 @@ msgstr ""
 
 msgid "message_notify_expired_sub"
 msgstr "Hello 👋🏻\n\n\"
-"We noticed that you did not renew your subscription 😢\n\n\"
+"We noticed that you did not renew your subscription 😢\n\n"
 "If you have any comments or questions about the entire service, please write. Your opinion is important to us!"
 
 msgid "Select payment period ⬇️"
