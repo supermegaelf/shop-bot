@@ -34,7 +34,7 @@ async def profile(message: Message):
         subscription_limited = False
     
     await message.answer(text=_("subscription_data").format(status = status, expire_date = expire_date, data_used = data_used, data_limit = data_limit, link = glv.config['TG_INFO_CHANEL']), 
-                         reply_markup=get_user_profile_keyboard(trial_available, subscription_limited, url))
+                         reply_markup=get_user_profile_keyboard(trial_available, subscription_limited, url), disable_web_page_preview=True)
     
 @router.message(F.text == __("Help 🕊"))
 async def help(message: Message):
