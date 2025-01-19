@@ -18,7 +18,7 @@ async def notify_users_about_expired_sub():
         chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
         if chat_member is None:
             continue
-        message = get_i18n_string("message_notify_expired_sub", chat_member.user.language_code).format(name=chat_member.user.first_name)
+        message = get_i18n_string("message_notify_expired_sub", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
 
         await glv.bot.send_message(user.tg_id, message)
 

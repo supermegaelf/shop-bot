@@ -19,7 +19,7 @@ async def notify_users_to_renew_sub():
         chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
         if chat_member is None:
             continue
-        message = get_i18n_string("Hello, {name} 👋🏻\n\nThank you for using our service ❤️\n️\nYour VPN subscription expires {day}, at the end of the day.\n️\nTo renew it, just go to the \"Access to VPN 🏄🏻‍♂️\" section and make a payment.", chat_member.user.language_code).format(
+        message = get_i18n_string("message_renew_sub", chat_member.user.language_code).format(
             name=chat_member.user.first_name,
             day=get_expiration_day_str(marzban_user, chat_member.user.language_code))
         await glv.bot.send_message(user.tg_id, message)

@@ -117,7 +117,8 @@ msgid "YooKassa (₽)"
 msgstr ""
 
 #: bot/tasks/notify_expired.py:22
-msgid ""
+msgid "message_renew_sub"
+msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
 "Thank you for using our service ❤️\n️"
@@ -125,7 +126,6 @@ msgid ""
 "Your VPN subscription expires {day}, at the end of the day.\n️"
 "\n"
 "To renew it, just go to the \"Access to VPN 🏄🏻‍♂️\" section and make a payment."
-msgstr ""
 
 #: bot/keyboards/subscription.py:11
 msgid "Install ⚙️"
@@ -160,7 +160,7 @@ msgstr ""
 msgid "message_notify_expired_sub"
 msgstr "Hello 👋🏻\n\n\"
 "We noticed that you did not renew your subscription 😢\n\n"
-"If you have any comments or questions about the entire service, please write. Your opinion is important to us!"
+"If you have any comments or questions about the entire service, please <a href=\"{link}\">write</a>. Your opinion is important to us!"
 
 msgid "Select payment period ⬇️"
 msgstr ""
