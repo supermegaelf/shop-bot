@@ -26,7 +26,8 @@ config = {
     'RENEW_NOTIFICATION_TIME': str(os.environ.get('RENEW_NOTIFICATION_TIME')),
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
-    'EXPIRED_NOTIFICATION_TIME': str(os.environ.get('EXPIRED_NOTIFICATION_TIME'))
+    'EXPIRED_NOTIFICATION_TIME': str(os.environ.get('EXPIRED_NOTIFICATION_TIME')),
+    'WEBHOOK_SECRET': os.environ.get('WEBHOOK_SECRET')
 }
 
 bot: Bot = None
