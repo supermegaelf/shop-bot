@@ -47,7 +47,7 @@ async def main():
 
     app.router.add_post("/cryptomus_payment", check_crypto_payment)
     app.router.add_post("/yookassa_payment", check_yookassa_payment)
-    app.router.add_get("/notify_data_limit_reached", notify_data_limit_reached)
+    app.router.add_post("/notify_data_limit_reached", notify_data_limit_reached)
     
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=glv.dp,
