@@ -99,14 +99,14 @@ async def notify_data_limit_reached(request: Request):
         return web.Response(status=403)
     data = await request.json()
     logging.info(data)
-    # vpn_id = data['username']
-    # user = await get_marzban_profile_by_vpn_id(vpn_id)
-    # if user is None:
-    #     return web.Response(status=404)
-    # chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
-    # if chat_member is None:
-    #     return web.Response(status=404)
+    vpn_id = data['username']
+    user = await get_marzban_profile_by_vpn_id(vpn_id)
+    if user is None:
+        return web.Response(status=404)
+    chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
+    if chat_member is None:
+        return web.Response(status=404)
     
-    # message = get_i18n_string("message_notify_expired_sub", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-    # await glv.bot.send_message(user.tg_id, message)
-    # return web.Response()
+    message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
+    await glv.bot.send_message(user.tg_id, message)
+    return web.Response()

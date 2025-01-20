@@ -158,7 +158,7 @@ msgid "Pay"
 msgstr ""
 
 msgid "message_notify_expired_sub"
-msgstr "Hello 👋🏻\n\n\"
+msgstr "Hello 👋🏻\n\n"
 "We noticed that you did not renew your subscription 😢\n\n"
 "If you have any comments or questions about the entire service, please <a href=\"{link}\">write</a>. Your opinion is important to us!"
 
@@ -242,4 +242,7 @@ msgid "Buy more traffic ➕"
 msgstr ""
 
 msgid "Oops! Something went wrong..."
+msgstr ""
+
+msgid "message_reached_usage_percent"
 msgstr ""
