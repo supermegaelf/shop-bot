@@ -113,7 +113,7 @@ async def notify_user(request: Request):
     message = ""
     match action:
         case "reached_usage_percent":
-            message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=int(data['used_percent']))
+            message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
         case "reached_days_left":
             message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, days=int(data['days_left']))
         case "user_expired":
