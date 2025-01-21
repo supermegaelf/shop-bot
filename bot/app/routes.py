@@ -97,9 +97,11 @@ async def notify_user(request: Request):
     secret = request.headers.get('x-webhook-secret')
     if secret != glv.config['WEBHOOK_SECRET']:
         return web.Response(status=403)
-    data = await request.json()
+    data = await request.json()[0]
     logging.info(data)
-    vpn_id = data[0]["username"]
+    if data['action'] not in ['reached_usage_percent', 'reached_days_left', 'user_expired', 'user_limited']:
+        return web.Response()
+    vpn_id = data["username"]
     user = await get_marzban_profile_by_vpn_id(vpn_id)
     if user is None:
         logging.info(f"No user fount id={vpn_id}")
@@ -108,8 +110,20 @@ async def notify_user(request: Request):
     if chat_member is None:
         logging.info(f"No chat_member fount id={user.tg_id}")
         return web.Response(status=404)
-    
-    message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(amount=80)
+    action = data['action']
+    message = ""
+    match action:
+        case "reached_usage_percent":
+            message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=int(data['used_percent']))
+        case "reached_days_left":
+            message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, days=int(data['days_left']))
+        case "user_expired":
+            message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
+        case "user_limited":
+            message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
+        case _:
+            return web.Response()
+        
     await glv.bot.send_message(user.tg_id, message)
     logging.info(f"Message sent to {user.tg_id}")
     return web.Response()
