@@ -266,7 +266,7 @@ msgstr ""
 "\n"
 "Thank you for using our service ❤️\n️"
 "\n"
-"Your VPN subscription expires in {amount} days.\n️"
+"Your VPN subscription expires in {days} days.\n️"
 "\n"
 "To extend it, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Pay 💳\"."
 

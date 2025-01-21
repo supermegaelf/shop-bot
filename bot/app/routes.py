@@ -98,7 +98,6 @@ async def notify_user(request: Request):
     if secret != glv.config['WEBHOOK_SECRET']:
         return web.Response(status=403)
     data = (await request.json())[0]
-    logging.info(data)
     if data['action'] not in ['reached_usage_percent', 'reached_days_left', 'user_expired', 'user_limited']:
         return web.Response()
     vpn_id = data["username"]
