@@ -53,7 +53,7 @@ msgstr "Готовы? 🏄🏻‍♂️\n"
 
 #: bot/handlers/messages.py:29
 msgid "Select the appropriate amount of traffic ⬇️"
-msgstr "Выберите подходящий объём трафика за месяц ⬇️"
+msgstr "Выберите подходящий объём трафика в месяц ⬇️"
 
 #: bot/handlers/messages.py:41
 msgid "Subscription page ⬇️"
