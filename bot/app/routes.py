@@ -93,7 +93,7 @@ async def check_yookassa_payment(request: Request):
         await delete_payment(payment.payment_id)
     return web.Response()
 
-async def notify_data_limit_reached(request: Request):
+async def notify_user(request: Request):
     secret = request.headers.get('x-webhook-secret')
     if secret != glv.config['WEBHOOK_SECRET']:
         return web.Response(status=403)
@@ -102,11 +102,14 @@ async def notify_data_limit_reached(request: Request):
     vpn_id = data['username']
     user = await get_marzban_profile_by_vpn_id(vpn_id)
     if user is None:
+        logging.info(f"No user fount id={vpn_id}")
         return web.Response(status=404)
     chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
     if chat_member is None:
+        logging.info(f"No chat_member fount id={user.tg_id}")
         return web.Response(status=404)
     
-    message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
+    message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(amount=80)
     await glv.bot.send_message(user.tg_id, message)
+    logging.info(f"Message sent to {user.tg_id}")
     return web.Response()

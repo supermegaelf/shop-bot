@@ -14,7 +14,7 @@ from handlers.messages import register_messages
 from handlers.callbacks import register_callbacks
 from handlers.payments import register_payments
 from middlewares.db_check import DBCheck
-from app.routes import check_crypto_payment, check_yookassa_payment, notify_data_limit_reached
+from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 from tasks import register
 import glv
 
@@ -47,7 +47,7 @@ async def main():
 
     app.router.add_post("/cryptomus_payment", check_crypto_payment)
     app.router.add_post("/yookassa_payment", check_yookassa_payment)
-    app.router.add_post("/notify_data_limit_reached", notify_data_limit_reached)
+    app.router.add_post("/notify_user", notify_user)
     
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=glv.dp,
