@@ -99,7 +99,7 @@ async def notify_user(request: Request):
         return web.Response(status=403)
     data = await request.json()
     logging.info(data)
-    vpn_id = data[0]["user_name"]
+    vpn_id = data[0]["username"]
     user = await get_marzban_profile_by_vpn_id(vpn_id)
     if user is None:
         logging.info(f"No user fount id={vpn_id}")
