@@ -23,11 +23,9 @@ config = {
     'PANEL_PASS': os.environ.get('PANEL_PASS'),
     'WEBHOOK_URL': os.environ.get('WEBHOOK_URL'),
     'WEBHOOK_PORT': int(os.environ.get('WEBHOOK_PORT')),
-    'RENEW_NOTIFICATION_TIME': str(os.environ.get('RENEW_NOTIFICATION_TIME')),
+    'WEBHOOK_SECRET': os.environ.get('WEBHOOK_SECRET'),
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
-    'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
-    'EXPIRED_NOTIFICATION_TIME': str(os.environ.get('EXPIRED_NOTIFICATION_TIME')),
-    'WEBHOOK_SECRET': os.environ.get('WEBHOOK_SECRET')
+    'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true'    
 }
 
 bot: Bot = None

@@ -103,11 +103,11 @@ async def notify_user(request: Request):
     vpn_id = data["username"]
     user = await get_marzban_profile_by_vpn_id(vpn_id)
     if user is None:
-        logging.info(f"No user fount id={vpn_id}")
+        logging.info(f"No user found id={vpn_id}")
         return web.Response(status=404)
     chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
     if chat_member is None:
-        logging.info(f"No chat_member fount id={user.tg_id}")
+        logging.info(f"No chat_member found id={user.tg_id}")
         return web.Response(status=404)
     action = data['action']
     message = ""
@@ -124,5 +124,5 @@ async def notify_user(request: Request):
             return web.Response()
         
     await glv.bot.send_message(user.tg_id, message)
-    logging.info(f"Message sent to {user.tg_id}")
+    logging.info(f"Message {action} sent to user id={user.tg_id}.")
     return web.Response()

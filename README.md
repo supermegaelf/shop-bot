@@ -95,8 +95,6 @@ docker compose up -d
 | PANEL_PASS | Panel password |
 | WEBHOOK_URL | Webhook adress (url) (more deteails [here](#about-webhook)) |
 | WEBHOOK_PORT | Webhook port |
-| RENEW_NOTIFICATION_TIME | Scheduled time for exececute notify renew subscription task in format HH:mm |
-| EXPIRED_NOTIFICATION_TIME | Scheduled time for exececute notify users about expired subscription task in format HH:mm |
 | TG_INFO_CHANEL | Telegram chanel link |
 | STARS_PAYMENT_ENABLED | Enable stars payment |
 
