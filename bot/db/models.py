@@ -1,7 +1,6 @@
 from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime
 
 from db.base import Base
-from datetime import datetime
 
 class VPNUsers(Base):
     __tablename__ = "vpnusers"
@@ -20,5 +19,5 @@ class Payments(Base):
     payment_id = Column(String(64))
     callback = Column(String(64))
     type=Column(Integer)
-    created_at=Column(DateTime, default=datetime.now())
+    created_at=Column(DateTime)
     confirmed=Column(Boolean, default=False)

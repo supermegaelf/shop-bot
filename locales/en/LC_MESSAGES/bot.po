@@ -116,30 +116,12 @@ msgstr ""
 msgid "YooKassa (₽)"
 msgstr ""
 
-#: bot/tasks/notify_expired.py:22
-msgid "message_renew_sub"
-msgstr ""
-"Hello, {name} 👋🏻\n"
-"\n"
-"Thank you for using our service ❤️\n️"
-"\n"
-"Your VPN subscription expires {day}, at the end of the day.\n️"
-"\n"
-"To renew it, just go to the \"Access to VPN 🏄🏻‍♂️\" section and make a payment."
 
 #: bot/keyboards/subscription.py:11
 msgid "Install ⚙️"
 msgstr ""
 
 msgid "Share 🔗"
-msgstr ""
-
-#: bot/tasks/notify_expired.py:42
-msgid "today"
-msgstr ""
-
-#: bot/tasks/notify_expired.py:42
-msgid "tomorrow"
 msgstr ""
 
 #: bot/handlers/callbacks.py:52
@@ -156,11 +138,6 @@ msgstr ""
 #: bot/keyboards/xtr_pay.py:6
 msgid "Pay"
 msgstr ""
-
-msgid "message_notify_expired_sub"
-msgstr "Hello 👋🏻\n\n"
-"We noticed that you did not renew your subscription 😢\n\n"
-"If you have any comments or questions about the entire service, please <a href=\"{link}\">write</a>. Your opinion is important to us!"
 
 msgid "Select payment period ⬇️"
 msgstr ""

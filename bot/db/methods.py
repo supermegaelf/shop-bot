@@ -1,5 +1,6 @@
 import hashlib
 from enum import Enum
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete
@@ -51,7 +52,7 @@ async def disable_trial_availability(tg_id):
 
 async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False) -> dict:
     async with engine.connect() as conn:
-        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed)
+        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed, created_at=datetime.now()) 
         await conn.execute(sql_q)
         await conn.commit()
 
