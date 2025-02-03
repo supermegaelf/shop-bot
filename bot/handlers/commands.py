@@ -9,7 +9,7 @@ from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.chat_action import ChatActionSender
 
 from keyboards import get_main_menu_keyboard
-from messages import profile, help
+from .messages import profile, help
 
 router = Router(name="commands-router") 
 
