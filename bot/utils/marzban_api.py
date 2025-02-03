@@ -173,6 +173,8 @@ async def update_subscription_data_limit(username: str, good):
     return result
 
 async def reset_data_limit(username: str):
+    if not await check_if_user_exists(username):
+        return None
     result = await panel.user_data_limit_reset(username)
     return result
 
