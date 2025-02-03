@@ -31,7 +31,7 @@ async def access(message: Message):
 @router.message(
     Command("help")
 )
-async def help(message: Message):
+async def open_help(message: Message):
     await help(message)
 
 def register_commands(dp: Dispatcher):
