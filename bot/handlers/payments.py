@@ -21,7 +21,8 @@ async def success_payment(message: Message):
     good = goods.get(message.successful_payment.invoice_payload)
     user = await get_vpn_user(message.from_user.id)
     if good['type'] == 'renew':
-        if is_test_subscription(message.from_user.id):
+        is_trial = await is_test_subscription(message.from_user.id)
+        if is_trial:
             await marzban_api.reset_data_limit(user.vpn_id)
             await disable_trial(message.from_user.id)
         await marzban_api.generate_marzban_subscription(user.vpn_id, good)

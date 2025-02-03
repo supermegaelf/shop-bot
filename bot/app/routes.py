@@ -43,7 +43,8 @@ async def check_crypto_payment(request: Request):
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         if good['type'] == 'renew':
-            if is_test_subscription(payment.tg_id):
+            is_trial = await is_test_subscription(payment.tg_id)
+            if is_trial:
                 await marzban_api.reset_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
@@ -83,7 +84,8 @@ async def check_yookassa_payment(request: Request):
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         if good['type'] == 'renew':
-            if is_test_subscription(payment.tg_id):
+            is_trial = await is_test_subscription(payment.tg_id)
+            if is_trial:
                 await marzban_api.reset_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
