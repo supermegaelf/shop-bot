@@ -22,7 +22,7 @@ async def create_vpn_user(tg_id: int):
         if result is not None:
             return
         hash = hashlib.md5(str(tg_id).encode()).hexdigest()
-        sql_query = insert(VPNUsers).values(tg_id=tg_id, vpn_id=hash)
+        sql_query = insert(VPNUsers).values(tg_id=tg_id, vpn_id=hash, test=None)
         await conn.execute(sql_query)
         await conn.commit()
 
@@ -42,13 +42,25 @@ async def is_trial_available(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
-    return result.test
+    return result.test is None
 
-async def disable_trial_availability(tg_id):
+async def start_trial(tg_id):
+    async with engine.connect() as conn:
+        sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(test=True)
+        await conn.execute(sql_q)
+        await conn.commit()
+
+async def disable_trial(tg_id):
     async with engine.connect() as conn:
         sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(test=False)
         await conn.execute(sql_q)
         await conn.commit()
+
+async def is_test_subscription(tg_id: int) -> bool:
+    async with engine.connect() as conn:
+        sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
+        result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+    return result.test
 
 async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False) -> dict:
     async with engine.connect() as conn:

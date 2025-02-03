@@ -8,8 +8,7 @@ class VPNUsers(Base):
     id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     tg_id = Column(BigInteger)
     vpn_id = Column(String(64), default="")
-    test = Column(Boolean, default=True) # represents availability of test period. True - trial available.
-
+    test = Column(Boolean, nullable=True, default=None) # null - trial available, true - test subscription, false - trial expired
 class Payments(Base):
     __tablename__ = "payments"
 

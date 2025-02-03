@@ -79,7 +79,14 @@ class Marzban:
         }
         resp = await self._send_request("PUT", f"/api/user/{username}", headers=headers, data=data)
         return resp
-
+    
+    async def user_data_limit_reset(self, username) -> dict:
+        headers = {
+            'Authorization': f"Bearer {self.token}" 
+        }
+        resp = await self._send_request("POST", f"/api/user/{username}/reset", headers=headers)
+        return resp
+    
 def get_protocols() -> dict:
     proxies = {}
     inbounds = {}
@@ -163,6 +170,10 @@ async def update_subscription_data_limit(username: str, good):
     user['status'] = 'active'
     user['data_limit'] = user['data_limit'] + good['data_limit']
     result = await panel.modify_user(username, user)
+    return result
+
+async def reset_data_limit(username: str):
+    result = await panel.user_data_limit_reset(username)
     return result
 
 def get_test_subscription(hours: int, additional= False) -> int:

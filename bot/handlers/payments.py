@@ -3,7 +3,7 @@ from aiogram.types import Message, PreCheckoutQuery
 from aiogram.utils.i18n import gettext as _
 
 from utils import goods, marzban_api
-from db.methods import get_vpn_user, add_payment, PaymentPlatform
+from db.methods import get_vpn_user, add_payment, PaymentPlatform, is_test_subscription, disable_trial
 from keyboards import get_main_menu_keyboard
 
 import glv
@@ -21,6 +21,9 @@ async def success_payment(message: Message):
     good = goods.get(message.successful_payment.invoice_payload)
     user = await get_vpn_user(message.from_user.id)
     if good['type'] == 'renew':
+        if is_test_subscription(message.from_user.id):
+            await marzban_api.reset_data_limit(user.vpn_id)
+            await disable_trial(message.from_user.id)
         await marzban_api.generate_marzban_subscription(user.vpn_id, good)
     else:
         await marzban_api.update_subscription_data_limit(user.vpn_id, good)

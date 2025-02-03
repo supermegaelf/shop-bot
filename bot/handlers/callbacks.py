@@ -9,7 +9,7 @@ from aiogram.utils.i18n import gettext as _
 from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, \
     get_buy_menu_keyboard, get_xtr_pay_keyboard, get_back_to_help_keyboard, get_help_keyboard, \
     get_months_keyboard, get_support_keyboard, get_reach_support_keyboard
-from db.methods import is_trial_available, disable_trial_availability, get_vpn_user
+from db.methods import is_trial_available, disable_trial, start_trial, get_vpn_user
 
 from utils import goods, yookassa, cryptomus, marzban_api
 import glv
@@ -119,7 +119,7 @@ async def callback_trial(callback: CallbackQuery):
         return
     result = await get_vpn_user(callback.from_user.id)
     result = await marzban_api.generate_test_subscription(result.vpn_id)
-    await disable_trial_availability(callback.from_user.id)
+    await start_trial(callback.from_user.id)
     await callback.message.answer(
         _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> not to miss announcements ✅\n️\nSubscription is available in \"Access to VPN 🏄🏻‍♂️\" section.").format(
             link=glv.config['TG_INFO_CHANEL']),

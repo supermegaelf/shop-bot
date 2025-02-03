@@ -10,7 +10,9 @@ from db.methods import (
     get_payment,
     delete_payment,
     confirm_payment,
-    PaymentPlatform
+    PaymentPlatform, 
+    disable_trial,
+    is_test_subscription
 )
 from keyboards import get_main_menu_keyboard
 from utils import webhook_data, goods, marzban_api
@@ -41,6 +43,9 @@ async def check_crypto_payment(request: Request):
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         if good['type'] == 'renew':
+            if is_test_subscription(payment.tg_id):
+                await marzban_api.reset_data_limit(user.vpn_id)
+                await disable_trial(payment.tg_id)
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
             await marzban_api.update_subscription_data_limit(user.vpn_id, good)
@@ -78,6 +83,9 @@ async def check_yookassa_payment(request: Request):
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         if good['type'] == 'renew':
+            if is_test_subscription(payment.tg_id):
+                await marzban_api.reset_data_limit(user.vpn_id)
+                await disable_trial(payment.tg_id)
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
             await marzban_api.update_subscription_data_limit(user.vpn_id, good)
