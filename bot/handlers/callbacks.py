@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import asyncio
+import logging
 
 from aiogram import Router, F
 from aiogram import Dispatcher
@@ -119,6 +120,13 @@ async def callback_trial(callback: CallbackQuery):
         return
     result = await get_vpn_user(callback.from_user.id)
     result = await marzban_api.generate_test_subscription(result.vpn_id)
+    if not result: 
+        await callback.answer(_("Oops! Something went wrong..."), reply_markup=get_main_menu_keyboard())
+        logging.error("Failed to generate test subscription for user %s", callback.from_user.id)
+        return
+    else:
+        logging.info("Test subscription generated for user %s", callback.from_user.id)
+
     await start_trial(callback.from_user.id)
     await callback.message.answer(
         _("Thank you for choice ❤️\n️\n<a href=\"{link}\">Subscribe</a> not to miss announcements ✅\n️\nSubscription is available in \"Access to VPN 🏄🏻‍♂️\" section.").format(
