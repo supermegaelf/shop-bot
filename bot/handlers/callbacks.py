@@ -111,7 +111,6 @@ async def callback_payment_method_select(callback: CallbackQuery):
 
 @router.callback_query(F.data == ("trial"))
 async def callback_trial(callback: CallbackQuery):
-    await callback.message.delete()
     result = await is_trial_available(callback.from_user.id)
     if not result:
         await callback.message.answer(
@@ -137,7 +136,6 @@ async def callback_trial(callback: CallbackQuery):
 
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery):
-    await callback.message.delete()
     await callback.message.answer(_("Select payment period ⬇️"), reply_markup=get_months_keyboard())
     await callback.answer()
 
