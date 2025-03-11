@@ -73,8 +73,6 @@ msgstr ""
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"<a href=\"{link}\">Subscribe</a> not to miss announcements ✅\n️"
-"\n"
 "Subscription is available in \"Access to VPN 🏄🏻‍♂️\" section."
 msgstr ""
 
@@ -104,7 +102,7 @@ msgstr ""
 msgid "Help 🕊"
 msgstr ""
 
-msgid "Renew subscription 💳"
+msgid "Renew 💳"
 msgstr ""
 
 #: bot/handlers/messages.py:32
@@ -252,7 +250,7 @@ msgstr ""
 "\n"
 "Your VPN subscription expires in {days} days.\n️"
 "\n"
-"To extend it, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Pay 💳\"."
+"To extend it, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Renew 💳\"."
 
 msgid "message_user_expired"
 msgstr ""

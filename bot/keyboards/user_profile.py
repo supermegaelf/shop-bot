@@ -35,7 +35,7 @@ def get_user_profile_keyboard(trial_available:bool, show_buy_traffic_button: boo
 
     builder.row(
         InlineKeyboardButton(
-            text=_("Pay 💳" if trial_available else "Renew subscription 💳"),
+            text=_("Pay 💳" if trial_available else "Renew 💳"),
             callback_data="payment"
         )
     )
