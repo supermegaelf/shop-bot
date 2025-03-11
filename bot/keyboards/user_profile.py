@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup,  WebAppInf
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
-def get_user_profile_keyboard(trial_available:bool, subscription_limited: bool, subscription_url:str) -> InlineKeyboardMarkup:
+def get_user_profile_keyboard(trial_available:bool, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     if trial_available:
         builder.row(
@@ -11,7 +11,7 @@ def get_user_profile_keyboard(trial_available:bool, subscription_limited: bool, 
                 callback_data="trial"
             )
         )
-    if subscription_limited:
+    if show_buy_traffic_button:
         builder.row(
             InlineKeyboardButton(
                 text=_("Buy more traffic ➕"),
@@ -32,12 +32,12 @@ def get_user_profile_keyboard(trial_available:bool, subscription_limited: bool, 
                 switch_inline_query=_("\n\nGo to the subscription page to connect to the VPN:\n{link}").format(link=subscription_url)
             )
         )
-    if not subscription_limited:
-        builder.row(
-            InlineKeyboardButton(
-                text=_("Pay 💳"),
-                callback_data="payment"
-            )
+
+    builder.row(
+        InlineKeyboardButton(
+            text=_("Pay 💳" if trial_available else "Renew subscription 💳"),
+            callback_data="payment"
         )
+    )
 
     return builder.as_markup()

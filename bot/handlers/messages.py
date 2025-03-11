@@ -24,7 +24,7 @@ async def profile(message: Message):
         expire_date = datetime.fromtimestamp(marzban_profile['expire']).strftime("%d.%m.%Y") if marzban_profile['expire'] else "∞"
         data_used = f"{marzban_profile['used_traffic'] / 1073741824:.2f}"
         data_limit = f"{marzban_profile['data_limit'] // 1073741824}" if marzban_profile['data_limit'] else "∞"
-        subscription_limited = marzban_profile['status'] == "limited"
+        show_buy_traffic_button = marzban_profile['data_limit'] and (marzban_profile['used_traffic'] / marzban_profile['data_limit']) > 0.9
     else:
         url = ""
         status = "–"
@@ -32,9 +32,10 @@ async def profile(message: Message):
         data_used = "–"
         data_limit = "–"
         subscription_limited = False
+        show_buy_traffic_button = False
     
     await message.answer(text=_("subscription_data").format(status = status, expire_date = expire_date, data_used = data_used, data_limit = data_limit, link = glv.config['TG_INFO_CHANEL']), 
-                         reply_markup=get_user_profile_keyboard(trial_available, subscription_limited, url), disable_web_page_preview=True)
+                         reply_markup=get_user_profile_keyboard(trial_available, show_buy_traffic_button, url), disable_web_page_preview=True)
     
 @router.message(F.text == __("Help 🕊"))
 async def help(message: Message):

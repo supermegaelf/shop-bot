@@ -231,6 +231,9 @@ msgstr "Криптовалюта 💲"
 msgid "Buy more traffic ➕"
 msgstr "Докупить трафик ➕"
 
+msgid "Renew subscription 💳"
+msgstr "Продлить подписку 💳"
+
 msgid "Oops! Something went wrong..."
 msgstr "Упс! Что-то пошло не так..."
 

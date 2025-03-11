@@ -104,6 +104,9 @@ msgstr ""
 msgid "Help 🕊"
 msgstr ""
 
+msgid "Renew subscription 💳"
+msgstr ""
+
 #: bot/handlers/messages.py:32
 msgid "Follow the <a href=\"{link}\">link</a> 🔗" 
 msgstr ""
