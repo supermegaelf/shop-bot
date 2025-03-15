@@ -53,6 +53,10 @@ msgstr "Готовы? 🏄🏻‍♂️\n"
 
 #: bot/handlers/messages.py:29
 msgid "Select the appropriate amount of traffic ⬇️"
+msgstr "Выберите подходящий объём трафика на месяц ⬇️"
+
+msgid "At the beginning of each month, the traffic is renewed.\n\n"
+"Choose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"
 msgstr "В начале каждого месяца трафик обновляется.\n\n"
 "Выберите подходящий объём трафика на месяц (закончится — докупите ещё 🙃) ⬇️"
 

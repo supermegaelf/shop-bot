@@ -21,7 +21,7 @@ router = Router(name="callbacks-router")
 async def callback_month_amount_select(callback: CallbackQuery):
     await callback.message.delete()
     months = int(callback.data.replace("months_", ""))
-    await callback.message.answer(text=_("Select the appropriate amount of traffic ⬇️"), reply_markup=get_buy_menu_keyboard(months, "renew"))
+    await callback.message.answer(text=_("At the beginning of each month, the traffic is renewed.\n\nChoose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"), reply_markup=get_buy_menu_keyboard(months, "renew"))
     await callback.answer()
 
 @router.callback_query(F.data.startswith("extend_data_limit"))

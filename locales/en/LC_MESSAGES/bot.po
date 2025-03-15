@@ -54,6 +54,10 @@ msgstr "Ready? 🏄🏻‍♂️\n"
 msgid "Select the appropriate amount of traffic ⬇️"
 msgstr ""
 
+msgid "At the beginning of each month, the traffic is renewed.\n\n"
+"Choose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"
+msgstr ""
+
 #: bot/handlers/messages.py:41
 msgid "Subscription page ⬇️"
 msgstr ""
