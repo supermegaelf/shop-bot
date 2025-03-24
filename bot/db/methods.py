@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete
 
-from db.models import VPNUsers, Payments
+from db.models import VPNUsers, Payments, PromoCode, UserPromoCode
 import glv
 
 class PaymentPlatform(Enum):
@@ -85,4 +85,34 @@ async def delete_payment(payment_id):
         sql_q = delete(Payments).where(Payments.payment_id == payment_id)
         await conn.execute(sql_q)
         await conn.commit()
+
+async def get_promo_code_by_code(code: str) -> PromoCode:
+    async with engine.connect() as conn:
+        sql_query = select(PromoCode).where(PromoCode.code == code.upper())
+        result: PromoCode = (await conn.execute(sql_query)).fetchone()
+    return result
+
+async def has_used_promo_code(tg_id: int, promo_code_id: int) -> bool:
+    async with engine.connect() as conn:
+        sql_query = select(UserPromoCode).where(UserPromoCode.tg_id == tg_id, UserPromoCode.promo_code_id == promo_code_id)
+        result = (await conn.execute(sql_query)).fetchone()
+    return result is not None
+
+async def activate_promo_code(tg_id: int, promo_code_id: int):
+    async with engine.connect() as conn:
+        sql_query = insert(UserPromoCode).values(tg_id=tg_id, promo_code_id=promo_code_id)
+        await conn.execute(sql_query)
+        await conn.commit()
+
+async def get_user_promo_discount(tg_id: int) -> float:
+    async with engine.connect() as conn:
+        sql_query = select(PromoCode.discount_percent).join(UserPromoCode, PromoCode.id == UserPromoCode.promo_code_id).where(UserPromoCode.tg_id == tg_id)
+        result = (await conn.execute(sql_query)).fetchone()
+    return result[0] if result else 0.0
+
+async def has_confirmed_payments(tg_id: int) -> bool:
+    async with engine.connect() as conn:
+        sql_query = select(Payments).where(Payments.tg_id == tg_id, Payments.confirmed == True)
+        result = (await conn.execute(sql_query)).fetchone()
+    return result is not None
     

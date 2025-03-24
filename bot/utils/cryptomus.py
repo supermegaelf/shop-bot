@@ -2,15 +2,15 @@ import time
 import hashlib
 import aiohttp
 
-from db.methods import add_payment, PaymentPlatform
+from db.methods import add_payment, get_user_promo_discount, PaymentPlatform
 from utils import goods
 from utils.webhook_data import get_sign
 import glv
-
 async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
     good = goods.get(callback)
     prepared_str = str(tg_id) + str(time.time()) + callback
     o_id = hashlib.md5(prepared_str.encode()).hexdigest()
+    
     data = {
         "amount": str(good['price']['en']),
         "currency": "USD",

@@ -10,7 +10,7 @@ from aiogram.utils.i18n import gettext as _
 from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, \
     get_buy_menu_keyboard, get_xtr_pay_keyboard, get_back_to_help_keyboard, get_help_keyboard, \
     get_months_keyboard, get_support_keyboard, get_reach_support_keyboard
-from db.methods import is_trial_available, disable_trial, start_trial, get_vpn_user
+from db.methods import is_trial_available, start_trial, get_vpn_user, get_user_promo_discount
 
 from utils import goods, yookassa, cryptomus, marzban_api
 import glv
@@ -73,13 +73,15 @@ async def callback_payment_method_select(callback: CallbackQuery):
         await callback.answer()
         return
     good = goods.get(data)
-    price = good['price']['stars']
-    prices = [LabeledPrice(label="XTR", amount=price)]  
+    base_price = good['price']['stars']
+    discount = await get_user_promo_discount(callback.from_user.id)
+    final_price = base_price * (1 - discount / 100)
+    prices = [LabeledPrice(label="XTR", amount=final_price)]  
     await callback.message.answer_invoice(
         title = good['title'],
         currency="XTR",
         description=_("To be paid – {amount} ⭐️ ⬇️").format(
-            amount=int(price)
+            amount=int(final_price)
         ),
         prices=prices,
         provider_token="",
@@ -136,7 +138,8 @@ async def callback_trial(callback: CallbackQuery):
 
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery):
-    await callback.message.answer(_("Select payment period ⬇️"), reply_markup=get_months_keyboard())
+    keyboard = await get_months_keyboard(callback.from_user.id)
+    await callback.message.answer(_("Select payment period ⬇️"), reply_markup=keyboard)
     await callback.answer()
 
 @router.callback_query(F.data == "faq")
