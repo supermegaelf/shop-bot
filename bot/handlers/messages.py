@@ -9,7 +9,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from keyboards import get_user_profile_keyboard, get_help_keyboard
-from db.methods import get_promo_code_by_code, has_used_promo_code, activate_promo_code
+from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
 from utils import marzban_api
 
 import glv
@@ -67,7 +67,7 @@ async def process_promo(message: Message, state: FSMContext):
         await state.clear()
         return
     
-    if await has_used_promo_code(tg_id, promo.id):
+    if await has_activated_promo_code(tg_id, promo.id):
         await message.answer("Этот промокод уже был использован вами.")
         await state.clear()
         return

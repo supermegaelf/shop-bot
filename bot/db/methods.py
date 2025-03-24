@@ -92,7 +92,7 @@ async def get_promo_code_by_code(code: str) -> PromoCode:
         result: PromoCode = (await conn.execute(sql_query)).fetchone()
     return result
 
-async def has_used_promo_code(tg_id: int, promo_code_id: int) -> bool:
+async def has_activated_promo_code(tg_id: int, promo_code_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(UserPromoCode).where(UserPromoCode.tg_id == tg_id, UserPromoCode.promo_code_id == promo_code_id)
         result = (await conn.execute(sql_query)).fetchone()
@@ -115,4 +115,10 @@ async def has_confirmed_payments(tg_id: int) -> bool:
         sql_query = select(Payments).where(Payments.tg_id == tg_id, Payments.confirmed == True)
         result = (await conn.execute(sql_query)).fetchone()
     return result is not None
+
+async def use_all_promo_codes(tg_id: int): # ToDo: rewrite logic to use only one promo code
+    async with engine.connect() as conn:
+        sql_query = update(UserPromoCode).where(UserPromoCode.tg_id == tg_id).values(used=True)
+        await conn.execute(sql_query)
+        await conn.commit()
     

@@ -12,7 +12,8 @@ from db.methods import (
     confirm_payment,
     PaymentPlatform, 
     disable_trial,
-    is_test_subscription
+    is_test_subscription,
+    use_all_promo_codes
 )
 from keyboards import get_main_menu_keyboard
 from utils import webhook_data, goods, marzban_api
@@ -58,6 +59,7 @@ async def check_crypto_payment(request: Request):
             reply_markup=get_main_menu_keyboard(payment.lang)
         )
         await confirm_payment(payment.payment_id)
+        await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'cancel':
         await delete_payment(payment.payment_id)
     return web.Response()
