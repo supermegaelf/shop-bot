@@ -11,9 +11,9 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
     prepared_str = str(tg_id) + str(time.time()) + callback
     o_id = hashlib.md5(prepared_str.encode()).hexdigest()
     discount = await get_user_promo_discount(tg_id)
-    price = round(good['price']['en'] * (1 - discount / 100), 2)
+    price = f"{good['price']['en'] * (1 - discount / 100):.2f}"
     data = {
-        "amount": str(price),
+        "amount": price,
         "currency": "USD",
         "order_id": o_id,
         "lifetime": 3600,
