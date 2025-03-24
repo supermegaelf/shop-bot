@@ -106,7 +106,7 @@ async def activate_promo_code(tg_id: int, promo_code_id: int):
 
 async def get_user_promo_discount(tg_id: int) -> float:
     async with engine.connect() as conn:
-        sql_query = select(PromoCode.discount_percent).join(UserPromoCode, PromoCode.id == UserPromoCode.promo_code_id).where(UserPromoCode.tg_id == tg_id)
+        sql_query = select(PromoCode.discount_percent).join(UserPromoCode, PromoCode.id == UserPromoCode.promo_code_id).where(UserPromoCode.tg_id == tg_id, UserPromoCode.used == False)
         result = (await conn.execute(sql_query)).fetchone()
     return result[0] if result else 0.0
 

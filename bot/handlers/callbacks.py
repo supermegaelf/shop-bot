@@ -73,15 +73,14 @@ async def callback_payment_method_select(callback: CallbackQuery):
         await callback.answer()
         return
     good = goods.get(data)
-    base_price = good['price']['stars']
     discount = await get_user_promo_discount(callback.from_user.id)
-    final_price = base_price * (1 - discount / 100)
-    prices = [LabeledPrice(label="XTR", amount=final_price)]  
+    price = int(good['price']['stars'] * (1 - discount / 100))
+    prices = [LabeledPrice(label="XTR", amount=price)]  
     await callback.message.answer_invoice(
         title = good['title'],
         currency="XTR",
         description=_("To be paid – {amount} ⭐️ ⬇️").format(
-            amount=int(final_price)
+            amount=int(price)
         ),
         prices=prices,
         provider_token="",

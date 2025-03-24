@@ -5,7 +5,7 @@ from aiogram.utils.i18n import gettext as _
 from db.methods import is_trial_available, has_confirmed_payments
 
 async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
-    trial_available = await is_trial_available(tg_id) # Триал ещё не активирован
+    trial_available = await is_trial_available(tg_id)
     is_new_user = not await has_confirmed_payments(tg_id)
 
     builder = InlineKeyboardBuilder()

@@ -1,7 +1,7 @@
 from yookassa import Configuration
 from yookassa import Payment
 
-from db.methods import add_payment, PaymentPlatform
+from db.methods import add_payment, get_user_promo_discount, PaymentPlatform
 from utils import goods
 import glv
 
@@ -10,9 +10,11 @@ if glv.config['YOOKASSA_SHOPID'] and glv.config['YOOKASSA_TOKEN']:
 
 async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
     good = goods.get(callback)
+    discount = await get_user_promo_discount(tg_id)
+    price = int(good['price']['ru'] * (1 - discount / 100)),
     resp = Payment.create({
         "amount": {
-            "value": good['price']['ru'],
+            "value": price,
             "currency": "RUB"
         },
         "confirmation": {

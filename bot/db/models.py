@@ -39,3 +39,4 @@ class UserPromoCode(Base):
     tg_id = Column(BigInteger, nullable=False) 
     promo_code_id = Column(BigInteger, nullable=False)
     activated_at = Column(DateTime, default=datetime.now)
+    used = Column(Boolean, default=False)

@@ -33,6 +33,7 @@ def upgrade() -> None:
     sa.Column('tg_id', sa.BigInteger(), nullable=False),
     sa.Column('promo_code_id', sa.BigInteger(), nullable=False),
     sa.Column('activated_at', sa.DateTime(), nullable=True),
+    sa.Column('used', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
