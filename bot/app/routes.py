@@ -101,6 +101,7 @@ async def check_yookassa_payment(request: Request):
             reply_markup=get_main_menu_keyboard(payment.lang)
         )
         await confirm_payment(payment.payment_id)
+        await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'canceled':
         await delete_payment(payment.payment_id)
     return web.Response()
