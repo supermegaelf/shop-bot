@@ -21,7 +21,8 @@ router = Router(name="callbacks-router")
 async def callback_month_amount_select(callback: CallbackQuery):
     await callback.message.delete()
     months = int(callback.data.replace("months_", ""))
-    await callback.message.answer(text=_("At the beginning of each month, the traffic is renewed.\n\nChoose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"), reply_markup=get_buy_menu_keyboard(months, "renew"))
+    keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, "renew")
+    await callback.message.answer(text=_("At the beginning of each month, the traffic is renewed.\n\nChoose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"), reply_markup=keyboard)
     await callback.answer()
 
 @router.callback_query(F.data.startswith("extend_data_limit"))
@@ -37,9 +38,10 @@ async def callback_extend_data_limit(callback: CallbackQuery):
     filtered_goods = [good for good in goods.get() if good['months'] > subscription_months_left and good['type'] == 'update']
     if filtered_goods:
         min_good = min(filtered_goods, key=lambda good: good['months'])
+        keyboard = await get_buy_menu_keyboard(callback.from_user.id, min_good['months'], "update")
         await callback.message.answer(
             text=_("Select the appropriate amount of traffic ⬇️"),
-            reply_markup=get_buy_menu_keyboard(min_good['months'], "update")
+            reply_markup=keyboard
         )
     else:
         await callback.answer(_("Oops! Something went wrong..."), reply_markup=get_main_menu_keyboard())
