@@ -33,7 +33,7 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
                     "description": f"Подписка на VPN сервис: кол-во месяцев - {good['months']}",
                     "quantity": "1",
                     "amount": {
-                        "value": good['price']['ru'],
+                        "value": price,
                         "currency": "RUB"
                     },
                     "vat_code": "1"
