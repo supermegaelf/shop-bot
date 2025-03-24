@@ -11,7 +11,7 @@ if glv.config['YOOKASSA_SHOPID'] and glv.config['YOOKASSA_TOKEN']:
 async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
     good = goods.get(callback)
     discount = await get_user_promo_discount(tg_id)
-    price = int(good['price']['ru'] * (1 - discount / 100)),
+    price = int(good['price']['ru'] * (1 - discount / 100))
     resp = Payment.create({
         "amount": {
             "value": price,
