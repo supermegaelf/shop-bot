@@ -6,14 +6,13 @@ from collections import defaultdict
 from utils import goods
 from db.methods import get_user_promo_discount
 
-async def get_months_keyboard() -> InlineKeyboardMarkup:
+async def get_months_keyboard(tg_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     subscription_opts = [good for good in goods.get() if good["type"] == "renew"]
     month_to_min_price = defaultdict(lambda: float('inf'))
-
     for good in subscription_opts:
         month_to_min_price[good['months']] = min(month_to_min_price[good['months']], good['price']['ru'])
-    discount = await get_user_promo_discount()
+    discount = await get_user_promo_discount(tg_id)
     for months, price in month_to_min_price.items():
         builder.row(InlineKeyboardButton(
             text=_("{months} months – from {price} ₽{discount}").format(
