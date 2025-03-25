@@ -47,7 +47,7 @@ async def help(message: Message):
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("message_enter_promo")
+    await callback.message.edit_text(text=_("message_enter_promo"))
     await state.set_state(PromoStates.waiting_for_promo)
     await callback.answer()
 
