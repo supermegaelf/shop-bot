@@ -148,6 +148,7 @@ async def generate_marzban_subscription(username: str, good):
         user = await panel.get_user(username)
         user['status'] = 'active'
         if user['expire'] < time.time():
+            await panel.user_data_limit_reset(username)
             user['expire'] = get_subscription_end_date(good['months'])   
         else:
             user['expire'] += get_subscription_end_date(good['months'], True)
