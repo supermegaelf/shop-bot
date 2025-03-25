@@ -267,3 +267,21 @@ msgstr ""
 "Hello, {name} 👋🏻\n"
 "You have run out of traffic 😢\n\n"
 "To continue using the service, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Buy more traffic ➕\"."
+
+msgid "message_promo_not_found"
+msgstr "Promo code not found. Please try again ⛔️"
+
+msgid "message_promo_expired"
+msgstr "Promo code has expired. Please use another promo code ⛔️"
+
+msgid "message_promo_already_activated"
+msgstr "This promo code has already been activated ⛔️"
+
+msgid "message_promo_activated"
+msgstr "Promo code activated! Your discount is {discount}% ✅"
+
+msgid "message_enter_promo"
+msgstr "Enter the promo code ⬇️"
+
+msgid "Promo code 🎁"
+msgstr ""

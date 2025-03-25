@@ -30,7 +30,7 @@ async def success_payment(message: Message):
         await marzban_api.update_subscription_data_limit(user.vpn_id, good)
     
     await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)
-    await use_all_promo_codes(payment.tg_id)
+    await use_all_promo_codes(message.from_user.id)
     await message.answer(
         text = _("Thank you for choice ❤️\n️\nSubscription is available in \"Access to VPN 🏄🏻‍♂️\" section.").format(
             link=glv.config['TG_INFO_CHANEL']),

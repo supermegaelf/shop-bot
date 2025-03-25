@@ -8,7 +8,7 @@ from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-from keyboards import get_user_profile_keyboard, get_help_keyboard
+from keyboards import get_user_profile_keyboard, get_help_keyboard, get_main_menu_keyboard
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
 from utils import marzban_api
 
@@ -47,7 +47,7 @@ async def help(message: Message):
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("Введите промокод:")
+    await callback.message.edit_text("message_enter_promo")
     await state.set_state(PromoStates.waiting_for_promo)
     await callback.answer()
 
@@ -58,22 +58,24 @@ async def process_promo(message: Message, state: FSMContext):
 
     promo = await get_promo_code_by_code(promo_code)
     if not promo:
-        await message.answer("Can't find promo code")
+        await message.answer(text=_("message_promo_not_found"))
         await state.clear()
         return
     
     if promo.expires_at and promo.expires_at < datetime.now():
-        await message.answer("Срок действия промокода истёк.")
+        await message.answer(text=_("message_promo_expired"))
         await state.clear()
         return
     
     if await has_activated_promo_code(tg_id, promo.id):
-        await message.answer("Этот промокод уже был использован вами.")
+        await message.answer(text=_("message_promo_already_activated"))
         await state.clear()
         return
     
     await activate_promo_code(tg_id, promo.id)
-    await message.answer(f"Промокод активирован! Скидка {promo.discount_percent}% будет применена при оплате.")
+    await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
+                         show_alert=True,
+                         reply_markup=get_main_menu_keyboard(message.from_user.language_code))
     await state.clear()
 
 def register_messages(dp: Dispatcher):

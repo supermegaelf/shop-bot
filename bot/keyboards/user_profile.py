@@ -2,11 +2,12 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup,  WebAppInf
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
-from db.methods import is_trial_available, has_confirmed_payments
+from db.methods import is_trial_available, has_confirmed_payments, get_user_promo_discount
 
 async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
     trial_available = await is_trial_available(tg_id)
     is_new_user = not await has_confirmed_payments(tg_id)
+    discount = await get_user_promo_discount(tg_id)
 
     builder = InlineKeyboardBuilder()
     if trial_available:
@@ -45,7 +46,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
         )
     )
 
-    if is_new_user:
+    if is_new_user and not discount:
         builder.row(
             InlineKeyboardButton(
                 text=_("Promo code 🎁"),
