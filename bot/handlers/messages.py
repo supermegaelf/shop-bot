@@ -74,8 +74,7 @@ async def process_promo(message: Message, state: FSMContext):
     
     await activate_promo_code(tg_id, promo.id)
     await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
-                         show_alert=True)
-    await message.answer(text=_("Select the action ⬇️"), reply_markup=get_main_menu_keyboard())
+                         reply_markup=get_main_menu_keyboard())
     await state.clear()
 
 def register_messages(dp: Dispatcher):
