@@ -176,7 +176,12 @@ async def callback_back(callback: CallbackQuery):
 @router.callback_query(F.data == "usage_problem")
 async def callback_usage_problem(callback: CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer(text=_("message_usage_problem"), reply_markup=get_reach_support_keyboard())
+    await callback.message.answer(
+        text=_("message_usage_problem"),
+        reply_markup=get_reach_support_keyboard(),
+        parse_mode="HTML",
+        disable_web_page_preview=True
+    )
     await callback.answer()
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
