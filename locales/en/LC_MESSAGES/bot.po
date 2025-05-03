@@ -173,7 +173,7 @@ msgstr "1️⃣ Reboot your device.\n"
 "\n"
 "4️⃣ If using a smartphone, update the geosite and geodat files in the app according to the <a href=\"https://t.me/surf_vpn_info/183\">instructions</a>.\n"
 "\n"
-"5️⃣ Turn off the VPN and measure the internet speed using the <a href=\"https://speed.cloudflare.com/\">link</a>. Wait for the test to complete (the «Running» sign will disappear). If the speed is below 40 Mbps, find a location with a better cellular signal."
+"5️⃣ Turn off the VPN and measure the internet speed using the <a href=\"https://speed.cloudflare.com/\">link</a>. Wait for the test to complete (<i>«Running»</i> will disappear). If the speed is below 40 Mbps, find a location with a better cellular signal."
 
 msgid "It didn't work 🆘"
 msgstr ""
