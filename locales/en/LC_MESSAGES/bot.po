@@ -66,14 +66,14 @@ msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
 msgstr ""
 
 #: bot/handlers/messages.py:64
-msgid "Your subscription is available in the \"Access to VPN 🏄🏻‍♂️\" section."
+msgid "Your subscription is available in the «Access to VPN 🏄🏻‍♂️» section."
 msgstr ""
 
 #: bot/handlers/messages.py:52
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"Subscription is available in \"Access to VPN 🏄🏻‍♂️\" section."
+"Go to «Access to VPN 🏄🏻‍♂️», click «Install ⚙️» and follow the instructions."
 msgstr ""
 
 #: bot/keyboards/back.py:7
@@ -173,7 +173,7 @@ msgstr "1️⃣ Reboot your device.\n"
 "\n"
 "4️⃣ If using a smartphone, update the geosite and geodat files in the app according to the <a href=\"https://t.me/surf_vpn_info/183\">instructions</a>.\n"
 "\n"
-"5️⃣ Turn off the VPN and measure the internet speed using the <a href=\"https://speed.cloudflare.com/\">link</a>. Wait for the test to complete (the “Running” sign will disappear). If the speed is below 40 Mbps, find a location with a better cellular signal."
+"5️⃣ Turn off the VPN and measure the internet speed using the <a href=\"https://speed.cloudflare.com/\">link</a>. Wait for the test to complete (the «Running» sign will disappear). If the speed is below 40 Mbps, find a location with a better cellular signal."
 
 msgid "It didn't work 🆘"
 msgstr ""
