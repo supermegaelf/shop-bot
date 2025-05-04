@@ -75,7 +75,7 @@ msgstr "Ваша подписка доступна в разделе <i>«Дос
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"Subscription is available in «Access to VPN 🏄🏻‍♂️» section."
+"Go to <i>«Access to VPN 🏄🏻‍♂️»</i>, click <i>«Install ⚙️»</i> and follow the instructions."
 msgstr ""
 "Благодарим за ваш выбор ❤️\n️"
 "\n"
