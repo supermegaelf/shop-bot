@@ -66,14 +66,14 @@ msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
 msgstr ""
 
 #: bot/handlers/messages.py:64
-msgid "Your subscription is available in the <i>«Access to VPN 🏄🏻‍♂️»</i> section."
+msgid "Your subscription is available in the \"Access to VPN 🏄🏻‍♂️\" section."
 msgstr ""
 
 #: bot/handlers/messages.py:52
 msgid ""
 "Thank you for choice ❤️\n️"
 "\n"
-"Go to <i>«Access to VPN 🏄🏻‍♂️»</i>, click <i>«Install ⚙️»</i> and follow the instructions."
+"Subscription is available in \"Access to VPN 🏄🏻‍♂️\" section."
 msgstr ""
 
 #: bot/keyboards/back.py:7
@@ -229,6 +229,12 @@ msgid "Oops! Something went wrong..."
 msgstr ""
 
 msgid "message_reached_usage_percent"
+msgstr "Hello 👋🏻\n\n"
+"You've spent {amount}% of your traffic\n"
+"To raise your data limit:\n\n"
+"Go to \"Access to VPN 🏄🏻‍♂️\" -> \"Buy more traffic ➕\""
+
+msgid "message_reached_usage_percent"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
@@ -236,7 +242,7 @@ msgstr ""
 "\n"
 "You have {amount}% of your traffic left.\n"
 "\n"
-"To continue using the service, go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section and click <i>«Buy more traffic ➕»</i>."
+"To continue using the service, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Buy more traffic ➕\"."
 
 msgid "message_reached_days_left"
 msgstr ""
@@ -246,7 +252,7 @@ msgstr ""
 "\n"
 "Your VPN subscription expires in {days} days.\n️"
 "\n"
-"To extend it, go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section and click <i>«Renew 💳»</i>."
+"To extend it, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Renew 💳\"."
 
 msgid "message_user_expired"
 msgstr ""
@@ -258,7 +264,7 @@ msgid "message_user_limited"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "You have run out of traffic 😢\n\n"
-"To continue using the service, go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section and click <i>«Buy more traffic ➕»</i>."
+"To continue using the service, go to the \"Access to VPN 🏄🏻‍♂️\" section and click \"Buy more traffic ➕\"."
 
 msgid "message_promo_not_found"
 msgstr "Promo code not found. Please try again ⛔️"
