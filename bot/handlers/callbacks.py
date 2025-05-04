@@ -131,7 +131,7 @@ async def callback_trial(callback: CallbackQuery):
 
     await start_trial(callback.from_user.id)
     await callback.message.answer(
-        _("Thank you for choice ❤️\n️\nSubscription is available in \"Access to VPN 🏄🏻‍♂️\" section.").format(
+        _("Thank you for choice ❤️\n️\nGo to <i>«Access to VPN 🏄🏻‍♂️»</i> section, click <i>«Install ⚙️»</i> and follow the instructions.").format(
             link=glv.config['TG_INFO_CHANEL']),
         reply_markup=get_main_menu_keyboard()
     )
