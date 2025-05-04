@@ -68,7 +68,7 @@ msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
 msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN:\n{link}"
 
 #: bot/handlers/messages.py:64
-msgid "Your subscription is available in the «Access to VPN 🏄🏻‍♂️» section."
+msgid "Your subscription is available in the <i>«Access to VPN 🏄🏻‍♂️»</i> section."
 msgstr "Ваша подписка доступна в разделе <i>«Доступ к VPN 🏄🏻‍♂️»</i>."
 
 #: bot/handlers/messages.py:52
