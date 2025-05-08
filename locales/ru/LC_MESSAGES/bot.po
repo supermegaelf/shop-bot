@@ -57,8 +57,8 @@ msgstr "В начале каждого месяца трафик обновля�
 "Выберите подходящий объём трафика на месяц (закончится — докупите ещё 🙃) ⬇️"
 
 #: bot/handlers/user_profile.py:38
-msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
-msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN:\n{link}"
+msgid "\n\nGo to the subscription page to connect to the VPN ⬇️\n\n{link}"
+msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN ⬇️\n\n{link}"
 
 #: bot/handlers/callbacks.py:120
 msgid "message_subscription_access"
