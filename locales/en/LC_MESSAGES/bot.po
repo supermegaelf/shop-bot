@@ -126,7 +126,6 @@ msgstr ""
 msgid "YooKassa (₽)"
 msgstr ""
 
-
 #: bot/keyboards/user_profile.py:31
 msgid "Install ⚙️"
 msgstr ""
