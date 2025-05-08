@@ -45,7 +45,7 @@ msgstr ""
 #: bot/handlers/commands.py:44
 msgid "message_select_welcome_action"
 msgstr "Ready? 🏄🏻‍♂️\n"
-"Select an action ⬇️"
+"Select action ⬇️"
 
 #: bot/handlers/callbacks.py:43
 msgid "message_select_traffic_amount"
@@ -137,11 +137,11 @@ msgstr "Select payment period ⬇️"
 #: bot/keyboards/callbacks.py:161
 #: bot/keyboards/messages.py:46
 msgid "message_select_action"
-msgstr "Select the action ⬇️"
+msgstr "Select action ⬇️"
 
 #: bot/keyboards/callbacks.py:167
 msgid "message_issue_prompt"
-msgstr "What issue did you encounter?"
+msgstr "Select option ⬇️"
 
 #: bot/keyboards/support.py:9
 msgid "button_vpn_setup_issue"
