@@ -43,7 +43,7 @@ msgstr ""
 "⚠️ The use of torrent clients is prohibited."
 
 #: bot/handlers/commands.py:44
-msgid "message_select_action"
+msgid "message_select_welcome_action"
 msgstr "Ready? 🏄🏻‍♂️\n"
 "Select an action ⬇️"
 

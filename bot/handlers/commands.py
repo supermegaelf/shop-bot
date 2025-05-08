@@ -41,7 +41,7 @@ async def start(message: Message):
         await message.answer(_("message_welcome").format(name=message.from_user.first_name))
         async with ChatActionSender.typing(bot=message.bot, chat_id=message.chat.id):
                 await asyncio.sleep(1)
-        await message.answer(_("message_select_action"), reply_markup=get_main_menu_keyboard())
+        await message.answer(_("message_select_welcome_action"), reply_markup=get_main_menu_keyboard())
 
 @router.message(
     Command("access")

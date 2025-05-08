@@ -43,7 +43,7 @@ msgstr ""
 "⚠️ Использование торрент-клиентов запрещено."
 
 #: bot/handlers/commands.py:44
-msgid "message_select_action"
+msgid "message_select_welcome_action"
 msgstr "Готовы? 🏄🏻‍♂️\n"
 "Выберите действие ⬇️"
 
