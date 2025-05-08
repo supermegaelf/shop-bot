@@ -193,8 +193,17 @@ msgstr "<b>1. What is a VPN?</b>\n\n"
 "You can connect any number of devices, the limitation only applies to the amount of traffic."
 
 #: bot/keyboards/messages.py:40
-msgid "Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\nTraffic: {data_used} GB / {data_limit} GB 🌐\n\n All the most important are <a href=\"{link}\">here</a> 📣"
+msgid "subscription_data"
 msgstr ""
+"<u>Your subscription:</u>\n"
+"\n"
+"Status: {status}\n"
+"Valid until: {expire_date} 📅\n"
+"Traffic: {data_used} GB / {data_limit} GB 🌍\n"
+"\n"
+"Latest news are <a href=\"{link}\">here</a> 📣\n"
+"\n"
+"<u>Select an action</u> ⬇️"
 
 msgid "active"
 msgstr "active ✅"

@@ -37,7 +37,7 @@ async def profile(message: Message):
         data_limit = "–"
         show_buy_traffic_button = False
     keyboard = await get_user_profile_keyboard(message.from_user.id, show_buy_traffic_button, url)
-    await message.answer(text=_("Subscription status: {status}\n\nExpire date: {expire_date} 📆\n\nTraffic: {data_used} GB / {data_limit} GB 🌐\n\n All the most important are <a href=\"{link}\">here</a> 📣").format(status = status, expire_date = expire_date, data_used = data_used, data_limit = data_limit, link = glv.config['TG_INFO_CHANEL']), 
+    await message.answer(text=_("subscription_data").format(status = status, expire_date = expire_date, data_used = data_used, data_limit = data_limit, link = glv.config['TG_INFO_CHANEL']), 
                             reply_markup = keyboard,
                             disable_web_page_preview = True)
     
