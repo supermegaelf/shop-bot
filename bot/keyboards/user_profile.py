@@ -35,7 +35,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
         builder.row(
             InlineKeyboardButton(
                 text=_("button_share"),
-                switch_inline_query=_("message_vpn_subscription_link").format(link=subscription_url)
+                switch_inline_query=_("\n\nGo to the subscription page to connect to the VPN:\n{link}").format(link=subscription_url)
             )
         )
 

@@ -60,7 +60,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         data, 
         callback.from_user.language_code)
     await callback.message.answer(
-        _("message_to_be_paid_rubles").format(
+        _("To be paid – {amount} ₽ ⬇️").format(
             amount=int(result['amount'])
         ),
         reply_markup=get_pay_keyboard(result['url']))
@@ -81,7 +81,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.answer_invoice(
         title = good['title'],
         currency="XTR",
-        description=_("message_to_be_paid_stars").format(
+        description=_("To be paid – {amount} ⭐️ ⬇️").format(
             amount=int(price)
         ),
         prices=prices,
@@ -105,7 +105,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     now = datetime.now()
     expire_date = (now + timedelta(minutes=60)).strftime("%d/%m/%Y, %H:%M")
     await callback.message.answer(
-        _("message_to_be_paid_dollars").format(
+        _("To be paid – {amount} $ ⬇️").format(
             amount=result['amount'],
             date=expire_date
         ),
