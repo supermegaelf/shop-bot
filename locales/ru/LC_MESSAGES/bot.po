@@ -20,15 +20,15 @@ msgstr ""
 "X-Generator: Poedit 2.0.2\n"
 
 #: bot/handlers/callbacks.py:63
-msgid "To be paid – {amount} ₽ ⬇️"
+msgid "message_to_be_paid_rubles"
 msgstr "К оплате – {amount} ₽ ⬇️"
 
 #: bot/handlers/callbacks.py:108
-msgid "To be paid – {amount} $ ⬇️"
+msgid "message_to_be_paid_dollars"
 msgstr "️К оплате – {amount} $ ⬇️"
 
 #: bot/handlers/callbacks.py:191
-msgid "Select payment method ⬇️"
+msgid "message_select_payment_method"
 msgstr "Выберите способ оплаты ⬇️"
 
 #: bot/handlers/commands.py:41
@@ -48,36 +48,24 @@ msgstr "Готовы? 🏄🏻‍♂️\n"
 "Выберите действие ⬇️"
 
 #: bot/handlers/callbacks.py:43
-msgid "Select the appropriate amount of traffic ⬇️"
+msgid "message_select_traffic_amount"
 msgstr "Выберите подходящий объём трафика ⬇️"
 
 #: bot/handlers/callbacks.py:25
-msgid "At the beginning of each month, the traffic is renewed.\n\n"
-"Choose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"
+msgid "message_traffic_renewal_info"
 msgstr "В начале каждого месяца трафик обновляется.\n\n"
 "Выберите подходящий объём трафика на месяц (закончится — докупите ещё 🙃) ⬇️"
 
-#: bot/handlers/messages.py:41
-msgid "Subscription page ⬇️"
-msgstr "Страница подписки ⬇️"
-
-#: bot/handlers/messages.py:52
-msgid "Follow the <a href=\"{link}\">link</a> and ask us a question. We are always happy to help 🤗"
-msgstr "Перейдите по <a href=\"{link}\">ссылке</a> и задайте нам вопрос. Мы всегда рады помочь 🤗"
-
 #: bot/handlers/user_profile.py:38
-msgid "\n\nGo to the subscription page to connect to the VPN:\n{link}"
+msgid "message_vpn_subscription_link"
 msgstr "\n\nПерейдите на страницу подписки чтобы подключиться к VPN:\n{link}"
 
 #: bot/handlers/callbacks.py:120
-msgid "Your subscription is available in the <i>«Access to VPN 🏄🏻‍♂️»</i> section."
+msgid "message_subscription_access"
 msgstr "Ваша подписка доступна в разделе <i>«Доступ к VPN 🏄🏻‍♂️»</i>."
 
 #: bot/handlers/payments.py:35
-msgid ""
-"Thank you for choice ❤️\n️"
-"\n"
-"Go to <i>«Access to VPN 🏄🏻‍♂️»</i> section, click <i>«Install ⚙️»</i> and follow the instructions."
+msgid "message_payment_success"
 msgstr ""
 "Благодарим за ваш выбор ❤️\n️"
 "\n"
@@ -85,90 +73,78 @@ msgstr ""
 
 #: bot/keyboards/help.py:22
 #: bot/keyboards/support.py:18,30
-msgid "⏪ Back"
+msgid "button_back"
 msgstr "⏪ Назад"
 
 #: bot/keyboards/buy_menu.py:15
-msgid "{title} – {price_ru} ₽"
+msgid "button_traffic_option"
 msgstr "{title} – {price_ru} ₽"
 
 #: bot/keyboards/messages.py:22
 #: bot/keyboards/main_menu.py:9
-msgid "Access to VPN 🏄🏻‍♂️"
+msgid "button_vpn_access"
 msgstr "Доступ к VPN 🏄🏻‍♂️"
 
 #: bot/keyboards/help.py:10
-msgid "Frequent questions 📝"
+msgid "button_frequent_questions"
 msgstr "Частые вопросы 📝"
 
 #: bot/keyboards/help.py:13,15
-msgid "Terms of service 📃"
+msgid "button_terms_of_service"
 msgstr "Условия использования 📃"
 
 #: bot/keyboards/help.py:9
-msgid "Support ❤️"
+msgid "button_support"
 msgstr "Поддержка ❤️"
 
 #: bot/keyboards/messages.py:44
 #: bot/keyboards/main_menu.py:10
-msgid "Help 🕊"
+msgid "button_help"
 msgstr "Помощь 🕊"
 
 #: bot/keyboards/user_profile.py:44
-msgid "Renew 💳"
+msgid "button_renew"
 msgstr "Продлить 💳"
 
-#: bot/handlers/messages.py:32
-msgid "Follow the <a href=\"{link}\">link</a> 🔗"
-msgstr "Перейти по <a href=\"{link}\">ссылке</a> 🔗"
-
 #: bot/keyboards/user_profile.py:16
-msgid "5 days free 🆓"
+msgid "button_free_trial"
 msgstr "5 дней бесплатно 🆓"
 
-#: bot/keyboards/payments.py:23
-msgid "YooKassa (₽)"
-msgstr "ЮKassa (₽)"
-
 #: bot/keyboards/user_profile.py:31
-msgid "Install ⚙️"
+msgid "button_install"
 msgstr "Установить ⚙️"
 
 #: bot/keyboards/user_profile.py:37
-msgid "Share 🔗"
+msgid "button_share"
 msgstr "Поделиться 🔗"
 
 #: bot/handlers/callbacks.py:84
-msgid "To be paid – {amount} ⭐️ ⬇️"
+msgid "message_to_be_paid_stars"
 msgstr "К оплате – {amount} ⭐️ ⬇️"
 
-#: bot/handlers/callbacks.py:50
-msgid "Subscription for {amount} month"
-msgstr "Подписка {amount} мес."
-
 #: bot/keyboards/user_profile.py:44
-msgid "Pay 💳"
+msgid "button_pay"
 msgstr "Оплатить 💳"
 
 #: bot/keyboards/pay.py:9
-msgid "Pay"
+msgid "button_pay_action"
 msgstr "Оплатить"
 
 #: bot/keyboards/callbacks.py:143
-msgid "Select payment period ⬇️"
+msgid "message_select_payment_period"
 msgstr "Выберете период оплаты ⬇️"
 
 #: bot/keyboards/callbacks.py:161
 #: bot/keyboards/messages.py:46
-msgid "Select the action ⬇️"
+msgid "message_select_action"
 msgstr "Выберите действие ⬇️"
 
 #: bot/keyboards/callbacks.py:167
-msgid "What issue did you encounter?"
+msgid "message_issue_prompt"
 msgstr "С какой проблемой вы столкнулись?"
 
 #: bot/keyboards/support.py:9
-msgid "Can't set up VPN 🔌"
+msgid "button_vpn_setup_issue"
 msgstr "Не могу установить VPN 🔌"
 
 #: bot/keyboards/callbacks.py:173
@@ -182,7 +158,7 @@ msgstr "1️⃣ Перейдите в раздел <i>«Доступ к VPN 🏄
 "4️⃣ Выполните установку по инструкции."
 
 #: bot/keyboards/support.py:12
-msgid "VPN doesn't work ⛔️"
+msgid "button_vpn_not_working"
 msgstr "Не работает VPN ⛔️"
 
 #: bot/keyboards/callbacks.py:180
@@ -198,11 +174,11 @@ msgstr "1️⃣ Перезагрузите устройство.\n"
 "5️⃣ Выключите VPN и измерьте скорость интернета по <a href=\"https://speed.cloudflare.com/\">ссылке</a>. Дождитесь завершения теста (надпись <i>«Running»</i> исчезнет). Если скорость ниже 40 Мбит/с, найдите место с лучшим сигналом сотовой связи."
 
 #: bot/keyboards/support.py:27
-msgid "It didn't work 🆘"
+msgid "button_support_failed"
 msgstr "Ничего не помогло 🆘"
 
 #: bot/keyboards/support.py:15
-msgid "Other question ❔"
+msgid "button_other_question"
 msgstr "Другой вопрос❔"
 
 #: bot/keyboards/callbacks.py:149
@@ -220,7 +196,6 @@ msgstr "<b>1. Что такое VPN?</b>\n\n"
 msgid "subscription_data"
 msgstr "Статус подписки: {status}\n\nПодписка истекает: {expire_date} 📆\n\nТрафик: {data_used} GB / {data_limit} GB 🌐\n\nВсё самое важное <a href=\"{link}\">здесь</a> 📣"
 
-#: bot/keyboards/marzban_api.py:127,149,171
 msgid "active"
 msgstr "активна ✅"
 
@@ -246,19 +221,19 @@ msgid "{months} months – from {price} ₽"
 msgstr "{months} мес. – от {price} ₽"
 
 #: bot/keyboards/payments.py:23
-msgid "Card 💳"
+msgid "button_card"
 msgstr "Банковская карта 💳"
 
 #: bot/keyboards/payments.py:30
-msgid "Cryptocurrency 💲"
+msgid "button_cryptocurrency"
 msgstr "Криптовалюта 💲"
 
 #: bot/keyboards/user_profile.py:23
-msgid "Buy more traffic ➕"
+msgid "button_buy_more_traffic"
 msgstr "Докупить трафик ➕"
 
 #: bot/keyboards/callbacks.py:33,47,126
-msgid "Oops! Something went wrong..."
+msgid "message_error"
 msgstr "Упс! Что-то пошло не так..."
 
 #: bot/keyboards/routes.py:129
@@ -326,5 +301,5 @@ msgid "message_enter_promo"
 msgstr "Введите промокод ⬇️"
 
 #: bot/keyboards/user_profile.py:52
-msgid "Promo code 🎁"
+msgid "button_promo_code"
 msgstr "Промокод 🎁"

@@ -20,14 +20,14 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
     if yoo:
         builder.row(
             InlineKeyboardButton(
-                text=_("Card 💳"),
+                text=_("button_card"),
                 callback_data=f"pay_kassa_{good['callback']}"
             )
         )
     if crypt:
         builder.row(
             InlineKeyboardButton(
-                text=_("Cryptocurrency 💲"),
+                text=_("button_cryptocurrency"),
                 callback_data=f"pay_crypto_{good['callback']}"
             )
         )

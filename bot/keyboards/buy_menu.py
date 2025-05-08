@@ -12,7 +12,7 @@ async def get_buy_menu_keyboard(tg_id: int, months: int, purchase_type: str) -> 
 
     for good in filtered_goods:
         builder.row(InlineKeyboardButton(
-            text=_("{title} – {price_ru} ₽").format(
+            text=_("button_traffic_option").format(
                 title=good['title'],
                 price_ru = int(good['price']['ru'] * (1 - discount / 100))
             ) + (f" (-{discount}%)" if discount else ""), 

@@ -22,7 +22,7 @@ async def callback_month_amount_select(callback: CallbackQuery):
     await callback.message.delete()
     months = int(callback.data.replace("months_", ""))
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, "renew")
-    await callback.message.answer(text=_("At the beginning of each month, the traffic is renewed.\n\nChoose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"), reply_markup=keyboard)
+    await callback.message.answer(text=_("message_traffic_renewal_info"), reply_markup=keyboard)
     await callback.answer()
 
 @router.callback_query(F.data.startswith("extend_data_limit"))
@@ -30,7 +30,7 @@ async def callback_extend_data_limit(callback: CallbackQuery):
     await callback.message.delete()
     user = await marzban_api.get_marzban_profile(callback.from_user.id)
     if not user or not user['data_limit'] or not user['expire']: 
-        await callback.answer(_("Oops! Something went wrong..."), reply_markup=get_main_menu_keyboard())
+        await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
         return
     
     subscription_months_left = (user['expire'] - datetime.now().timestamp()) / 2592000
@@ -40,11 +40,11 @@ async def callback_extend_data_limit(callback: CallbackQuery):
         min_good = min(filtered_goods, key=lambda good: good['months'])
         keyboard = await get_buy_menu_keyboard(callback.from_user.id, min_good['months'], "update")
         await callback.message.answer(
-            text=_("Select the appropriate amount of traffic ⬇️"),
+            text=_("message_select_traffic_amount"),
             reply_markup=keyboard
         )
     else:
-        await callback.answer(_("Oops! Something went wrong..."), reply_markup=get_main_menu_keyboard())
+        await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
     
     await callback.answer()
 
@@ -60,7 +60,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         data, 
         callback.from_user.language_code)
     await callback.message.answer(
-        _("To be paid – {amount} ₽ ⬇️").format(
+        _("message_to_be_paid_rubles").format(
             amount=int(result['amount'])
         ),
         reply_markup=get_pay_keyboard(result['url']))
@@ -81,7 +81,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.answer_invoice(
         title = good['title'],
         currency="XTR",
-        description=_("To be paid – {amount} ⭐️ ⬇️").format(
+        description=_("message_to_be_paid_stars").format(
             amount=int(price)
         ),
         prices=prices,
@@ -105,7 +105,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     now = datetime.now()
     expire_date = (now + timedelta(minutes=60)).strftime("%d/%m/%Y, %H:%M")
     await callback.message.answer(
-        _("To be paid – {amount} $ ⬇️").format(
+        _("message_to_be_paid_dollars").format(
             amount=result['amount'],
             date=expire_date
         ),
@@ -117,13 +117,13 @@ async def callback_trial(callback: CallbackQuery):
     result = await is_trial_available(callback.from_user.id)
     if not result:
         await callback.message.answer(
-            _("Your subscription is available in the \"Access to VPN 🏄🏼‍♂️\" section."),
+            _("message_subscription_access"),
             reply_markup=get_main_menu_keyboard())
         return
     result = await get_vpn_user(callback.from_user.id)
     result = await marzban_api.generate_test_subscription(result.vpn_id)
     if not result: 
-        await callback.answer(_("Oops! Something went wrong..."), reply_markup=get_main_menu_keyboard())
+        await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
         logging.error("Failed to generate test subscription for user %s", callback.from_user.id)
         return
     else:
@@ -131,7 +131,7 @@ async def callback_trial(callback: CallbackQuery):
 
     await start_trial(callback.from_user.id)
     await callback.message.answer(
-        _("Thank you for choice ❤️\n️\nGo to <i>«Access to VPN 🏄🏻‍♂️»</i> section, click <i>«Install ⚙️»</i> and follow the instructions.").format(
+        _("message_payment_success").format(
             link=glv.config['TG_INFO_CHANEL']),
         reply_markup=get_main_menu_keyboard()
     )
@@ -140,7 +140,7 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery):
     keyboard = await get_months_keyboard(callback.from_user.id)
-    await callback.message.answer(_("Select payment period ⬇️"), reply_markup=keyboard)
+    await callback.message.answer(_("message_select_payment_period"), reply_markup=keyboard)
     await callback.answer()
 
 @router.callback_query(F.data == "faq")
@@ -158,13 +158,13 @@ async def callback_frequent_questions(callback: CallbackQuery):
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer(text=_("Select the action ⬇️"), reply_markup=get_help_keyboard())
+    await callback.message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
     await callback.answer()
 
 @router.callback_query(F.data == "support")
 async def callback_terms_of_service(callback: CallbackQuery):
     await callback.message.delete()
-    await callback.message.answer(text=_("What issue did you encounter?"), reply_markup=get_support_keyboard())
+    await callback.message.answer(text=_("message_issue_prompt"), reply_markup=get_support_keyboard())
     await callback.answer()
 
 @router.callback_query(F.data == "set_up_problem")
@@ -188,7 +188,7 @@ async def callback_usage_problem(callback: CallbackQuery):
 async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.delete()
     good = goods.get(callback.data)
-    await callback.message.answer(text=_("Select payment method ⬇️"), reply_markup=get_payment_keyboard(good))
+    await callback.message.answer(text=_("message_select_payment_method"), reply_markup=get_payment_keyboard(good))
     await callback.answer()
 
 def register_callbacks(dp: Dispatcher):

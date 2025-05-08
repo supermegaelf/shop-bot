@@ -6,8 +6,8 @@ from utils import get_i18n_string
 def get_main_menu_keyboard(lang=None) -> ReplyKeyboardMarkup:
     kb = [
         [
-            KeyboardButton(text=get_i18n_str("Access to VPN 🏄🏻‍♂️", lang)),
-            KeyboardButton(text=get_i18n_str("Help 🕊", lang))
+            KeyboardButton(text=get_i18n_str("button_vpn_access", lang)),
+            KeyboardButton(text=get_i18n_str("button_help", lang))
         ],
     ]
 

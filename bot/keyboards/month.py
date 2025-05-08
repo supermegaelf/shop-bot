@@ -15,7 +15,7 @@ async def get_months_keyboard(tg_id: int) -> InlineKeyboardMarkup:
     discount = await get_user_promo_discount(tg_id)
     for months, price in month_to_min_price.items():
         builder.row(InlineKeyboardButton(
-            text=_("{months} months – from {price} ₽").format(
+            text=_("button_subscription_months").format(
                 months = months,
                 price = int(price * (1 - discount / 100))
             ) + (f" (-{discount}%)" if discount else ""), 

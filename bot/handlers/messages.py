@@ -19,7 +19,7 @@ router = Router(name="messages-router")
 class PromoStates(StatesGroup):
     waiting_for_promo = State()
 
-@router.message(F.text == __("Access to VPN 🏄🏻‍♂️"))
+@router.message(F.text == __("button_vpn_access"))
 async def profile(message: Message):
     marzban_profile = await marzban_api.get_marzban_profile(message.from_user.id)
     if marzban_profile:
@@ -41,9 +41,9 @@ async def profile(message: Message):
                             reply_markup = keyboard,
                             disable_web_page_preview = True)
     
-@router.message(F.text == __("Help 🕊"))
+@router.message(F.text == __("button_help"))
 async def help(message: Message):
-    await message.answer(text=_("Select the action ⬇️"), reply_markup=get_help_keyboard())
+    await message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):

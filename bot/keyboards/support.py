@@ -6,16 +6,16 @@ import glv
 def get_support_keyboard() -> InlineKeyboardMarkup:
    kb = [
         [
-            InlineKeyboardButton(text=_("Can't set up VPN 🔌"), callback_data='set_up_problem')
+            InlineKeyboardButton(text=_("button_vpn_setup_issue"), callback_data='set_up_problem')
         ],
         [
-            InlineKeyboardButton(text=_("VPN doesn't work ⛔️"), callback_data='usage_problem')
+            InlineKeyboardButton(text=_("button_vpn_not_working"), callback_data='usage_problem')
         ],
         [
-            InlineKeyboardButton(text=_("Other question ❔"), url=glv.config['SUPPORT_LINK'])
+            InlineKeyboardButton(text=_("button_other_question"), url=glv.config['SUPPORT_LINK'])
         ],
         [
-            InlineKeyboardButton(text=_("⏪ Back"), callback_data='help')
+            InlineKeyboardButton(text=_("button_back"), callback_data='help')
         ],
     ]
    
@@ -24,10 +24,10 @@ def get_support_keyboard() -> InlineKeyboardMarkup:
 def get_reach_support_keyboard() -> InlineKeyboardMarkup:
    kb = [
         [
-            InlineKeyboardButton(text=_("It didn't work 🆘"), url=glv.config['SUPPORT_LINK'])
+            InlineKeyboardButton(text=_("button_support_failed"), url=glv.config['SUPPORT_LINK'])
         ],
         [
-            InlineKeyboardButton(text=_("⏪ Back"), callback_data='support')
+            InlineKeyboardButton(text=_("button_back"), callback_data='support')
         ],
     ]
    
