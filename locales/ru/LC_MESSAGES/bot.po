@@ -93,10 +93,6 @@ msgstr "{title} – {price_ru} ₽"
 msgid "Access to VPN 🏄🏻‍♂️"
 msgstr "Доступ к VPN 🏄🏻‍♂️"
 
-#: bot/keyboards/main_menu.py:14
-msgid "My subscription 👤"
-msgstr "Моя подписка 👤"
-
 #: bot/keyboards/main_menu.py:15
 msgid "Frequent questions 📝"
 msgstr "Частые вопросы 📝"
