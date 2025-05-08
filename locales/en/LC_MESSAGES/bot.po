@@ -57,7 +57,7 @@ msgstr "At the beginning of each month, the traffic is renewed.\n\n"
 "Choose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"
 
 #: bot/handlers/user_profile.py:38
-msgid "\n\nGo to the subscription page to connect to the VPN ⬇️\n\n{link}"
+msgid "\n\nFollow the link below to install VPN ⬇️\n\n{link}"
 msgstr ""
 
 #: bot/handlers/callbacks.py:120
