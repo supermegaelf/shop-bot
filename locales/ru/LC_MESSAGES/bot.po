@@ -141,7 +141,7 @@ msgstr "Выберите действие ⬇️"
 
 #: bot/keyboards/callbacks.py:167
 msgid "message_issue_prompt"
-msgstr "С какой проблемой вы столкнулись?"
+msgstr "Выберите действие ⬇️"
 
 #: bot/keyboards/support.py:9
 msgid "button_vpn_setup_issue"
