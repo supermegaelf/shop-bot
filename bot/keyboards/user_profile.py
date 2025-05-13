@@ -13,14 +13,14 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
     if trial_available:
         builder.row(
             InlineKeyboardButton(
-                text=_("5 days free 🆓"),
+                text=_("button_free_trial"),
                 callback_data="trial"
             )
         )
     if show_buy_traffic_button:
         builder.row(
             InlineKeyboardButton(
-                text=_("Buy more traffic ➕"),
+                text=_("button_buy_more_traffic"),
                 callback_data="extend_data_limit"
             )
         )
@@ -28,20 +28,20 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
     if subscription_url: 
         builder.row(
             InlineKeyboardButton(
-                text=_("Install ⚙️"),
+                text=_("button_install"),
                 web_app=WebAppInfo(url=subscription_url)
             )
         )
         builder.row(
             InlineKeyboardButton(
-                text=_("Share 🔗"),
-                switch_inline_query=_("\n\nGo to the subscription page to connect to the VPN:\n{link}").format(link=subscription_url)
+                text=_("button_share"),
+                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
             )
         )
 
     builder.row(
         InlineKeyboardButton(
-            text=_("Pay 💳" if trial_available else "Renew 💳"),
+            text=_("button_pay" if trial_available else "button_renew"),
             callback_data="payment"
         )
     )
@@ -49,7 +49,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
     if is_new_user and not discount:
         builder.row(
             InlineKeyboardButton(
-                text=_("Promo code 🎁"),
+                text=_("button_promo_code"),
                 callback_data="enter_promo"
             )
         )

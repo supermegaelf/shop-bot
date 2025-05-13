@@ -51,7 +51,7 @@ async def check_crypto_payment(request: Request):
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
             await marzban_api.update_subscription_data_limit(user.vpn_id, good)
-        text = get_i18n_string("Thank you for choice ❤️\n️\nSubscription is available in \"Access to VPN 🏄🏻‍♂️\" section.", payment.lang)
+        text = get_i18n_string("message_payment_success", payment.lang)
         await glv.bot.send_message(payment.tg_id,
             text.format(
                 link=glv.config['TG_INFO_CHANEL']
