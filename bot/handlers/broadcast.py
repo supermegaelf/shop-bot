@@ -60,5 +60,5 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     await message.answer(_("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count))
     await state.clear()
 
-def setup_broadcast(dp: Dispatcher):
+def register_broadcast(dp: Dispatcher):
     dp.include_router(router)
