@@ -14,5 +14,5 @@ class IsAdminFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         if self.is_admin is None:
             return False
-        admins = config['ADMIN_IDS']
+        admins = config['ADMINS']
         return (message.from_user.id in admins) == self.is_admin
