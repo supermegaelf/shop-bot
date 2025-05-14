@@ -1,4 +1,5 @@
 import os
+import json
 
 from aiogram import Bot, Dispatcher
 
@@ -25,7 +26,9 @@ config = {
     'WEBHOOK_PORT': int(os.environ.get('WEBHOOK_PORT')),
     'WEBHOOK_SECRET': os.environ.get('WEBHOOK_SECRET'),
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
-    'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true'    
+    'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
+    'UPDATE_GEO_LINK': os.environ.get('UPDATE_GEO_LINK'),
+    'ADMINS': json.loads(os.environ.get('ADMINS', '[]'))
 }
 
 bot: Bot = None

@@ -5,6 +5,7 @@ from typing import Optional
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 
+from glv import config
 
 class IsAdminFilter(BaseFilter):
     def __init__(self, is_admin: Optional[bool] = None):
@@ -13,5 +14,5 @@ class IsAdminFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool:
         if self.is_admin is None:
             return False
-        admins = json.loads(os.environ.get("ADMINS"))
+        admins = config['ADMIN_IDS']
         return (message.from_user.id in admins) == self.is_admin

@@ -15,7 +15,7 @@ from db.methods import (
     is_test_subscription,
     use_all_promo_codes
 )
-from keyboards import get_main_menu_keyboard
+from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard
 from utils import webhook_data, goods, marzban_api
 from utils import get_i18n_string
 import glv
@@ -127,15 +127,18 @@ async def notify_user(request: Request):
     match action:
         case "reached_usage_percent":
             message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
+            await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
         case "reached_days_left":
             message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, days=int(data['days_left']))
+            await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
         case "user_expired":
             message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
+            await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
         case "user_limited":
             message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
+            await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
         case _:
             return web.Response()
-        
-    await glv.bot.send_message(user.tg_id, message)
+           
     logging.info(f"Message {action} sent to user id={user.tg_id}.")
     return web.Response()

@@ -121,4 +121,10 @@ async def use_all_promo_codes(tg_id: int): # ToDo: rewrite logic to use only one
         sql_query = update(UserPromoCode).where(UserPromoCode.tg_id == tg_id).values(used=True)
         await conn.execute(sql_query)
         await conn.commit()
+
+async def get_vpn_users():
+    async with engine.connect() as conn:
+        sql_query = select(VPNUsers)
+        result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
+    return result
     

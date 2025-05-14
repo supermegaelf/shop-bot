@@ -114,6 +114,14 @@ msgstr "5 days free 🆓"
 msgid "button_install"
 msgstr "Install ⚙️"
 
+#: bot/keyboards/confirmation.py:7
+msgid "button_yes"
+msgstr "✅ Yes"
+
+#: bot/keyboards/confirmation.py:8
+msgid "button_no"
+msgstr "❌ No"
+
 #: bot/keyboards/user_profile.py:37
 msgid "button_share"
 msgstr "Share 🔗"
@@ -169,7 +177,7 @@ msgstr "1️⃣ Reboot your device.\n"
 "\n"
 "3️⃣ Check the status of your subscription in the <i>«Access to VPN 🏄🏻‍♂️»</i> section. It must be active.\n"
 "\n"
-"4️⃣ If using a smartphone, update the geosite and geodat files in the app according to the <a href=\"https://t.me/surf_vpn_info/183\">instructions</a>.\n"
+"4️⃣ If using a smartphone, update the geosite and geodat files in the app according to the <a href=\"{link}\">instructions</a>.\n"
 "\n"
 "5️⃣ Turn off the VPN and measure the internet speed using the <a href=\"https://speed.cloudflare.com/\">link</a>. Wait for the test to complete (<i>«Running»</i> will disappear). If the speed is below 40 Mbps, find a location with a better cellular signal."
 
@@ -310,3 +318,24 @@ msgstr "Enter the promo code ⬇️"
 #: bot/keyboards/user_profile.py:52
 msgid "button_promo_code"
 msgstr "Promo code 🎁"
+
+msgid "message_broadcast_start"
+msgstr "Enter the message for the broadcast:"
+
+msgid "message_confirm_broadcast"
+msgstr "You are about to send the following message:\n\n{message.text}\n\n"
+"Send?"
+
+msgid "message_invalid_confirmation"
+msgstr "Invalid input, please confirm or cancel the broadcast."
+
+msgid "mesage_broadcast_cancelled"
+msgstr "Broadcast cancelled."
+
+msgid "message_broadcast_started"
+msgstr "Broadcast started."
+
+msgid "message_broadcast_completed"
+msgstr "Broadcast completed!\n"
+"Successfully sent: {success_count}\n"
+"Failed to send: {fail_count}"

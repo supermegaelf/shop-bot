@@ -2,6 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup,  WebAppInf
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
+from utils import get_i18n_string
 from db.methods import is_trial_available, has_confirmed_payments, get_user_promo_discount
 
 async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
@@ -55,3 +56,23 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
         )
 
     return builder.as_markup()
+
+async def get_buy_more_traffic_keyboard(lang) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(
+                text=get_i18n_string("button_buy_more_traffic", lang),
+                callback_data='extend_data_limit')
+        ]
+    ] 
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+async def get_renew_subscription_keyboard(lang) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(
+                text=get_i18n_string("button_renew", lang),
+                callback_data='payment')
+        ]
+    ] 
+    return InlineKeyboardMarkup(inline_keyboard=kb)
