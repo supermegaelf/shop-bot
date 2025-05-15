@@ -53,7 +53,7 @@ msgstr "Select the appropriate amount of traffic ⬇️"
 
 #: bot/handlers/callbacks.py:25
 msgid "message_traffic_renewal_info"
-msgstr "At the beginning of each month, the traffic is renewed.\n\n"
+msgstr "Traffic is renewed monthly from the date of purchase.\n\n"
 "Choose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"
 
 #: bot/handlers/user_profile.py:38
@@ -256,7 +256,7 @@ msgid "message_reached_usage_percent"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"You have <i><u>{amount}%</u></i> <i><u>traffic</u></i> <i><u>left</u></i> for this month ⌛️\n"
+"You have <i><u>{amount}%</u></i> of your monthly <i><u>traffic</u></i> <i><u>left</u></i> ⌛️\n"
 "\n"
 "To stay connected, click the button below ⬇️"
 
@@ -283,7 +283,7 @@ msgid "message_user_limited"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"Your <i><u>traffic</u></i> for this month is <i><u>over</u></i> 😔\n"
+"Your monthly <i><u>traffic</u></i> is <i><u>over</u></i> 😔\n"
 "\n"
 "To stay connected, click the button below ⬇️"
 
