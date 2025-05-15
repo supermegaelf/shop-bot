@@ -34,6 +34,7 @@ services:
             TG_INFO_CHANEL: ${TG_INFO_CHANEL}
             STARS_PAYMENT_ENABLED: ${STARS_PAYMENT_ENABLED}
             ADMINS: ${ADMINS}
+            UPDATE_GEO_LINK: ${UPDATE_GEO_LINK}
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
