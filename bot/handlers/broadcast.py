@@ -30,11 +30,11 @@ async def process_message(message: Message, state: FSMContext):
 
 @router.message(BroadcastStates.waiting_for_confirmation)
 async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
-    if message.text.lower() not in [_("button_yes"), _("button_no")]:
+    if message.text not in [_("button_yes"), _("button_no")]:
         await message.answer(_("message_invalid_confirmation"))
         return
 
-    if message.text.lower() == _("button_no"):
+    if message.text == _("button_no"):
         await message.answer(_("mesage_broadcast_cancelled"))
         await state.clear()
         return
