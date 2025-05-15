@@ -176,7 +176,7 @@ async def callback_back(callback: CallbackQuery):
 async def callback_usage_problem(callback: CallbackQuery):
     await callback.message.delete()
     await callback.message.answer(
-        text=_("message_usage_problem").format(link=glv.config['UPDATE_']),
+        text=_("message_usage_problem").format(link=glv.config['UPDATE_GEO_LINK']),
         reply_markup=get_reach_support_keyboard(),
         parse_mode="HTML",
         disable_web_page_preview=True
