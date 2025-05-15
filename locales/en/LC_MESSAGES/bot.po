@@ -38,7 +38,7 @@ msgstr ""
 "\n"
 "With our VPN you may:\n"
 "- Try it for free 🆓\n"
-"- Connect multiple devices📱💻\n"
+"- Connect multiple devices📱💻📺\n"
 "- Forget about ads 🕊\n\n"
 "⚠️ The use of torrent clients is prohibited."
 
@@ -256,18 +256,18 @@ msgid "message_reached_usage_percent"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"Thank you for using our service ❤️\n️"
+"You have <i><u>{amount}%</u></i> <i><u>traffic</u></i> <i><u>left</u></i> for this month ⌛️\n"
 "\n"
-"You have {amount}% of your traffic left.\n"
+"To stay connected, click the button below ⬇️"
 
 #: bot/keyboards/routes.py:131
 msgid "message_reached_days_left"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"Thank you for using our service ❤️\n️"
+"Your VPN subscription <i><u>expires</u></i> <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️\n"
 "\n"
-"Your VPN subscription expires <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️"
+"To stay connected, click the button below ⬇️"
 
 #: bot/keyboards/routes.py:133
 msgid "message_user_expired"
@@ -283,7 +283,9 @@ msgid "message_user_limited"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"You have run out of traffic 😢"
+"Your <i><u>traffic</u></i> for this month is <i><u>over</u></i> 😔\n"
+"\n"
+"To stay connected, click the button below ⬇️"
 
 #: bot/keyboards/commands.py:29
 #: bot/keyboards/messages.py:61
