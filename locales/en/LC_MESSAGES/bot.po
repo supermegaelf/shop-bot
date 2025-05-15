@@ -267,7 +267,7 @@ msgstr ""
 "\n"
 "Thank you for using our service ❤️\n️"
 "\n"
-"Your VPN subscription expires <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️.\n️"
+"Your VPN subscription expires <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️."
 
 #: bot/keyboards/routes.py:133
 msgid "message_user_expired"
@@ -283,9 +283,7 @@ msgid "message_user_limited"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"You have run out of traffic 😢\n"
-"\n"
-"To continue using the service, go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section and click <i>«Buy more traffic ➕»</i>."
+"You have run out of traffic 😢"
 
 #: bot/keyboards/commands.py:29
 #: bot/keyboards/messages.py:61
