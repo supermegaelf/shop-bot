@@ -33,6 +33,7 @@ services:
             WEBHOOK_SECRET: ${WEBHOOK_SECRET}
             TG_INFO_CHANEL: ${TG_INFO_CHANEL}
             STARS_PAYMENT_ENABLED: ${STARS_PAYMENT_ENABLED}
+            ADMINS: ${ADMINS}
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
