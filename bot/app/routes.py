@@ -1,5 +1,6 @@
 import ipaddress
 import logging
+from datetime import datetime
 
 from aiohttp.web_request import Request
 from aiohttp import web
@@ -129,7 +130,9 @@ async def notify_user(request: Request):
             message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
             await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
         case "reached_days_left":
-            message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, days=int(data['days_left']))
+            marzban_profile = await marzban_api.get_marzban_profile(user.tg_id)
+            time_of_expiration = datetime.fromtimestamp(marzban_profile['expire']).strftime('%H:%M')
+            message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
             await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
         case "user_expired":
             message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
