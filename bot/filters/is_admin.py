@@ -15,4 +15,5 @@ class IsAdminFilter(BaseFilter):
         if self.is_admin is None:
             return False
         admins = config['ADMINS']
+        print(f"Admins: {admins}")
         return (message.from_user.id in admins) == self.is_admin

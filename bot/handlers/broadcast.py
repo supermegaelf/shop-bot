@@ -17,7 +17,7 @@ class BroadcastStates(StatesGroup):
 
 router = Router(name="broadcast-router")
 
-@router.message(Command("broadcast"), IsAdminFilter(is_admin=True))
+@router.message(IsAdminFilter(is_admin=True), Command("broadcast"))
 async def start_broadcast(message: Message, state: FSMContext):
     await message.answer("message_broadcast_start")
     await state.set_state(BroadcastStates.waiting_for_message)

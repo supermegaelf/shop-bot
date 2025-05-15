@@ -27,7 +27,6 @@ async def callback_month_amount_select(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith("extend_data_limit"))
 async def callback_extend_data_limit(callback: CallbackQuery):
-    await callback.message.delete()
     user = await marzban_api.get_marzban_profile(callback.from_user.id)
     if not user or not user['data_limit'] or not user['expire']: 
         await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
