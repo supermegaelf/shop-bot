@@ -323,7 +323,7 @@ msgid "message_broadcast_start"
 msgstr "Enter the message for the broadcast:"
 
 msgid "message_confirm_broadcast"
-msgstr "You are about to send the following message:\n\n{message.text}\n\n"
+msgstr "You are about to send the following message:\n\n{text}\n\n"
 "Send?"
 
 msgid "message_invalid_confirmation"

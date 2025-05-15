@@ -19,30 +19,30 @@ router = Router(name="broadcast-router")
 
 @router.message(IsAdminFilter(is_admin=True), Command("broadcast"))
 async def start_broadcast(message: Message, state: FSMContext):
-    await message.answer("message_broadcast_start")
+    await message.answer(_("message_broadcast_start"))
     await state.set_state(BroadcastStates.waiting_for_message)
 
 @router.message(BroadcastStates.waiting_for_message)
 async def process_message(message: Message, state: FSMContext):
     await state.update_data(broadcast_message=message.text)
-    await message.answer(_("message_confirm_broadcast").format(message.text), reply_markup=get_confirmation_keyboard())
+    await message.answer(_("message_confirm_broadcast").format(text=message.text), reply_markup=get_confirmation_keyboard())
     await state.set_state(BroadcastStates.waiting_for_confirmation)
 
 @router.message(BroadcastStates.waiting_for_confirmation)
 async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     if message.text.lower() not in [_("button_yes"), _("button_no")]:
-        await message.answer("message_invalid_confirmation")
+        await message.answer(_("message_invalid_confirmation"))
         return
 
     if message.text.lower() == _("button_no"):
-        await message.answer("mesage_broadcast_cancelled")
+        await message.answer(_("mesage_broadcast_cancelled"))
         await state.clear()
         return
 
     data = await state.get_data()
     broadcast_message = data['broadcast_message']
     
-    await message.answer("message_broadcast_started")
+    await message.answer(_("message_broadcast_started"))
     
     success_count = 0
     fail_count = 0
