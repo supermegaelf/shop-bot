@@ -9,7 +9,7 @@ from aiogram.utils.i18n import gettext as _
 
 from filters import IsAdminFilter
 from db.methods import get_vpn_users
-from keyboards import get_confirmation_keyboard
+from keyboards import get_confirmation_keyboard, get_main_menu_keyboard
 
 class BroadcastStates(StatesGroup):
     waiting_for_message = State()
@@ -42,7 +42,7 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     data = await state.get_data()
     broadcast_message = data['broadcast_message']
     
-    await message.answer(_("message_broadcast_started"))
+    await message.answer(_("message_broadcast_started"), reply_markup=get_main_menu_keyboard(language_code=message.from_user.language_code))
     
     success_count = 0
     fail_count = 0
