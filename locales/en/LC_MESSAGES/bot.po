@@ -267,7 +267,7 @@ msgstr ""
 "\n"
 "Thank you for using our service ❤️\n️"
 "\n"
-"Your VPN subscription expires <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️."
+"Your VPN subscription expires <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️"
 
 #: bot/keyboards/routes.py:133
 msgid "message_user_expired"
