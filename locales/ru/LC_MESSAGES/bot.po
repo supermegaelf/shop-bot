@@ -251,7 +251,7 @@ msgstr "Докупить трафик ➕"
 msgid "message_error"
 msgstr "Упс! Что-то пошло не так..."
 
-#: bot/keyboards/routes.py:129
+#: bot/app/routes.py:129
 msgid "message_reached_usage_percent"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -260,7 +260,7 @@ msgstr ""
 "\n"
 "Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
 
-#: bot/keyboards/routes.py:131
+#: bot/app/routes.py:131
 msgid "message_reached_days_left"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -269,7 +269,7 @@ msgstr ""
 "\n"
 "Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
 
-#: bot/keyboards/routes.py:133
+#: bot/app/routes.py:133
 msgid "message_user_expired"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -280,7 +280,7 @@ msgstr ""
 "\n"
 "Чтобы продолжить пользоваться сервисом, нажмите на кнопку ниже ⬇️"
 
-#: bot/keyboards/routes.py:135
+#: bot/app/routes.py:135
 msgid "message_user_limited"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"

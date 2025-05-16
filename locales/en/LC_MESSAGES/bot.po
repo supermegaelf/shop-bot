@@ -251,7 +251,7 @@ msgstr "Buy more traffic ➕"
 msgid "message_error"
 msgstr "Oops! Something went wrong..."
 
-#: bot/keyboards/routes.py:129
+#: bot/app/routes.py:129
 msgid "message_reached_usage_percent"
 msgstr ""
 "Hello, {name} 👋🏻\n"
@@ -260,7 +260,7 @@ msgstr ""
 "\n"
 "To stay connected, click the button below ⬇️"
 
-#: bot/keyboards/routes.py:131
+#: bot/app/routes.py:131
 msgid "message_reached_days_left"
 msgstr ""
 "Hello, {name} 👋🏻\n"
@@ -269,7 +269,7 @@ msgstr ""
 "\n"
 "To stay connected, click the button below ⬇️"
 
-#: bot/keyboards/routes.py:133
+#: bot/app/routes.py:133
 msgid "message_user_expired"
 msgstr ""
 "Hello, {name} 👋🏻\n"
@@ -280,7 +280,7 @@ msgstr ""
 "\n"
 "To continue using our service, click the button below ⬇️"
 
-#: bot/keyboards/routes.py:135
+#: bot/app/routes.py:135
 msgid "message_user_limited"
 msgstr ""
 "Hello, {name} 👋🏻\n"
