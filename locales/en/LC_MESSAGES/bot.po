@@ -251,41 +251,43 @@ msgstr "Buy more traffic ➕"
 msgid "message_error"
 msgstr "Oops! Something went wrong..."
 
-#: bot/keyboards/routes.py:129
+#: bot/app/routes.py:129
 msgid "message_reached_usage_percent"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"You have <i><u>{amount}%</u></i> of your monthly <i><u>traffic</u></i> <i><u>left</u></i> ⌛️\n"
+"You have <i><u>{amount}%</u></i> of your monthly <i><u>traffic</u></i> <i><u>left</u></i> 🔔\n"
 "\n"
 "To stay connected, click the button below ⬇️"
 
-#: bot/keyboards/routes.py:131
+#: bot/app/routes.py:131
 msgid "message_reached_days_left"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"Your VPN subscription <i><u>expires</u></i> <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK ⌛️\n"
+"Your VPN subscription <i><u>expires</u></i> <i><u>tomorrow</u></i> at <i><u>{time}</u></i> MSK 🔔\n"
 "\n"
 "To stay connected, click the button below ⬇️"
 
-#: bot/keyboards/routes.py:133
+#: bot/app/routes.py:133
 msgid "message_user_expired"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"We noticed that you did not renew your subscription.\n"
+"Your VPN subscription is <i><u>expired</u></i>⌛️\n"
 "\n"
-"If you have any comments or questions about our service, please <a href=\"{link}\">write to us</a>. Your opinion is important to us!"
+"If you have any questions or wishes, please <a href=\"{link}\">contact us</a>. We will be glad to receive your feedback!\n"
+"\n"
+"To continue using our service, click the button below ⬇️"
 
-#: bot/keyboards/routes.py:135
+#: bot/app/routes.py:135
 msgid "message_user_limited"
 msgstr ""
 "Hello, {name} 👋🏻\n"
 "\n"
-"Your monthly <i><u>traffic</u></i> is <i><u>over</u></i> 😔\n"
+"Your monthly <i><u>traffic</u></i> is <i><u>over</u></i>⌛️\n"
 "\n"
-"To stay connected, click the button below ⬇️"
+"To continue using our service, click the button below ⬇️"
 
 #: bot/keyboards/commands.py:29
 #: bot/keyboards/messages.py:61

@@ -136,7 +136,7 @@ async def notify_user(request: Request):
             await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
         case "user_expired":
             message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-            await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
+            await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code), disable_web_page_preview=True)
         case "user_limited":
             message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
             await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
