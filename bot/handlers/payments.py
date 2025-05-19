@@ -25,9 +25,9 @@ async def success_payment(message: Message):
         if is_trial:
             await marzban_api.reset_data_limit(user.vpn_id)
             await disable_trial(message.from_user.id)
-        await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+        marzban_profile = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
     else:
-        await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+        marzban_profile = await marzban_api.update_subscription_data_limit(user.vpn_id, good)
 
     user_has_payments = await has_confirmed_payments(message.from_user.id)
     if user_has_payments:
@@ -36,9 +36,10 @@ async def success_payment(message: Message):
             reply_markup=get_main_menu_keyboard()
         )
     else:
+        subscription_url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
         await glv.bot.send_message(message.from_user.id,
             _("message_new_subscription_created"),
-            reply_markup=get_install_subscription_keyboard()
+            reply_markup=get_install_subscription_keyboard(subscription_url)
         )
     
     await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)

@@ -129,9 +129,10 @@ async def callback_trial(callback: CallbackQuery):
         logging.info("Test subscription generated for user %s", callback.from_user.id)
 
     await start_trial(callback.from_user.id)
+    subscription_url = glv.config['PANEL_GLOBAL'] + result['subscription_url']
     await callback.message.answer(
         _("message_new_subscription_created"),
-        reply_markup=get_install_subscription_keyboard()
+        reply_markup=get_install_subscription_keyboard(subscription_url)
     )
     await callback.answer()
 

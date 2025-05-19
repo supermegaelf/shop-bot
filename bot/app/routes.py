@@ -50,9 +50,9 @@ async def check_crypto_payment(request: Request):
             if is_trial:
                 await marzban_api.reset_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
-            await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+            marzban_profile = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
-            await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+            marzban_profile = await marzban_api.update_subscription_data_limit(user.vpn_id, good)
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
             await glv.bot.send_message(payment.tg_id,
@@ -60,9 +60,10 @@ async def check_crypto_payment(request: Request):
                 reply_markup=get_main_menu_keyboard(payment.lang)
             )
         else:
+            subscription_url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_new_subscription_created", payment.lang),
-                reply_markup=get_install_subscription_keyboard(payment.lang)
+                reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
             )
         await confirm_payment(payment.payment_id)
         await use_all_promo_codes(payment.tg_id)
@@ -96,9 +97,10 @@ async def check_yookassa_payment(request: Request):
             if is_trial:
                 await marzban_api.reset_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
-            await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+            marzban_profile = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
-            await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+            marzban_profile = await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+        
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
             await glv.bot.send_message(payment.tg_id,
@@ -106,9 +108,10 @@ async def check_yookassa_payment(request: Request):
                 reply_markup=get_main_menu_keyboard(payment.lang)
             )
         else:
+            subscription_url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_new_subscription_created", payment.lang),
-                reply_markup=get_install_subscription_keyboard(payment.lang)
+                reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
             )
         await confirm_payment(payment.payment_id)
         await use_all_promo_codes(payment.tg_id)
