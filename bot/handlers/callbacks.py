@@ -9,7 +9,7 @@ from aiogram.utils.i18n import gettext as _
 
 from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, \
     get_buy_menu_keyboard, get_xtr_pay_keyboard, get_back_to_help_keyboard, get_help_keyboard, \
-    get_months_keyboard, get_support_keyboard, get_reach_support_keyboard
+    get_months_keyboard, get_support_keyboard, get_reach_support_keyboard, get_install_subscription_keyboard
 from db.methods import is_trial_available, start_trial, get_vpn_user, get_user_promo_discount
 
 from utils import goods, yookassa, cryptomus, marzban_api
@@ -130,9 +130,8 @@ async def callback_trial(callback: CallbackQuery):
 
     await start_trial(callback.from_user.id)
     await callback.message.answer(
-        _("message_payment_success").format(
-            link=glv.config['TG_INFO_CHANEL']),
-        reply_markup=get_main_menu_keyboard()
+        _("message_new_subscription_created"),
+        reply_markup=get_install_subscription_keyboard()
     )
     await callback.answer()
 

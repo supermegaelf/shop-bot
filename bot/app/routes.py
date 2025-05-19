@@ -14,9 +14,10 @@ from db.methods import (
     PaymentPlatform, 
     disable_trial,
     is_test_subscription,
-    use_all_promo_codes
+    use_all_promo_codes,
+    has_confirmed_payments
 )
-from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard
+from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard
 from utils import webhook_data, goods, marzban_api
 from utils import get_i18n_string
 import glv
@@ -52,13 +53,17 @@ async def check_crypto_payment(request: Request):
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
             await marzban_api.update_subscription_data_limit(user.vpn_id, good)
-        text = get_i18n_string("message_payment_success", payment.lang)
-        await glv.bot.send_message(payment.tg_id,
-            text.format(
-                link=glv.config['TG_INFO_CHANEL']
-            ),
-            reply_markup=get_main_menu_keyboard(payment.lang)
-        )
+        user_has_payments = await has_confirmed_payments(payment.tg_id)
+        if user_has_payments:
+            await glv.bot.send_message(payment.tg_id,
+                get_i18n_string("message_payment_success", payment.lang),
+                reply_markup=get_main_menu_keyboard(payment.lang)
+            )
+        else:
+            await glv.bot.send_message(payment.tg_id,
+                get_i18n_string("message_new_subscription_created", payment.lang),
+                reply_markup=get_install_subscription_keyboard(payment.lang)
+            )
         await confirm_payment(payment.payment_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'cancel':
@@ -94,13 +99,17 @@ async def check_yookassa_payment(request: Request):
             await marzban_api.generate_marzban_subscription(user.vpn_id, good)
         else:
             await marzban_api.update_subscription_data_limit(user.vpn_id, good)
-        text = get_i18n_string("Thank you for choice ❤️\n️\nSubscription is available in \"Access to VPN 🏄🏻‍♂️\" section.", payment.lang)
-        await glv.bot.send_message(payment.tg_id,
-            text.format(
-                link=glv.config['TG_INFO_CHANEL']
-            ),
-            reply_markup=get_main_menu_keyboard(payment.lang)
-        )
+        user_has_payments = await has_confirmed_payments(payment.tg_id)
+        if user_has_payments:
+            await glv.bot.send_message(payment.tg_id,
+                get_i18n_string("message_payment_success", payment.lang),
+                reply_markup=get_main_menu_keyboard(payment.lang)
+            )
+        else:
+            await glv.bot.send_message(payment.tg_id,
+                get_i18n_string("message_new_subscription_created", payment.lang),
+                reply_markup=get_install_subscription_keyboard(payment.lang)
+            )
         await confirm_payment(payment.payment_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'canceled':

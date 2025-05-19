@@ -3,8 +3,8 @@ from aiogram.types import Message, PreCheckoutQuery
 from aiogram.utils.i18n import gettext as _
 
 from utils import goods, marzban_api
-from db.methods import get_vpn_user, add_payment, PaymentPlatform, is_test_subscription, disable_trial, use_all_promo_codes
-from keyboards import get_main_menu_keyboard
+from db.methods import get_vpn_user, add_payment, PaymentPlatform, is_test_subscription, disable_trial, use_all_promo_codes, has_confirmed_payments
+from keyboards import get_main_menu_keyboard, get_install_subscription_keyboard
 
 import glv
 
@@ -28,13 +28,21 @@ async def success_payment(message: Message):
         await marzban_api.generate_marzban_subscription(user.vpn_id, good)
     else:
         await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+
+    user_has_payments = await has_confirmed_payments(message.from_user.id)
+    if user_has_payments:
+        await glv.bot.send_message(message.from_user.id,
+            _("message_payment_success"),
+            reply_markup=get_main_menu_keyboard()
+        )
+    else:
+        await glv.bot.send_message(message.from_user.id,
+            _("message_new_subscription_created"),
+            reply_markup=get_install_subscription_keyboard()
+        )
     
     await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)
     await use_all_promo_codes(message.from_user.id)
-    await message.answer(
-        text = _("message_payment_success").format(
-            link=glv.config['TG_INFO_CHANEL']),
-        reply_markup=get_main_menu_keyboard())
     
 def register_payments(dp: Dispatcher):
     dp.include_router(router)

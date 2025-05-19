@@ -65,11 +65,17 @@ msgid "message_subscription_access"
 msgstr "Your subscription is available in the <i>«Access to VPN 🏄🏻‍♂️»</i> section."
 
 #: bot/handlers/payments.py:35
-msgid "message_payment_success"
+msgid "message_new_subscription_created"
 msgstr ""
 "Thank you for choice ❤️\n️"
 "\n"
-"Go to <i>«Access to VPN 🏄🏻‍♂️»</i> section, click <i>«Install ⚙️»</i> and follow the instructions."
+"To start using our service, click the button below ⬇️"
+
+msgid "message_payment_success"
+msgstr ""
+"Thank you for staying with us ❤️\n️"
+"\n"
+"Enjoy surfing 🏄🏻‍♂️"
 
 #: bot/keyboards/help.py:22
 #: bot/keyboards/support.py:18,30

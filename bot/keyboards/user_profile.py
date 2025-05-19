@@ -76,3 +76,14 @@ def get_renew_subscription_keyboard(lang) -> InlineKeyboardMarkup:
         ]
     ] 
     return InlineKeyboardMarkup(inline_keyboard=kb)
+
+def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(
+                text=_("button_install") if lang is None else get_i18n_string("button_install", lang),
+                web_app=WebAppInfo(url=subscription_url)
+            )
+        ]
+    ] 
+    return InlineKeyboardMarkup(inline_keyboard=kb)
