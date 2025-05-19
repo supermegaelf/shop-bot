@@ -73,6 +73,11 @@ async def check_crypto_payment(request: Request):
 
 async def check_yookassa_payment(request: Request):
     client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For') or request.remote
+    logging.info(f"Client IP: {client_ip}")
+    logging.info(f"CF-Connecting-IP: {request.headers.get('CF-Connecting-IP')}")
+    logging.info(f"X-Real-IP: {request.headers.get('X-Real-IP')}")
+    logging.info(f"X-Forwarded-For: {request.headers.get('X-Forwarded-For')}")
+    logging.info(f"Remote: {request.remote}")
     f = True
     for subnet in YOOKASSA_IPS:
         if "/" in subnet:
