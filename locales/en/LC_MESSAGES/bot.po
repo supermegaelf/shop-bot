@@ -276,7 +276,7 @@ msgstr ""
 "\n"
 "Your VPN subscription is <i><u>expired</u></i>⌛️\n"
 "\n"
-"If you have any questions or wishes, please <a href=\"{link}\">contact us</a>. We will be glad to receive your feedback!\n"
+"If you have any questions or wishes — <a href=\"{link}\">contact us</a>. We will be glad to receive your feedback!\n"
 "\n"
 "To continue using our service, click the button below ⬇️"
 
