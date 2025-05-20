@@ -73,7 +73,7 @@ msgstr ""
 
 msgid "message_payment_success"
 msgstr ""
-"Thank you for staying with us ❤️\n️"
+"Thanks for being with us ❤️\n️"
 "\n"
 "Enjoy surfing 🏄🏻‍♂️"
 
