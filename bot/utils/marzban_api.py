@@ -2,8 +2,6 @@ import time
 import aiohttp
 import requests
 
-from remnawave_api import RemnawaveSDK
-
 from db.methods import get_vpn_user
 import glv
 

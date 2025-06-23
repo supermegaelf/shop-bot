@@ -28,7 +28,9 @@ config = {
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'UPDATE_GEO_LINK': os.environ.get('UPDATE_GEO_LINK'),
-    'ADMINS': json.loads(os.environ.get('ADMINS', '[]'))
+    'ADMINS': json.loads(os.environ.get('ADMINS', '[]')),
+    'REMNAWAVE_BASE_URL': os.environ.get('REMNAWAVE_BASE_URL'),
+    'REMNAWAVE_TOKEN': os.environ.get('REMNAWAVE_TOKEN')
 }
 
 bot: Bot = None
