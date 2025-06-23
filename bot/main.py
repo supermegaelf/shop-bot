@@ -24,7 +24,7 @@ glv.bot = Bot(glv.config['BOT_TOKEN'],  default=DefaultBotProperties(parse_mode=
 glv.storage = MemoryStorage()
 glv.dp = Dispatcher(storage=glv.storage)
 app = web.Application()
-logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
 
 async def on_startup(bot: Bot):
     await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")

@@ -1,4 +1,5 @@
 from remnawave_api import RemnawaveSDK
+import logging
 
 import glv
 
@@ -9,7 +10,7 @@ remnawave = RemnawaveSDK(base_url=base_url, token=token)
 
 async def check_if_user_exists(name: str) -> bool:
     try:
-        await remnawave.users.get_user_by_username(name)
+        await remnawave.users.get_user_by_username("admin_admin")
         return True
     except:
         return False
