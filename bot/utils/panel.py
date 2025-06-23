@@ -8,11 +8,13 @@ token: str = glv.config['REMNAWAVE_TOKEN']
 
 remnawave = RemnawaveSDK(base_url=base_url, token=token)
 
-async def check_if_user_exists(name: str) -> bool:
+async def check_if_user_exists() -> bool:
     try:
         await remnawave.users.get_user_by_username("admin_admin")
+        logging.info("exists")
         return True
     except:
+        logging.info("not_exists")
         return False
     
 
