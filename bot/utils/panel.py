@@ -1,4 +1,5 @@
 from remnawave_api import RemnawaveSDK
+from remnawave_api.models import UsersResponseDto, UserResponseDto
 import logging
 
 import glv
@@ -16,6 +17,12 @@ async def check_if_user_exists() -> bool:
     except:
         logging.info("not_exists")
         return False
+
+async def get_all_users() -> list[UserResponseDto]: 
+    response: UsersResponseDto = await remnawave.users.get_all_users_v2()
+    users: list[UserResponseDto] = response.users
+    logging.info(users)
+    return users
     
 
 # async def get_marzban_profile(tg_id: int):
