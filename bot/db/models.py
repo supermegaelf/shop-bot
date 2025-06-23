@@ -30,7 +30,7 @@ class PromoCode(Base):
     code = Column(String(50), unique=True, nullable=False) 
     discount_percent = Column(Integer, nullable=False) 
     expires_at = Column(DateTime, nullable=True)  
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, nullable=False)
     
 class UserPromoCode(Base):
     __tablename__ = "user_promo_codes"
@@ -38,5 +38,5 @@ class UserPromoCode(Base):
     id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     tg_id = Column(BigInteger, nullable=False) 
     promo_code_id = Column(BigInteger, nullable=False)
-    activated_at = Column(DateTime, default=datetime.now)
+    activated_at = Column(DateTime, nullable=False)
     used = Column(Boolean, default=False)

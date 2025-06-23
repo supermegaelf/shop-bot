@@ -1,5 +1,5 @@
-aiogram[i18n]==3.1.1
-alembic==1.10.2
+aiogram[i18n]
+alembic
 SQLAlchemy[asyncio]
 pymysql
 asyncmy
@@ -9,3 +9,4 @@ pyCryptomusAPI
 yookassa
 alembic
 aioschedule
+remnawave_api
