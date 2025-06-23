@@ -51,9 +51,8 @@ async def start(message: Message):
 )
 async def check(message: Message):
     logging.info("check")
-    user_exists = await panel.check_if_user_exists()
-    logging.info(f"user_exists: {user_exists}")
-    await message.answer(str(user_exists))
+    users = await panel.get_all_users()
+    await message.answer(str(users))
 
 
 @router.message(
