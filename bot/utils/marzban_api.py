@@ -103,7 +103,7 @@ def get_protocols() -> dict:
     }
 
 panel = Marzban(glv.config['PANEL_HOST'], glv.config['PANEL_USER'], glv.config['PANEL_PASS'])
-mytoken = panel.get_token()
+#mytoken = panel.get_token()
 ps = get_protocols()
 
 async def check_if_user_exists(name: str) -> bool:
