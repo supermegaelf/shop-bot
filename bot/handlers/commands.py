@@ -9,6 +9,8 @@ from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.chat_action import ChatActionSender
 
+from utils import panel
+
 from keyboards import get_main_menu_keyboard
 from .messages import profile, help
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
@@ -42,6 +44,14 @@ async def start(message: Message):
         async with ChatActionSender.typing(bot=message.bot, chat_id=message.chat.id):
                 await asyncio.sleep(1)
         await message.answer(_("message_select_welcome_action"), reply_markup=get_main_menu_keyboard())
+
+@router.message(
+    Command("check")
+)
+async def check(message: Message):
+    user_exists = await panel.check_if_user_exists(message)
+    await message.answer(str(user_exists))
+
 
 @router.message(
     Command("access")
