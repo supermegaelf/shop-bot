@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 from remnawave_api import RemnawaveSDK
 from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto
 
-from panel.panel import Panel
+from .panel import Panel
+from .models import PanelProfile
 from db.methods import get_vpn_user
-from panel.models import PanelProfile
 
 import glv
 

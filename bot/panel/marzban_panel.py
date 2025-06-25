@@ -1,6 +1,6 @@
 import time
 
-from bot.panel.panel import Panel
+from panel.panel import Panel
 from utils.marzban_api import Marzban
 from db.methods import get_vpn_user
 from panel.models import PanelProfile

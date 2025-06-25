@@ -1,4 +1,4 @@
-from panel import Panel
+from .panel import Panel
 from .marzban_panel import MarzbanPanel
 from .remnawave_panel import RemnawavePanel
 
