@@ -76,6 +76,9 @@ class RemnawavePanel(Panel):
             ))        
         return PanelProfile.from_UserResponseDto(result)
     
+    async def update_subscription_data_limit(self, username: str, data_limit: int):
+        return None
+    
     async def reset_subscription_data_limit(self, username):
         if not await self.check_if_user_exists(username):
             return None

@@ -29,7 +29,7 @@ PROTOCOLS = {
 
 class Panel(ABC):
     @abstractmethod
-    async def check_if_user_user_exists(self, username: str) -> bool:
+    async def check_if_user_exists(self, username: str) -> bool:
         pass
 
     @abstractmethod
