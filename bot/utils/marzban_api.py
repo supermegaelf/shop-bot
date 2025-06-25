@@ -1,11 +1,5 @@
-import time
 import aiohttp
 import requests
-
-from db.methods import get_vpn_user
-from panel.models import PanelProfile
-
-import glv
 
 class Marzban:
     def __init__(self, ip, login, passwd) -> None:
