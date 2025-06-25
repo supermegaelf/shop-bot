@@ -1,5 +1,6 @@
 import time
 from datetime import datetime, timedelta
+import logging
 
 from remnawave_api import RemnawaveSDK
 from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto, InboundsResponseDto, InboundResponseDto
@@ -69,8 +70,10 @@ class RemnawavePanel(Panel):
             result: UserResponseDto = await self.api.users.update_user(username, user)
         else:
             inbounds_response: InboundsResponseDto = await self.api.inbounds.get_inbounds()
-
+            logging.info(inbounds_response)
+            logging.info(ps['inbounds'])
             active_inbounds = [inbound.uuid for inbound in inbounds_response.response if inbound.tag in ps['inbounds']]
+            logging.info(active_inbounds)
             result: UserResponseDto = await self.api.users.create_user(CreateUserRequestDto(
                 username=username,
                 expire_at=datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT']),
