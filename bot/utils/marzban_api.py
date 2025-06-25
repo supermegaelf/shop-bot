@@ -102,34 +102,34 @@ def get_protocols() -> dict:
         "inbounds": inbounds
     }
 
-panel = Marzban(glv.config['PANEL_HOST'], glv.config['PANEL_USER'], glv.config['PANEL_PASS'])
+api = Marzban(glv.config['PANEL_HOST'], glv.config['PANEL_USER'], glv.config['PANEL_PASS'])
 #mytoken = panel.get_token()
 ps = get_protocols()
 
 async def check_if_user_exists(name: str) -> bool:
     try:
-        await panel.get_user(name)
+        await api.get_user(name)
         return True
     except Exception as e:
         return False
 
-async def get_marzban_profile(tg_id: int):
+async def get_panel_profile(tg_id: int):
     result = await get_vpn_user(tg_id)
     res = await check_if_user_exists(result.vpn_id)
     if not res:
         return None
-    return await panel.get_user(result.vpn_id)
+    return await api.get_user(result.vpn_id)
 
 async def generate_test_subscription(username: str):
     res = await check_if_user_exists(username)
     if res:
-        user = await panel.get_user(username)
+        user = await api.get_user(username)
         user['status'] = 'active'
         if user['expire'] < time.time():
             user['expire'] = get_test_subscription(glv.config['PERIOD_LIMIT'])
         else:
             user['expire'] += get_test_subscription(glv.config['PERIOD_LIMIT'], True)
-        result = await panel.modify_user(username, user)
+        result = await api.modify_user(username, user)
     else:
         user = {
             'username': username,
@@ -139,21 +139,21 @@ async def generate_test_subscription(username: str):
             'data_limit': 107374182400,
             'data_limit_reset_strategy': "month",
         }
-        result = await panel.add_user(user)
+        result = await api.add_user(user)
     return result
 
 async def generate_marzban_subscription(username: str, good):
     res = await check_if_user_exists(username)
     if res:
-        user = await panel.get_user(username)
+        user = await api.get_user(username)
         user['status'] = 'active'
         if user['expire'] < time.time():
-            await panel.user_data_limit_reset(username)
+            await api.user_data_limit_reset(username)
             user['expire'] = get_subscription_end_date(good['months'])   
         else:
             user['expire'] += get_subscription_end_date(good['months'], True)
         user['data_limit'] = good['data_limit']
-        result = await panel.modify_user(username, user)
+        result = await api.modify_user(username, user)
     else:
         user = {
             'username': username,
@@ -163,20 +163,20 @@ async def generate_marzban_subscription(username: str, good):
             'data_limit': good['data_limit'],
             'data_limit_reset_strategy': "month",
         }
-        result = await panel.add_user(user)
+        result = await api.add_user(user)
     return result
 
 async def update_subscription_data_limit(username: str, good):
-    user = await panel.get_user(username)
+    user = await api.get_user(username)
     user['status'] = 'active'
     user['data_limit'] = user['data_limit'] + good['data_limit']
-    result = await panel.modify_user(username, user)
+    result = await api.modify_user(username, user)
     return result
 
 async def reset_data_limit(username: str):
     if not await check_if_user_exists(username):
         return None
-    result = await panel.user_data_limit_reset(username)
+    result = await api.user_data_limit_reset(username)
     return result
 
 def get_test_subscription(hours: int, additional= False) -> int:

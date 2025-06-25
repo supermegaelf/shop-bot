@@ -21,7 +21,7 @@ class PromoStates(StatesGroup):
 
 @router.message(F.text == __("button_vpn_access"))
 async def profile(message: Message):
-    marzban_profile = await marzban_api.get_marzban_profile(message.from_user.id)
+    marzban_profile = await marzban_api.get_panel_profile(message.from_user.id)
     if marzban_profile:
         url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
         status = _(marzban_profile['status'])
