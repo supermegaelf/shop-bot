@@ -1,7 +1,7 @@
 import time
 from abc import ABC, abstractmethod
 
-from models import PanelProfile
+from .models import PanelProfile
 import glv
 
 PROTOCOLS = {
