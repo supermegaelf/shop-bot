@@ -1,5 +1,3 @@
-import asyncio
-
 from utils import marzban_api
 
 async def update_token():

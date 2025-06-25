@@ -22,15 +22,15 @@ config = {
     'PANEL_GLOBAL': os.environ.get('PANEL_GLOBAL'),
     'PANEL_USER': os.environ.get('PANEL_USER'),
     'PANEL_PASS': os.environ.get('PANEL_PASS'),
+    'PANEL_TYPE': os.environ.get('PANEL_TYPE', 'MARZBAN'),
+    'REMNAWAVE_TOKEN': os.environ.get('REMNAWAVE_TOKEN'),
     'WEBHOOK_URL': os.environ.get('WEBHOOK_URL'),
     'WEBHOOK_PORT': int(os.environ.get('WEBHOOK_PORT')),
     'WEBHOOK_SECRET': os.environ.get('WEBHOOK_SECRET'),
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'UPDATE_GEO_LINK': os.environ.get('UPDATE_GEO_LINK'),
-    'ADMINS': json.loads(os.environ.get('ADMINS', '[]')),
-    'REMNAWAVE_BASE_URL': os.environ.get('REMNAWAVE_BASE_URL'),
-    'REMNAWAVE_TOKEN': os.environ.get('REMNAWAVE_TOKEN')
+    'ADMINS': json.loads(os.environ.get('ADMINS', '[]'))
 }
 
 bot: Bot = None

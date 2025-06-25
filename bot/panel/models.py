@@ -1,6 +1,8 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 from remnawave_api.models import UserResponseDto
+
 import glv
 
 class PanelProfile(BaseModel):
@@ -9,24 +11,27 @@ class PanelProfile(BaseModel):
     subscription_url: str
     used_traffic: int
     data_limit: int
+    expire: datetime
 
     @classmethod
-    def from_UserResponseDto(user: UserResponseDto):
-        return PanelProfile(
+    def from_UserResponseDto(cls, user: UserResponseDto):
+        return cls(
             username=user.username,
             status=user.status.lower(),
             subscription_url=user.subscription_url,
             used_traffic=user.used_traffic_bytes,
-            data_limit=user.traffic_limit_bytes
+            data_limit=user.traffic_limit_bytes,
+            expire=user.expire_at
         )
     
     @classmethod
-    def fromMarzbanProfile(marzban_profile: dict):
-        return PanelProfile(
+    def from_marzban_profile(cls, marzban_profile: dict):
+        return cls(
             username=marzban_profile.get('username'),
             status=marzban_profile.get('status'),
             subscription_url=glv.config['PANEL_GLOBAL'] + marzban_profile.get('subscription_url'),
             used_traffic=marzban_profile.get('used_traffic'),
-            data_limit=marzban_profile.get('data_limit')
+            data_limit=marzban_profile.get('data_limit'),
+            expire=datetime.fromtimestamp(marzban_profile.get('expire')) if marzban_profile.get('expire') else None
         )
 

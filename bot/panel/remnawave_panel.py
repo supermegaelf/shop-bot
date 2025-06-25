@@ -1,7 +1,8 @@
 import time
+from datetime import datetime, timedelta
 
 from remnawave_api import RemnawaveSDK
-from remnawave_api.models import UserResponseDto
+from remnawave_api.models import UserResponseDto, UpdateUserRequestDto
 
 from panel.panel import Panel
 from db.methods import get_vpn_user
@@ -36,15 +37,19 @@ class RemnawavePanel(Panel):
         res = await self.check_if_user_exists(username)
         ps = self.get_protocols()
         if res:
-            user: UserResponseDto = await self.api.users.get_user_by_username(username)
-            if user.expire_at < time.time():
+            user: UserResponseDto = await self.api.users.get_user_by_username(username)    
+            user_update: UpdateUserRequestDto = UpdateUserRequestDto(uuid=user.uuid, status='ACTIVE', traffic_limit_bytes=data_limit)
+
+            if user.expire_at < datetime.now():
                 await self.api.users.reset_user_traffic(user.uuid)
-                expire_date = self.get_subscription_end_date(months)  
+                user_update.expire_at = datetime.now() + timedelta(days=months*30)
             else:
-                user['expire'] += self.get_subscription_end_date(months, True)
-            user['data_limit'] = data_limit
-            result = await self.api.modify_user(username, user)
+                user_update.expire_at = user.expire_at + timedelta(days=months*30)
+            
+            result = await self.api.users.update_user(username, user)
         else:
+            response = self.api.inbounds.get_inbounds()
+            
             user = {
                 'username': username,
                 'proxies': ps["proxies"],
@@ -60,8 +65,7 @@ class RemnawavePanel(Panel):
         res = await self.check_if_user_exists(username)
         ps = self.get_protocols()
         if res:
-            user = await self.api.get_user(username)
-            user['status'] = 'active'
+            user = await self.api.users.get_user_by_username(username)
             if user['expire'] < time.time():
                 user['expire'] = self.get_test_subscription_end_date(glv.config['PERIOD_LIMIT'])
             else:

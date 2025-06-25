@@ -4,29 +4,28 @@ from abc import ABC, abstractmethod
 from models import PanelProfile
 import glv
 
-
 PROTOCOLS = {
-    "vmess": [
-        {},
-        ["VMess TCP"]
-    ],
-    "vless": [
-        {
-            "flow": "xtls-rprx-vision"
-        },
-        ["VLESS Reality Steal Oneself", "VLESS WS"]
-    ],
-    "trojan": [
-        {},
-        ["Trojan Websocket TLS"]
-    ],
-    "shadowsocks": [
-        {
-            "method": "chacha20-ietf-poly1305"
-        },
-        ["Shadowsocks TCP"]
-    ]
-}
+        "vmess": [
+            {},
+            ["VMess TCP"]
+        ],
+        "vless": [
+            {
+                "flow": "xtls-rprx-vision"
+            },
+            ["VLESS Reality Steal Oneself", "VLESS WS"]
+        ],
+        "trojan": [
+            {},
+            ["Trojan Websocket TLS"]
+        ],
+        "shadowsocks": [
+            {
+                "method": "chacha20-ietf-poly1305"
+            },
+            ["Shadowsocks TCP"]
+        ]
+    }
 
 class Panel(ABC):
     @abstractmethod
@@ -48,13 +47,20 @@ class Panel(ABC):
     @abstractmethod
     async def update_subscription_data_limit(self, username: str, data_limit: int):
         pass
-    
-    def get_test_subscription_end_date(hours: int, additional= False) -> int:
-        return (0 if additional else int(time.time())) + 60 * 60 * hours
 
+    @abstractmethod
+    async def reset_subscription_data_limit(self, username: str):
+        pass
+    
+    @staticmethod
     def get_subscription_end_date(months: int, additional = False) -> int:
         return (0 if additional else int(time.time())) + 60 * 60 * 24 * 30 * months
     
+    @staticmethod
+    def get_test_subscription_end_date(hours: int, additional= False) -> int:
+        return (0 if additional else int(time.time())) + 60 * 60 * hours
+    
+    @staticmethod
     def get_protocols() -> dict:
         proxies = {}
         inbounds = {}

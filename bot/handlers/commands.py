@@ -1,6 +1,5 @@
 import asyncio
 from datetime import datetime
-import logging
 
 from aiogram import Router
 from aiogram import Dispatcher
@@ -9,8 +8,6 @@ from aiogram.types import Message
 from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.utils.chat_action import ChatActionSender
-
-from utils import panel
 
 from keyboards import get_main_menu_keyboard
 from .messages import profile, help
@@ -45,15 +42,6 @@ async def start(message: Message):
         async with ChatActionSender.typing(bot=message.bot, chat_id=message.chat.id):
                 await asyncio.sleep(1)
         await message.answer(_("message_select_welcome_action"), reply_markup=get_main_menu_keyboard())
-
-@router.message(
-    Command("check")
-)
-async def check(message: Message):
-    logging.info("check")
-    users = await panel.get_all_users()
-    await message.answer(str(users))
-
 
 @router.message(
     Command("access")
