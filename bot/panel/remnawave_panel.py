@@ -2,7 +2,7 @@ import time
 from datetime import datetime, timedelta
 
 from remnawave_api import RemnawaveSDK
-from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto
+from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto, InboundsResponseDto, InboundResponseDto
 
 from panel.panel import Panel
 from db.methods import get_vpn_user
@@ -68,11 +68,15 @@ class RemnawavePanel(Panel):
                 user_update.expire_at = user.expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
             result: UserResponseDto = await self.api.users.update_user(username, user)
         else:
+            inbounds_response: InboundsResponseDto = self.api.inbounds.get_inbounds()
+
+            active_inbounds = [inbound.uuid for inbound in inbounds_response.response if inbound.tag in ps['inbounds']]
             result: UserResponseDto = await self.api.users.create_user(CreateUserRequestDto(
                 username=username,
                 expire_at=datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT']),
                 data_limit=10737418240,
-                traffic_limit_strategy='MONTH'
+                traffic_limit_strategy='MONTH',
+                active_user_inbounds=active_inbounds
             ))        
         return PanelProfile.from_UserResponseDto(result)
     
