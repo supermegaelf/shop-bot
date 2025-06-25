@@ -3,12 +3,14 @@ import time
 from bot.panel.panel import Panel
 from utils.marzban_api import Marzban
 from db.methods import get_vpn_user
+from panel.models import PanelProfile
 
 import glv
 
 class MarzbanPanel(Panel):
     def __init__(self):
         self.api = Marzban(glv.config['PANEL_HOST'], glv.config['PANEL_USER'], glv.config['PANEL_PASS'])
+        self.api.get_token()
         
     async def check_if_user_exists(self, username):
         try:
@@ -17,12 +19,13 @@ class MarzbanPanel(Panel):
         except Exception as e:
             return False
     
-    async def get_panel_user_by_tg_id(self, tg_id: int):
+    async def get_panel_user(self, tg_id: int):
         result = await get_vpn_user(tg_id)
         res = await self.check_if_user_exists(result.vpn_id)
         if not res:
             return None
-        return await self.api.get_user(result.vpn_id)
+        user = await self.api.get_user(result.vpn_id)
+        return PanelProfile.from_marzban_profile(user)
     
     async def generate_subscription(self, username: str, months: int, data_limit: int):
         res = await self.check_if_user_exists(username)
@@ -47,7 +50,7 @@ class MarzbanPanel(Panel):
                 'data_limit_reset_strategy': "month",
             }
             result = await self.api.add_user(user)
-        return result
+        return PanelProfile.from_marzban_profile(result)
     
     async def generate_test_subscription(self, username):
         res = await self.check_if_user_exists(username)
@@ -70,7 +73,14 @@ class MarzbanPanel(Panel):
                 'data_limit_reset_strategy': "month",
             }
             result = await self.api.add_user(user)
-        return result
+        return PanelProfile.from_marzban_profile(result)
+    
+    async def update_subscription_data_limit(self, username: str, datalimit: int):
+        user = await self.api.get_user(username)
+        user['status'] = 'active'
+        user['data_limit'] = user['data_limit'] + datalimit
+        result = await self.api.modify_user(username, user)
+        return PanelProfile.from_marzban_profile(result)
     
     async def reset_subscription_data_limit(self, username):
         if not await self.check_if_user_exists(username):

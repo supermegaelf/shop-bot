@@ -18,8 +18,10 @@ from db.methods import (
     has_confirmed_payments
 )
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard
-from utils import webhook_data, goods, marzban_api
+from utils import webhook_data, goods
 from utils import get_i18n_string
+from panel import get_panel
+
 import glv
 
 YOOKASSA_IPS = (
@@ -43,16 +45,17 @@ async def check_crypto_payment(request: Request):
     if payment == None:
         return web.Response()
     if data['status'] in ['paid', 'paid_over']:
+        panel = get_panel()
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         if good['type'] == 'renew':
             is_trial = await is_test_subscription(payment.tg_id)
             if is_trial:
-                await marzban_api.reset_data_limit(user.vpn_id)
+                await panel.reset_subscription_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
-            marzban_profile = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+            panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
-            marzban_profile = await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
             await glv.bot.send_message(payment.tg_id,
@@ -60,7 +63,7 @@ async def check_crypto_payment(request: Request):
                 reply_markup=get_main_menu_keyboard(payment.lang)
             )
         else:
-            subscription_url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
+            subscription_url = panel_profile.subscription_url
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_new_subscription_created", payment.lang),
                 reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
@@ -90,16 +93,17 @@ async def check_yookassa_payment(request: Request):
     if payment == None:
         return web.Response()
     if data['status'] in ['succeeded']:
+        panel = get_panel()
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         if good['type'] == 'renew':
             is_trial = await is_test_subscription(payment.tg_id)
             if is_trial:
-                await marzban_api.reset_data_limit(user.vpn_id)
+                await panel.reset_subscription_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
-            marzban_profile = await marzban_api.generate_marzban_subscription(user.vpn_id, good)
+            panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
-            marzban_profile = await marzban_api.update_subscription_data_limit(user.vpn_id, good)
+            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
         
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
@@ -108,7 +112,7 @@ async def check_yookassa_payment(request: Request):
                 reply_markup=get_main_menu_keyboard(payment.lang)
             )
         else:
-            subscription_url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
+            subscription_url = panel_profile.subscription_url
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_new_subscription_created", payment.lang),
                 reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
@@ -142,8 +146,9 @@ async def notify_user(request: Request):
             message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
             await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
         case "reached_days_left":
-            marzban_profile = await marzban_api.get_panel_profile(user.tg_id)
-            time_of_expiration = datetime.fromtimestamp(marzban_profile['expire']).strftime('%H:%M')
+            panel = get_panel()
+            panel_profile = await panel.get_panel_user(user.tg_id)
+            time_of_expiration = panel_profile.expire.strftime('%H:%M')
             message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
             await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
         case "user_expired":

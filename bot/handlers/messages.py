@@ -10,7 +10,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from keyboards import get_user_profile_keyboard, get_help_keyboard, get_main_menu_keyboard
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
-from utils import marzban_api
+from panel import get_panel
 
 import glv
 
@@ -21,14 +21,15 @@ class PromoStates(StatesGroup):
 
 @router.message(F.text == __("button_vpn_access"))
 async def profile(message: Message):
-    marzban_profile = await marzban_api.get_panel_profile(message.from_user.id)
-    if marzban_profile:
-        url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
-        status = _(marzban_profile['status'])
-        expire_date = datetime.fromtimestamp(marzban_profile['expire']).strftime("%d.%m.%Y") if marzban_profile['expire'] else "∞"
-        data_used = f"{marzban_profile['used_traffic'] / 1073741824:.2f}"
-        data_limit = f"{marzban_profile['data_limit'] // 1073741824}" if marzban_profile['data_limit'] else "∞"
-        show_buy_traffic_button = marzban_profile['data_limit'] and (marzban_profile['used_traffic'] / marzban_profile['data_limit']) > 0.9
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(message.from_user.id)
+    if panel_profile:
+        url = panel_profile.subscription_url
+        status = _(panel_profile.status)
+        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
+        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
+        data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
+        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
     else:
         url = ""
         status = "–"

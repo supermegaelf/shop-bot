@@ -1,1 +1,1 @@
-from . import remnawave_panel
+from .panel_provider import get_panel

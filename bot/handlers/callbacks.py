@@ -13,7 +13,8 @@ from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyb
     get_months_keyboard, get_support_keyboard, get_reach_support_keyboard, get_install_subscription_keyboard
 from db.methods import is_trial_available, start_trial, get_vpn_user, get_user_promo_discount
 
-from utils import goods, yookassa, cryptomus, marzban_api
+from utils import goods, yookassa, cryptomus
+from panel import get_panel
 import glv
 
 router = Router(name="callbacks-router") 
@@ -28,12 +29,13 @@ async def callback_month_amount_select(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith("extend_data_limit"))
 async def callback_extend_data_limit(callback: CallbackQuery):
-    user = await marzban_api.get_panel_profile(callback.from_user.id)
-    if not user or not user['data_limit'] or not user['expire']: 
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    if not panel_profile or not panel_profile.data_limit or not panel_profile.expire: 
         await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
         return
     
-    subscription_months_left = (user['expire'] - datetime.now().timestamp()) / 2592000
+    subscription_months_left = (panel_profile.expire.timestamp() - datetime.now().timestamp()) / 2592000
     
     filtered_goods = [good for good in goods.get() if good['months'] > subscription_months_left and good['type'] == 'update']
     if filtered_goods:

@@ -33,11 +33,11 @@ class Panel(ABC):
         pass
 
     @abstractmethod
-    async def get_panel_user_by_tg_id(self, tg_id: int) -> PanelProfile:
+    async def get_panel_user(self, tg_id: int) -> PanelProfile:
         pass
     
     @abstractmethod
-    async def generate_subscription(self, username: str) -> PanelProfile:
+    async def generate_subscription(self, username: str, months: int, data_limit: int) -> PanelProfile:
         pass
 
     @abstractmethod
@@ -45,7 +45,7 @@ class Panel(ABC):
         pass
 
     @abstractmethod
-    async def update_subscription_data_limit(self, username: str, data_limit: int):
+    async def update_subscription_data_limit(self, username: str, data_limit: int) -> PanelProfile:
         pass
 
     @abstractmethod

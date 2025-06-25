@@ -28,6 +28,7 @@ services:
             PANEL_GLOBAL: ${PANEL_GLOBAL}
             PANEL_USER: ${PANEL_USER}
             PANEL_PASS: ${PANEL_PASS}
+            PANEL_TYPE: ${PANEL_TYPE}
             WEBHOOK_URL: ${WEBHOOK_URL}
             WEBHOOK_PORT: ${WEBHOOK_PORT}
             WEBHOOK_SECRET: ${WEBHOOK_SECRET}
@@ -35,7 +36,6 @@ services:
             STARS_PAYMENT_ENABLED: ${STARS_PAYMENT_ENABLED}
             ADMINS: ${ADMINS}
             UPDATE_GEO_LINK: ${UPDATE_GEO_LINK}
-            REMNAWAVE_BASE_URL: ${REMNAWAVE_BASE_URL}
             REMNAWAVE_TOKEN: ${REMNAWAVE_TOKEN}
         volumes:
             - "./goods.json:/app/goods.json"

@@ -3,30 +3,9 @@ import aiohttp
 import requests
 
 from db.methods import get_vpn_user
-import glv
+from panel.models import PanelProfile
 
-PROTOCOLS = {
-    "vmess": [
-        {},
-        ["VMess TCP"]
-    ],
-    "vless": [
-        {
-            "flow": "xtls-rprx-vision"
-        },
-        ["VLESS Reality Steal Oneself", "VLESS WS"]
-    ],
-    "trojan": [
-        {},
-        ["Trojan Websocket TLS"]
-    ],
-    "shadowsocks": [
-        {
-            "method": "chacha20-ietf-poly1305"
-        },
-        ["Shadowsocks TCP"]
-    ]
-}
+import glv
 
 class Marzban:
     def __init__(self, ip, login, passwd) -> None:
@@ -86,101 +65,3 @@ class Marzban:
         }
         resp = await self._send_request("POST", f"/api/user/{username}/reset", headers=headers)
         return resp
-    
-def get_protocols() -> dict:
-    proxies = {}
-    inbounds = {}
-    
-    for proto in glv.config['PROTOCOLS']:
-        l = proto.lower()
-        if l not in PROTOCOLS:
-            continue
-        proxies[l] = PROTOCOLS[l][0]
-        inbounds[l] = PROTOCOLS[l][1]
-    return {
-        "proxies": proxies,
-        "inbounds": inbounds
-    }
-
-api = Marzban(glv.config['PANEL_HOST'], glv.config['PANEL_USER'], glv.config['PANEL_PASS'])
-#mytoken = api.get_token()
-ps = get_protocols()
-
-async def check_if_user_exists(name: str) -> bool:
-    try:
-        await api.get_user(name)
-        return True
-    except Exception as e:
-        return False
-
-async def get_panel_profile(tg_id: int):
-    result = await get_vpn_user(tg_id)
-    res = await check_if_user_exists(result.vpn_id)
-    if not res:
-        return None
-    return await api.get_user(result.vpn_id)
-
-async def generate_test_subscription(username: str):
-    res = await check_if_user_exists(username)
-    if res:
-        user = await api.get_user(username)
-        user['status'] = 'active'
-        if user['expire'] < time.time():
-            user['expire'] = get_test_subscription(glv.config['PERIOD_LIMIT'])
-        else:
-            user['expire'] += get_test_subscription(glv.config['PERIOD_LIMIT'], True)
-        result = await api.modify_user(username, user)
-    else:
-        user = {
-            'username': username,
-            'proxies': ps["proxies"],
-            'inbounds': ps["inbounds"],
-            'expire': get_test_subscription(glv.config['PERIOD_LIMIT']),
-            'data_limit': 107374182400,
-            'data_limit_reset_strategy': "month",
-        }
-        result = await api.add_user(user)
-    return result
-
-async def generate_marzban_subscription(username: str, good):
-    res = await check_if_user_exists(username)
-    if res:
-        user = await api.get_user(username)
-        user['status'] = 'active'
-        if user['expire'] < time.time():
-            await api.user_data_limit_reset(username)
-            user['expire'] = get_subscription_end_date(good['months'])   
-        else:
-            user['expire'] += get_subscription_end_date(good['months'], True)
-        user['data_limit'] = good['data_limit']
-        result = await api.modify_user(username, user)
-    else:
-        user = {
-            'username': username,
-            'proxies': ps["proxies"],
-            'inbounds': ps["inbounds"],
-            'expire': get_subscription_end_date(good['months']),
-            'data_limit': good['data_limit'],
-            'data_limit_reset_strategy': "month",
-        }
-        result = await api.add_user(user)
-    return result
-
-async def update_subscription_data_limit(username: str, good):
-    user = await api.get_user(username)
-    user['status'] = 'active'
-    user['data_limit'] = user['data_limit'] + good['data_limit']
-    result = await api.modify_user(username, user)
-    return result
-
-async def reset_data_limit(username: str):
-    if not await check_if_user_exists(username):
-        return None
-    result = await api.user_data_limit_reset(username)
-    return result
-
-def get_test_subscription(hours: int, additional= False) -> int:
-    return (0 if additional else int(time.time())) + 60 * 60 * hours
-
-def get_subscription_end_date(months: int, additional = False) -> int:
-    return (0 if additional else int(time.time())) + 60 * 60 * 24 * 30 * months
