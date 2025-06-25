@@ -68,7 +68,7 @@ class RemnawavePanel(Panel):
                 user_update.expire_at = user.expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
             result: UserResponseDto = await self.api.users.update_user(username, user)
         else:
-            result: UserResponseDto = self.api.users.create_user(CreateUserRequestDto(
+            result: UserResponseDto = await self.api.users.create_user(CreateUserRequestDto(
                 username=username,
                 expire_at=datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT']),
                 data_limit=10737418240,

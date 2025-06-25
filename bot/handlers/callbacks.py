@@ -123,7 +123,7 @@ async def callback_trial(callback: CallbackQuery):
     result = await get_vpn_user(callback.from_user.id)
     panel = remnawave_panel.RemnawavePanel()
     panel_profile: remnawave_panel.PanelProfile = await panel.generate_test_subscription(result.vpn_id)
-    if not result: 
+    if not panel_profile: 
         await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
         logging.error("Failed to generate test subscription for user %s", callback.from_user.id)
         return
