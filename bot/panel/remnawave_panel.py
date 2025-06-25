@@ -2,7 +2,7 @@ import time
 from datetime import datetime, timedelta
 
 from remnawave_api import RemnawaveSDK
-from remnawave_api.models import UserResponseDto, UpdateUserRequestDto
+from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto
 
 from panel.panel import Panel
 from db.methods import get_vpn_user
@@ -35,7 +35,6 @@ class RemnawavePanel(Panel):
     
     async def generate_subscription(self, username: str, months: int, data_limit: int):
         res = await self.check_if_user_exists(username)
-        ps = self.get_protocols()
         if res:
             user: UserResponseDto = await self.api.users.get_user_by_username(username)    
             user_update: UpdateUserRequestDto = UpdateUserRequestDto(uuid=user.uuid, status='ACTIVE', traffic_limit_bytes=data_limit)
@@ -46,42 +45,36 @@ class RemnawavePanel(Panel):
             else:
                 user_update.expire_at = user.expire_at + timedelta(days=months*30)
             
-            result = await self.api.users.update_user(username, user)
-        else:
-            response = self.api.inbounds.get_inbounds()
-            
-            user = {
-                'username': username,
-                'proxies': ps["proxies"],
-                'inbounds': ps["inbounds"],
-                'expire': self.get_subscription_end_date(months),
-                'data_limit': data_limit,
-                'data_limit_reset_strategy': "month",
-            }
-            result = await self.api.add_user(user)
-        return result
+            result: UserResponseDto = await self.api.users.update_user(username, user)
+        else: 
+            result: UserResponseDto = self.api.users.create_user(CreateUserRequestDto(
+                username=username,
+                expire_at=datetime.now() + timedelta(days=months*30),
+                data_limit=data_limit,
+                traffic_limit_strategy='MONTH'
+            ))        
+        return PanelProfile.from_UserResponseDto(result)
     
     async def generate_test_subscription(self, username):
         res = await self.check_if_user_exists(username)
         ps = self.get_protocols()
         if res:
-            user = await self.api.users.get_user_by_username(username)
-            if user['expire'] < time.time():
-                user['expire'] = self.get_test_subscription_end_date(glv.config['PERIOD_LIMIT'])
+            user: UserResponseDto = await self.api.users.get_user_by_username(username)
+            user_update: UpdateUserRequestDto = UpdateUserRequestDto(uuid=user.uuid, status='ACTIVE', traffic_limit_bytes=10737418240)
+
+            if user.expire_at < datetime.now():
+                user_update.expire_at = datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT'])
             else:
-                user['expire'] += self.get_test_subscription_end_date(glv.config['PERIOD_LIMIT'], True)
-            result = await self.api.modify_user(username, user)
+                user_update.expire_at = user.expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
+            result: UserResponseDto = await self.api.users.update_user(username, user)
         else:
-            user = {
-                'username': username,
-                'proxies': ["proxies"],
-                'inbounds': ps["inbounds"],
-                'expire': self.get_test_subscription_end_date(glv.config['PERIOD_LIMIT']),
-                'data_limit': 107374182400,
-                'data_limit_reset_strategy': "month",
-            }
-            result = await self.api.users.create_user(user)
-        return result
+            result: UserResponseDto = self.api.users.create_user(CreateUserRequestDto(
+                username=username,
+                expire_at=datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT']),
+                data_limit=10737418240,
+                traffic_limit_strategy='MONTH'
+            ))        
+        return PanelProfile.from_UserResponseDto(result)
     
     async def reset_subscription_data_limit(self, username):
         if not await self.check_if_user_exists(username):

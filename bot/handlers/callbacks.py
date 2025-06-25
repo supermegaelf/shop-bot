@@ -6,6 +6,7 @@ from aiogram import Router, F
 from aiogram import Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.utils.i18n import gettext as _
+from panel import remnawave_panel
 
 from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, \
     get_buy_menu_keyboard, get_xtr_pay_keyboard, get_back_to_help_keyboard, get_help_keyboard, \
@@ -120,7 +121,8 @@ async def callback_trial(callback: CallbackQuery):
             reply_markup=get_main_menu_keyboard())
         return
     result = await get_vpn_user(callback.from_user.id)
-    result = await marzban_api.generate_test_subscription(result.vpn_id)
+    panel = remnawave_panel.RemnawavePanel()
+    panel.generate_test_subscription(result.vpn_id)
     if not result: 
         await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
         logging.error("Failed to generate test subscription for user %s", callback.from_user.id)
