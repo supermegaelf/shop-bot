@@ -69,17 +69,12 @@ class RemnawavePanel(Panel):
                 user_update.expire_at = user.expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
             result: UserResponseDto = await self.api.users.update_user(username, user)
         else:
-            inbounds_response: InboundsResponseDto = await self.api.inbounds.get_inbounds()
-            logging.info(inbounds_response)
-            logging.info(ps['inbounds'])
-            active_inbounds = [inbound.uuid for inbound in inbounds_response.response if inbound.tag in ps['inbounds']]
-            logging.info(active_inbounds)
             result: UserResponseDto = await self.api.users.create_user(CreateUserRequestDto(
                 username=username,
                 expire_at=datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT']),
                 data_limit=10737418240,
                 traffic_limit_strategy='MONTH',
-                active_user_inbounds=active_inbounds
+                activate_all_inbounds=True
             ))        
         return PanelProfile.from_UserResponseDto(result)
     
