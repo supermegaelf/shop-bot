@@ -12,7 +12,7 @@ import glv
 
 class RemnawavePanel(Panel):
     def __init__(self):
-        self.api = RemnawaveSDK(base_url=glv.config['PANEL_HOST'], token=['REMNAWAVE_TOKEN'])
+        self.api = RemnawaveSDK(base_url=glv.config['PANEL_HOST'], token=glv.config['REMNAWAVE_TOKEN'])
         
     async def check_if_user_exists(self, username):
         try:
