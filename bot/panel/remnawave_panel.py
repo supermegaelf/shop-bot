@@ -35,7 +35,7 @@ class RemnawavePanel(Panel):
             user_update = UpdateUserRequestDto(uuid=user.uuid, status='ACTIVE', traffic_limit_bytes=data_limit)
 
             if user.expire_at < datetime.now(UTC):
-                await self.api.users.reset_user_traffic(user.uuid)
+                await self.api.users.reset_user_traffic(str(user.uuid))
                 user_update.expire_at = datetime.now(UTC) + timedelta(days=months*30)
             else:
                 user_update.expire_at = user.expire_at + timedelta(days=months*30)
@@ -84,5 +84,5 @@ class RemnawavePanel(Panel):
         if not await self.check_if_user_exists(username):
             return None
         user = await self.api.users.get_user_by_username(username)
-        result = await self.api.users.reset_user_traffic(user.uuid)
+        result = await self.api.users.reset_user_traffic(str(user.uuid))
         return PanelProfile.from_UserResponseDto(result)
