@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 from remnawave_api import RemnawaveSDK
 from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto
@@ -34,9 +34,9 @@ class RemnawavePanel(Panel):
             user = await self.api.users.get_user_by_username(username)    
             user_update = UpdateUserRequestDto(uuid=user.uuid, status='ACTIVE', traffic_limit_bytes=data_limit)
 
-            if user.expire_at < datetime.now():
+            if user.expire_at < datetime.now(UTC):
                 await self.api.users.reset_user_traffic(user.uuid)
-                user_update.expire_at = datetime.now() + timedelta(days=months*30)
+                user_update.expire_at = datetime.now(UTC) + timedelta(days=months*30)
             else:
                 user_update.expire_at = user.expire_at + timedelta(days=months*30)
             
@@ -44,7 +44,7 @@ class RemnawavePanel(Panel):
         else: 
             result = self.api.users.create_user(CreateUserRequestDto(
                 username=username,
-                expire_at=datetime.now() + timedelta(days=months*30),
+                expire_at=datetime.now(UTC) + timedelta(days=months*30),
                 traffic_limit_bytes=data_limit,
                 traffic_limit_strategy='MONTH',
                 activate_all_inbounds=True
@@ -57,15 +57,15 @@ class RemnawavePanel(Panel):
             user = await self.api.users.get_user_by_username(username)
             user_update = UpdateUserRequestDto(uuid=user.uuid, status='ACTIVE', traffic_limit_bytes=10737418240)
 
-            if user.expire_at < datetime.now():
-                user_update.expire_at = datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT'])
+            if user.expire_at < datetime.now(UTC):
+                user_update.expire_at = datetime.now(UTC) + timedelta(hours=glv.config['PERIOD_LIMIT'])
             else:
                 user_update.expire_at = user.expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
             result = await self.api.users.update_user(user_update)
         else:
             result = await self.api.users.create_user(CreateUserRequestDto(
                 username=username,
-                expire_at=datetime.now() + timedelta(hours=glv.config['PERIOD_LIMIT']),
+                expire_at=datetime.now(UTC) + timedelta(hours=glv.config['PERIOD_LIMIT']),
                 traffic_limit_bytes=10737418240,
                 traffic_limit_strategy='MONTH',
                 activate_all_inbounds=True
