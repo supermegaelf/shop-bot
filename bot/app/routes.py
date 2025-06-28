@@ -196,7 +196,7 @@ async def notify_user(request: Request):
         message = ""
         match event:
             case "user.bandwidth_usage_threshold_reached":
-                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['used_traffic'])))
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['usedTrafficBytes'])))
                 await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
