@@ -170,7 +170,7 @@ async def notify_user(request: Request):
         if not signature:
             return web.Response(status=403)
         payload = await request.json()
-        payload_bytes = json.dumps(payload).encode('utf-8')
+        payload_bytes = json.dumps(payload, separators=(',', ':')).encode('utf-8')
         webhook_secret = str(glv.config['WEBHOOK_SECRET']).encode('utf-8')
         computed_signature = hmac.new(
             key=webhook_secret,
