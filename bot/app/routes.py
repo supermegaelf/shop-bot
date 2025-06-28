@@ -125,9 +125,10 @@ async def check_yookassa_payment(request: Request):
 
 async def notify_user(request: Request):
     secret = request.headers.get('x-webhook-secret') or request.headers.get('X-Remnawave-Signature')
-    logging.info(secret)
+    logging.info(f'headers:{request.headers}')
+    logging.info(f'secret: {secret}')
     request_data = await request.json()
-    logging.info(request_data)
+    logging.info(f'request_data:{request_data}')
     if secret != glv.config['WEBHOOK_SECRET']:
         return web.Response(status=403)
     if glv.config['PANEL_TYPE'] == 'MARZBAN':
