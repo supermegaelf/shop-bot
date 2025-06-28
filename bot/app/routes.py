@@ -1,6 +1,8 @@
 import ipaddress
 import logging
 from datetime import datetime
+import hmac
+import hashlib
 
 from aiohttp.web_request import Request
 from aiohttp import web
@@ -124,14 +126,12 @@ async def check_yookassa_payment(request: Request):
     return web.Response()
 
 async def notify_user(request: Request):
-    secret = request.headers.get('x-webhook-secret') or request.headers.get('X-Remnawave-Signature')
-    logging.info(f'headers:{request.headers}')
-    logging.info(f'secret: {secret}')
-    request_data = await request.json()
-    logging.info(f'request_data:{request_data}')
-    if secret != glv.config['WEBHOOK_SECRET']:
-        return web.Response(status=403)
     if glv.config['PANEL_TYPE'] == 'MARZBAN':
+        secret = request.headers.get('x-webhook-secret')
+
+        if secret != glv.config['WEBHOOK_SECRET']:
+            return web.Response(status=403)
+    
         data = (await request.json())[0]
         if data['action'] not in ['reached_usage_percent', 'reached_days_left', 'user_expired', 'user_limited']:
             return web.Response()
@@ -165,10 +165,19 @@ async def notify_user(request: Request):
             case _:
                 return web.Response()
     elif glv.config['PANEL_TYPE'] == 'REMNAWAVE':
-        data = await request.json()
-        if data['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expires_in_24_hours', 'user.expires_in_48_hours', 'user.expires_in_72_hours', 'user.expired', 'user.limited']:
+        signature = request.headers.get('x-webhook-secret')
+        payload = await request.json()
+        computed_signature = hmac.new(
+            key=glv.config['WEBHOOK_SECRET'],
+            msg=payload,
+            digestmod=hashlib.sha256
+        ).hexdigest()
+        logging.info(f"sign: {signature}, computed:{computed_signature}")
+        if not hmac.compare_digest(signature, computed_signature):
+            return web.Response(status=403)
+        if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expires_in_24_hours', 'user.expires_in_48_hours', 'user.expires_in_72_hours', 'user.expired', 'user.limited']:
             return web.Response()
-        vpn_id = data['data']['username']
+        vpn_id = payload['data']['username']
         user = await get_marzban_profile_by_vpn_id(vpn_id)
         if user is None:
             logging.info(f"No user found id={vpn_id}")
@@ -177,11 +186,11 @@ async def notify_user(request: Request):
         if chat_member is None:
             logging.info(f"No chat_member found id={user.tg_id}")
             return web.Response(status=404)
-        event = data['event']
+        event = payload['event']
         message = ""
         match event:
             case "user.bandwidth_usage_threshold_reached":
-                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['data']['used_traffic'])))
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['used_traffic'])))
                 await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
