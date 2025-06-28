@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 import hmac
 import hashlib
+import json
 
 from aiohttp.web_request import Request
 from aiohttp import web
@@ -165,11 +166,15 @@ async def notify_user(request: Request):
             case _:
                 return web.Response()
     elif glv.config['PANEL_TYPE'] == 'REMNAWAVE':
-        signature = request.headers.get('x-webhook-secret')
+        signature = request.headers.get('x-remnawave-signature')
+        if not signature:
+            return web.Response(status=403)
         payload = await request.json()
+        payload_bytes = json.dumps(payload, sort_keys=True).encode('utf-8')
+        webhook_secret = str(glv.config['WEBHOOK_SECRET']).encode('utf-8')
         computed_signature = hmac.new(
-            key=glv.config['WEBHOOK_SECRET'],
-            msg=payload,
+            key=webhook_secret,
+            msg=payload_bytes,
             digestmod=hashlib.sha256
         ).hexdigest()
         logging.info(f"sign: {signature}, computed:{computed_signature}")
