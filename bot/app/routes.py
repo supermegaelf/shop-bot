@@ -165,6 +165,7 @@ async def notify_user(request: Request):
                 await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
             case _:
                 return web.Response()
+        logging.info(f"Message {action} sent to user id={user.tg_id}.")
     elif glv.config['PANEL_TYPE'] == 'REMNAWAVE':
         signature = request.headers.get('x-remnawave-signature')
         if not signature:
@@ -212,7 +213,6 @@ async def notify_user(request: Request):
                 await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
             case _:
                 return web.Response()
-
+        logging.info(f"Message {event} sent to user id={user.tg_id}.")
            
-    logging.info(f"Message {action} sent to user id={user.tg_id}.")
     return web.Response()
