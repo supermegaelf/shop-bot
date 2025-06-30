@@ -6,9 +6,9 @@ from .update_token import update_marzban_token
 
 async def register_marzban_token_update_task():
     logging.info('Register update Marzban token task.')
-    
-    async def wrapped_task():
-        await update_marzban_token()
+
+    def wrapped_task():
+        asyncio.create_task(update_marzban_token())
     
     aioschedule.every(5).minutes.do(wrapped_task)
     while True:
