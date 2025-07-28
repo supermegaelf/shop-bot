@@ -17,7 +17,7 @@ async def register():
             
             if now - last_token_update >= timedelta(minutes=5):
                 logging.info('Running token update task.')
-                update_marzban_token()
+                await update_marzban_token()
                 last_token_update = now
                 
         except Exception as e:
