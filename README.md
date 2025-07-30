@@ -1,4 +1,3 @@
-```markdown
 # Shop Bot 🚀
 
 Telegram bot for VPN subscription sales with multi-panel support and multiple payment methods.
@@ -160,4 +159,3 @@ GPL-3.0 License - see [LICENSE](LICENSE) file.
 ---
 
 ⭐ **Star this repository if it helped you!**
-```
