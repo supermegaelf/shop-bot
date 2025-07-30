@@ -24,6 +24,13 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
                 callback_data=f"pay_kassa_{good['callback']}"
             )
         )
+    if glv.config['TRIBUTE_PAYMENT_URL']:
+        builder.row(
+            InlineKeyboardButton(
+                text="Tribute",
+                url=glv.config['TRIBUTE_PAYMENT_URL']
+            )
+        )
     if crypt:
         builder.row(
             InlineKeyboardButton(
@@ -31,20 +38,11 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
                 callback_data=f"pay_crypto_{good['callback']}"
             )
         )
-   
     if glv.config['STARS_PAYMENT_ENABLED']:
         builder.row(
             InlineKeyboardButton(
                 text=f"Telegram Stars ⭐️",
                 callback_data=f"pay_stars_{good['callback']}"
-            )
-        )
-    
-    if glv.config['TRIBUTE_PAYMENT_URL']:
-        builder.row(
-            InlineKeyboardButton(
-                text="Tribute",
-                url=glv.config['TRIBUTE_PAYMENT_URL']
             )
         )
     return builder.as_markup()
