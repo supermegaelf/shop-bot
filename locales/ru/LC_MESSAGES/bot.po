@@ -345,7 +345,4 @@ msgstr "Рассылка завершена!\n"
 "Не удалось отправить: {fail_count}"
 
 msgid "button_tribute"
-msgstr "Банковская карта 💳 (Tribute)"
-
-msgid "To be paid – {amount} {currency} ⬇️"
-msgstr "К оплате – {amount} {currency} ⬇️"
+msgstr "Tribute 💎"

@@ -344,8 +344,5 @@ msgstr "Broadcast completed!\n"
 "Successfully sent: {success_count}\n"
 "Failed to send: {fail_count}"
 
-msgid "button_tribute"
-msgstr "Bank card 💳 (Tribute)"
-
-msgid "To be paid – {amount} {currency} ⬇️"
-msgstr ""
+msgid "button_tribute"  
+msgstr "Tribute 💎"

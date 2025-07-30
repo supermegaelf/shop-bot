@@ -27,7 +27,7 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
     if glv.config['TRIBUTE_PAYMENT_URL']:
         builder.row(
             InlineKeyboardButton(
-                text="Tribute",
+                text=_("button_tribute"),
                 url=glv.config['TRIBUTE_PAYMENT_URL']
             )
         )
