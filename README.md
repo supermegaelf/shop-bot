@@ -68,11 +68,6 @@ Set these URLs in your payment provider dashboards:
 
 GPL-3.0 License - see [LICENSE](LICENSE) file.
 
-## 🆘 Support
-
-- 🐛 [Issues](https://github.com/supermegaelf/shop-bot/issues)
-- 📖 [Documentation](https://github.com/supermegaelf/shop-bot/wiki)
-
 ---
 
 ⭐ **Star this repository if it helped you!**
