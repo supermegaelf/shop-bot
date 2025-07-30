@@ -218,7 +218,6 @@ async def notify_user(request: Request):
     return web.Response()
 
 async def check_tribute_payment(request: Request):
-    """Обработка webhook от Tribute"""
     if not glv.config['TRIBUTE_WEBHOOK_URL']:
         return web.Response(status=404)
 
@@ -228,7 +227,6 @@ async def check_tribute_payment(request: Request):
     if not signature:
         return web.Response(status=401)
 
-    # Проверка подписи
     from utils.tribute import verify_signature
     if not verify_signature(body, signature, glv.config['TRIBUTE_API_KEY']):
         return web.Response(status=403)
@@ -238,7 +236,6 @@ async def check_tribute_payment(request: Request):
     except json.JSONDecodeError:
         return web.Response(status=400)
 
-    # Обработка только webhook о новой подписке
     if data.get('name') != 'new_subscription':
         return web.Response()
 
@@ -248,7 +245,6 @@ async def check_tribute_payment(request: Request):
     if not telegram_user_id:
         return web.Response(status=400)
 
-    # Конвертация периода в месяцы
     period = payload.get('period', 'monthly').lower()
     months_map = {
         'monthly': 1,
@@ -260,16 +256,14 @@ async def check_tribute_payment(request: Request):
     }
     months = months_map.get(period, 1)
 
-    # Создание подписки
     panel = get_panel()
     user = await get_vpn_user(telegram_user_id)
 
     if user:
-        # Определяем тип подписки по месяцам
+
         good_type = 'renew'
         data_limit = None
 
-        # Ищем подходящий товар
         all_goods = goods.get()
         matching_good = None
         for good in all_goods:
