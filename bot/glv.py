@@ -32,7 +32,10 @@ config = {
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'UPDATE_GEO_LINK': os.environ.get('UPDATE_GEO_LINK'),
-    'ADMINS': json.loads(os.environ.get('ADMINS', '[]'))
+    'ADMINS': json.loads(os.environ.get('ADMINS', '[]')),
+    'TRIBUTE_WEBHOOK_URL': os.environ.get('TRIBUTE_WEBHOOK_URL'),
+    'TRIBUTE_API_KEY': os.environ.get('TRIBUTE_API_KEY'), 
+    'TRIBUTE_PAYMENT_URL': os.environ.get('TRIBUTE_PAYMENT_URL'),
 }
 
 bot: Bot = None

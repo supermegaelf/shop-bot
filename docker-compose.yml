@@ -37,6 +37,9 @@ services:
             ADMINS: ${ADMINS}
             UPDATE_GEO_LINK: ${UPDATE_GEO_LINK}
             REMNAWAVE_TOKEN: ${REMNAWAVE_TOKEN}
+            TRIBUTE_WEBHOOK_URL: ${TRIBUTE_WEBHOOK_URL}
+            TRIBUTE_API_KEY: ${TRIBUTE_API_KEY}
+            TRIBUTE_PAYMENT_URL: ${TRIBUTE_PAYMENT_URL}
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"

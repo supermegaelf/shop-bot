@@ -9,6 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.i18n import I18n, SimpleI18nMiddleware
 from aiohttp import web 
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from app.routes import check_crypto_payment, check_yookassa_payment, notify_user, check_tribute_payment
 
 from handlers.commands import register_commands
 from handlers.messages import register_messages
@@ -53,6 +54,9 @@ async def main():
     app.router.add_post("/yookassa_payment", check_yookassa_payment)
     app.router.add_post("/notify_user", notify_user)
     app.router.add_post("/tribute_payment", check_tribute_payment)
+    
+    if glv.config['TRIBUTE_WEBHOOK_URL']:
+        app.router.add_post(glv.config['TRIBUTE_WEBHOOK_URL'], check_tribute_payment)
     
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=glv.dp,

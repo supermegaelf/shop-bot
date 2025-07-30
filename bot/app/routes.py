@@ -14,7 +14,7 @@ from db.methods import (
     get_payment,
     delete_payment,
     confirm_payment,
-    PaymentPlatform, 
+    PaymentPlatform,
     disable_trial,
     is_test_subscription,
     use_all_promo_codes,
@@ -107,7 +107,7 @@ async def check_yookassa_payment(request: Request):
             panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
             panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
-        
+
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
             await glv.bot.send_message(payment.tg_id,
@@ -132,7 +132,7 @@ async def notify_user(request: Request):
 
         if secret != glv.config['WEBHOOK_SECRET']:
             return web.Response(status=403)
-    
+
         data = (await request.json())[0]
         if data['action'] not in ['reached_usage_percent', 'reached_days_left', 'user_expired', 'user_limited']:
             return web.Response()
@@ -214,93 +214,98 @@ async def notify_user(request: Request):
             case _:
                 return web.Response()
         logging.info(f"Message {event} sent to user id={user.tg_id}.")
-           
+
     return web.Response()
 
 async def check_tribute_payment(request: Request):
+    """Обработка webhook от Tribute"""
+    if not glv.config['TRIBUTE_WEBHOOK_URL']:
+        return web.Response(status=404)
+
+    body = await request.read()
+    signature = request.headers.get('trbt-signature')
+
+    if not signature:
+        return web.Response(status=401)
+
+    # Проверка подписи
+    from utils.tribute import verify_signature
+    if not verify_signature(body, signature, glv.config['TRIBUTE_API_KEY']):
+        return web.Response(status=403)
+
     try:
-        payload = await request.read()
-        signature = request.headers.get('X-Tribute-Signature', '')
-        
-        from utils import tribute
-        if not await tribute.verify_webhook_signature(payload, signature):
-            logging.warning("Invalid Tribute webhook signature")
-            return web.Response(status=403)
-        
-        data = json.loads(payload.decode())
-        logging.info(f"Tribute webhook received: {data}")
-        
-        order_id = data.get('order_id') or data.get('id')
-        status = data.get('status', '').lower()
-        
-        if not order_id:
-            logging.error("No order_id in Tribute webhook")
-            return web.Response(status=400)
-        
-        from db.methods import get_payment, PaymentPlatform
-        payment = await get_payment(order_id, PaymentPlatform.TRIBUTE)
-        
-        if payment is None:
-            logging.warning(f"Payment not found for Tribute order {order_id}")
-            return web.Response(status=404)
-        
-        if status in ['paid', 'completed', 'success']:
-            from panel import get_panel
-            from utils import goods
-            from db.methods import (
-                get_vpn_user, 
-                is_test_subscription, 
-                disable_trial, 
-                confirm_payment,
-                use_all_promo_codes,
-                has_confirmed_payments
+        data = json.loads(body)
+    except json.JSONDecodeError:
+        return web.Response(status=400)
+
+    # Обработка только webhook о новой подписке
+    if data.get('name') != 'new_subscription':
+        return web.Response()
+
+    payload = data.get('payload', {})
+    telegram_user_id = payload.get('telegram_user_id')
+
+    if not telegram_user_id:
+        return web.Response(status=400)
+
+    # Конвертация периода в месяцы
+    period = payload.get('period', 'monthly').lower()
+    months_map = {
+        'monthly': 1,
+        'quarterly': 3,
+        '3-month': 3,
+        'halfyearly': 6,
+        'yearly': 12,
+        'annual': 12
+    }
+    months = months_map.get(period, 1)
+
+    # Создание подписки
+    panel = get_panel()
+    user = await get_vpn_user(telegram_user_id)
+
+    if user:
+        # Определяем тип подписки по месяцам
+        good_type = 'renew'
+        data_limit = None
+
+        # Ищем подходящий товар
+        all_goods = goods.get()
+        matching_good = None
+        for good in all_goods:
+            if good['months'] == months and good['type'] == good_type:
+                matching_good = good
+                data_limit = good['data_limit']
+                break
+
+        if matching_good:
+            chat_member = await glv.bot.get_chat_member(telegram_user_id, telegram_user_id)
+            lang = chat_member.user.language_code if chat_member else 'en'
+
+            is_trial = await is_test_subscription(telegram_user_id)
+            if is_trial:
+                await panel.reset_subscription_data_limit(user.vpn_id)
+                await disable_trial(telegram_user_id)
+
+            panel_profile = await panel.generate_subscription(
+                username=user.vpn_id,
+                months=months,
+                data_limit=data_limit
             )
-            from keyboards import get_main_menu_keyboard, get_install_subscription_keyboard
-            from utils import get_i18n_string
-            
-            panel = get_panel()
-            good = goods.get(payment.callback)
-            user = await get_vpn_user(payment.tg_id)
-            
-            if good['type'] == 'renew':
-                is_trial = await is_test_subscription(payment.tg_id)
-                if is_trial:
-                    await panel.reset_subscription_data_limit(user.vpn_id)
-                    await disable_trial(payment.tg_id)
-                panel_profile = await panel.generate_subscription(
-                    username=user.vpn_id, 
-                    months=good['months'], 
-                    data_limit=good['data_limit']
-                )
-            else:
-                panel_profile = await panel.update_subscription_data_limit(
-                    user.vpn_id, 
-                    good['data_limit']
-                )
-            
-            user_has_payments = await has_confirmed_payments(payment.tg_id)
+
+            user_has_payments = await has_confirmed_payments(telegram_user_id)
             if user_has_payments:
-                await glv.bot.send_message(payment.tg_id,
-                    get_i18n_string("message_payment_success", payment.lang),
-                    reply_markup=get_main_menu_keyboard(payment.lang)
+                await glv.bot.send_message(telegram_user_id,
+                    get_i18n_string("message_payment_success", lang),
+                    reply_markup=get_main_menu_keyboard(lang)
                 )
             else:
                 subscription_url = panel_profile.subscription_url
-                await glv.bot.send_message(payment.tg_id,
-                    get_i18n_string("message_new_subscription_created", payment.lang),
-                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                await glv.bot.send_message(telegram_user_id,
+                    get_i18n_string("message_new_subscription_created", lang),
+                    reply_markup=get_install_subscription_keyboard(subscription_url, lang)
                 )
-            
-            await confirm_payment(payment.payment_id)
-            await use_all_promo_codes(payment.tg_id)
-            
-        elif status in ['cancelled', 'failed', 'error']:
-            from db.methods import delete_payment
-            await delete_payment(payment.payment_id)
-            logging.info(f"Tribute payment {order_id} cancelled/failed")
-        
-        return web.Response(status=200)
-        
-    except Exception as e:
-        logging.error(f"Error processing Tribute webhook: {e}")
-        return web.Response(status=500)
+
+            await use_all_promo_codes(telegram_user_id)
+
+    return web.Response()
