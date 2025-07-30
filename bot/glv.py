@@ -18,6 +18,8 @@ config = {
     'EMAIL': os.environ.get('EMAIL'),
     'CRYPTO_TOKEN': os.environ.get('CRYPTO_TOKEN'),
     'MERCHANT_UUID': os.environ.get('MERCHANT_UUID'),
+    'TRIBUTE_API_KEY': os.environ.get('TRIBUTE_API_KEY'),
+    'TRIBUTE_WEBHOOK_SECRET': os.environ.get('TRIBUTE_WEBHOOK_SECRET'),
     'PANEL_HOST': os.environ.get('PANEL_HOST'),
     'PANEL_GLOBAL': os.environ.get('PANEL_GLOBAL'),
     'PANEL_USER': os.environ.get('PANEL_USER'),

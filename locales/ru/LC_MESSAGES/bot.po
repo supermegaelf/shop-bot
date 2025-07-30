@@ -343,3 +343,9 @@ msgid "message_broadcast_completed"
 msgstr "Рассылка завершена!\n"
 "Успешно отправлено: {success_count}\n"
 "Не удалось отправить: {fail_count}"
+
+msgid "button_tribute"
+msgstr "Банковская карта 💳 (Tribute)"
+
+msgid "To be paid – {amount} {currency} ⬇️"
+msgstr "К оплате – {amount} {currency} ⬇️"

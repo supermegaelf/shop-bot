@@ -16,7 +16,7 @@ from handlers.callbacks import register_callbacks
 from handlers.payments import register_payments
 from handlers.broadcast import register_broadcast
 from middlewares.db_check import DBCheck
-from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
+from app.routes import check_crypto_payment, check_yookassa_payment, notify_user, check_tribute_payment
 from tasks import register
 import glv
 
@@ -52,6 +52,7 @@ async def main():
     app.router.add_post("/cryptomus_payment", check_crypto_payment)
     app.router.add_post("/yookassa_payment", check_yookassa_payment)
     app.router.add_post("/notify_user", notify_user)
+    app.router.add_post("/tribute_payment", check_tribute_payment)
     
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=glv.dp,

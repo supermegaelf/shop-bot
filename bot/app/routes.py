@@ -216,3 +216,91 @@ async def notify_user(request: Request):
         logging.info(f"Message {event} sent to user id={user.tg_id}.")
            
     return web.Response()
+
+async def check_tribute_payment(request: Request):
+    try:
+        payload = await request.read()
+        signature = request.headers.get('X-Tribute-Signature', '')
+        
+        from utils import tribute
+        if not await tribute.verify_webhook_signature(payload, signature):
+            logging.warning("Invalid Tribute webhook signature")
+            return web.Response(status=403)
+        
+        data = json.loads(payload.decode())
+        logging.info(f"Tribute webhook received: {data}")
+        
+        order_id = data.get('order_id') or data.get('id')
+        status = data.get('status', '').lower()
+        
+        if not order_id:
+            logging.error("No order_id in Tribute webhook")
+            return web.Response(status=400)
+        
+        from db.methods import get_payment, PaymentPlatform
+        payment = await get_payment(order_id, PaymentPlatform.TRIBUTE)
+        
+        if payment is None:
+            logging.warning(f"Payment not found for Tribute order {order_id}")
+            return web.Response(status=404)
+        
+        if status in ['paid', 'completed', 'success']:
+            from panel import get_panel
+            from utils import goods
+            from db.methods import (
+                get_vpn_user, 
+                is_test_subscription, 
+                disable_trial, 
+                confirm_payment,
+                use_all_promo_codes,
+                has_confirmed_payments
+            )
+            from keyboards import get_main_menu_keyboard, get_install_subscription_keyboard
+            from utils import get_i18n_string
+            
+            panel = get_panel()
+            good = goods.get(payment.callback)
+            user = await get_vpn_user(payment.tg_id)
+            
+            if good['type'] == 'renew':
+                is_trial = await is_test_subscription(payment.tg_id)
+                if is_trial:
+                    await panel.reset_subscription_data_limit(user.vpn_id)
+                    await disable_trial(payment.tg_id)
+                panel_profile = await panel.generate_subscription(
+                    username=user.vpn_id, 
+                    months=good['months'], 
+                    data_limit=good['data_limit']
+                )
+            else:
+                panel_profile = await panel.update_subscription_data_limit(
+                    user.vpn_id, 
+                    good['data_limit']
+                )
+            
+            user_has_payments = await has_confirmed_payments(payment.tg_id)
+            if user_has_payments:
+                await glv.bot.send_message(payment.tg_id,
+                    get_i18n_string("message_payment_success", payment.lang),
+                    reply_markup=get_main_menu_keyboard(payment.lang)
+                )
+            else:
+                subscription_url = panel_profile.subscription_url
+                await glv.bot.send_message(payment.tg_id,
+                    get_i18n_string("message_new_subscription_created", payment.lang),
+                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                )
+            
+            await confirm_payment(payment.payment_id)
+            await use_all_promo_codes(payment.tg_id)
+            
+        elif status in ['cancelled', 'failed', 'error']:
+            from db.methods import delete_payment
+            await delete_payment(payment.payment_id)
+            logging.info(f"Tribute payment {order_id} cancelled/failed")
+        
+        return web.Response(status=200)
+        
+    except Exception as e:
+        logging.error(f"Error processing Tribute webhook: {e}")
+        return web.Response(status=500)

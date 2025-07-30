@@ -12,6 +12,7 @@ class PaymentPlatform(Enum):
     YOOKASSA = 0
     CRYPTOMUS = 1
     TELEGRAM = 2
+    TRIBUTE = 3
 
 engine = create_async_engine(glv.config['DB_URL'])
 

@@ -194,5 +194,34 @@ async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.answer(text=_("message_select_payment_method"), reply_markup=get_payment_keyboard(good))
     await callback.answer()
 
+@router.callback_query(F.data.startswith("pay_tribute_"))
+async def callback_tribute_payment(callback: CallbackQuery):
+    await callback.message.delete()
+    data = callback.data.replace("pay_tribute_", "")
+    if data not in goods.get_callbacks():
+        await callback.answer()
+        return
+    
+    try:
+        from utils import tribute
+        result = await tribute.create_payment(
+            callback.from_user.id,
+            data,
+            callback.from_user.language_code)
+        
+        await callback.message.answer(
+            _("To be paid – {amount} {currency} ⬇️").format(
+                amount=result['amount'],
+                currency=result['currency']
+            ),
+            reply_markup=get_pay_keyboard(result['url']))
+    except Exception as e:
+        logging.error(f"Tribute payment creation failed: {e}")
+        await callback.message.answer(
+            _("message_error"),
+            reply_markup=get_main_menu_keyboard())
+    
+    await callback.answer()
+
 def register_callbacks(dp: Dispatcher):
     dp.include_router(router)
