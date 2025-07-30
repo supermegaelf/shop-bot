@@ -233,6 +233,7 @@ async def check_tribute_payment(request: Request):
 
     try:
         data = json.loads(body)
+        logging.info(f"TRIBUTE WEBHOOK FULL PAYLOAD: {data}")
     except json.JSONDecodeError:
         return web.Response(status=400)
 
@@ -245,61 +246,51 @@ async def check_tribute_payment(request: Request):
     if not telegram_user_id:
         return web.Response(status=400)
 
-    period = payload.get('period', 'monthly').lower()
-    months_map = {
-        'monthly': 1,
-        'quarterly': 3,
-        '3-month': 3,
-        'halfyearly': 6,
-        'yearly': 12,
-        'annual': 12
-    }
-    months = months_map.get(period, 1)
+    # Получаем callback товара из metadata или product_id
+    callback = payload.get('callback') or payload.get('product_id') or payload.get('metadata', {}).get('callback')
+
+    if not callback:
+        logging.error("No callback/product_id in Tribute webhook payload")
+        return web.Response(status=400)
+
+    # Ищем товар по callback
+    matching_good = goods.get(callback)
+    if not matching_good:
+        logging.error(f"Product not found for callback: {callback}")
+        return web.Response(status=400)
 
     panel = get_panel()
     user = await get_vpn_user(telegram_user_id)
 
     if user:
+        chat_member = await glv.bot.get_chat_member(telegram_user_id, telegram_user_id)
+        lang = chat_member.user.language_code if chat_member else 'en'
 
-        good_type = 'renew'
-        data_limit = None
+        is_trial = await is_test_subscription(telegram_user_id)
+        if is_trial:
+            await panel.reset_subscription_data_limit(user.vpn_id)
+            await disable_trial(telegram_user_id)
 
-        all_goods = goods.get()
-        matching_good = None
-        for good in all_goods:
-            if good['months'] == months and good['type'] == good_type:
-                matching_good = good
-                data_limit = good['data_limit']
-                break
+        panel_profile = await panel.generate_subscription(
+            username=user.vpn_id,
+            months=matching_good['months'],
+            data_limit=matching_good['data_limit']
+        )
 
-        if matching_good:
-            chat_member = await glv.bot.get_chat_member(telegram_user_id, telegram_user_id)
-            lang = chat_member.user.language_code if chat_member else 'en'
-
-            is_trial = await is_test_subscription(telegram_user_id)
-            if is_trial:
-                await panel.reset_subscription_data_limit(user.vpn_id)
-                await disable_trial(telegram_user_id)
-
-            panel_profile = await panel.generate_subscription(
-                username=user.vpn_id,
-                months=months,
-                data_limit=data_limit
+        user_has_payments = await has_confirmed_payments(telegram_user_id)
+        if user_has_payments:
+            await glv.bot.send_message(telegram_user_id,
+                get_i18n_string("message_payment_success", lang),
+                reply_markup=get_main_menu_keyboard(lang)
+            )
+        else:
+            subscription_url = panel_profile.subscription_url
+            await glv.bot.send_message(telegram_user_id,
+                get_i18n_string("message_new_subscription_created", lang),
+                reply_markup=get_install_subscription_keyboard(subscription_url, lang)
             )
 
-            user_has_payments = await has_confirmed_payments(telegram_user_id)
-            if user_has_payments:
-                await glv.bot.send_message(telegram_user_id,
-                    get_i18n_string("message_payment_success", lang),
-                    reply_markup=get_main_menu_keyboard(lang)
-                )
-            else:
-                subscription_url = panel_profile.subscription_url
-                await glv.bot.send_message(telegram_user_id,
-                    get_i18n_string("message_new_subscription_created", lang),
-                    reply_markup=get_install_subscription_keyboard(subscription_url, lang)
-                )
-
-            await use_all_promo_codes(telegram_user_id)
+        await use_all_promo_codes(telegram_user_id)
+        logging.info(f"Tribute subscription activated for user {telegram_user_id}, product: {callback}")
 
     return web.Response()
