@@ -24,11 +24,21 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
                 callback_data=f"pay_kassa_{good['callback']}"
             )
         )
-    if glv.config['TRIBUTE_PAYMENT_URL']:
+
+    tribute_urls = {
+        'option_1': 'https://t.me/tribute/app?startapp=syDs',  # 100 ГБ, 1 мес - 290 руб
+        'option_2': 'https://t.me/tribute/app?startapp=syFS',  # 300 ГБ, 1 мес - 590 руб
+        'option_3': 'https://t.me/tribute/app?startapp=syEm',  # 100 ГБ, 3 мес - 690 руб
+        'option_4': 'https://t.me/tribute/app?startapp=syEn',  # 300 ГБ, 3 мес - 1390 руб
+        'option_5': 'https://t.me/tribute/app?startapp=syEo',  # 100 ГБ, 6 мес - 1290 руб
+        'option_6': 'https://t.me/tribute/app?startapp=syEp',  # 300 ГБ, 6 мес - 2590 руб
+    }
+
+    if good['callback'] in tribute_urls:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_tribute"),
-                url=glv.config['TRIBUTE_PAYMENT_URL']
+                url=tribute_urls[good['callback']]
             )
         )
     if crypt:
