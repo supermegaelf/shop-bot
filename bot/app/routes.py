@@ -227,8 +227,8 @@ async def check_tribute_payment(request: Request):
     if not signature:
         return web.Response(status=401)
 
-    from utils.tribute import verify_signature
-    if not verify_signature(body, signature, glv.config['TRIBUTE_API_KEY']):
+    from utils.tribute import verify_webhook_signature as verify_signature
+    if not await verify_signature(body, signature):
         return web.Response(status=403)
 
     try:
@@ -246,11 +246,16 @@ async def check_tribute_payment(request: Request):
     if not telegram_user_id:
         return web.Response(status=400)
 
-    # Получаем callback товара из metadata или product_id
-    callback = payload.get('callback') or payload.get('product_id') or payload.get('metadata', {}).get('callback')
+    # Получаем callback товара из subscription_id
+    subscription_id = payload.get('subscription_id')
+    subscription_name = payload.get('subscription_name', '')
+    
+    # Используем маппинг из конфигурации
+    tribute_mapping = glv.config.get('TRIBUTE_SUBSCRIPTION_MAPPING', {})
+    callback = tribute_mapping.get(subscription_id)
 
     if not callback:
-        logging.error("No callback/product_id in Tribute webhook payload")
+        logging.error(f"No callback mapping found for Tribute subscription_id: {subscription_id}, name: {subscription_name}")
         return web.Response(status=400)
 
     # Ищем товар по callback
@@ -294,3 +299,4 @@ async def check_tribute_payment(request: Request):
         logging.info(f"Tribute subscription activated for user {telegram_user_id}, product: {callback}")
 
     return web.Response()
+    
