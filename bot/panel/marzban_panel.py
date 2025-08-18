@@ -16,50 +16,27 @@ class MarzbanPanel(Panel):
             try:
                 inbounds_data = await self.api.get_inbounds()
                 self._available_inbounds = []
-                
+
                 for protocol, inbounds_list in inbounds_data.items():
                     if isinstance(inbounds_list, list):
                         for inbound in inbounds_list:
                             if 'tag' in inbound:
                                 self._available_inbounds.append(inbound['tag'])
-                                
+
             except Exception as e:
                 self._available_inbounds = []
         return self._available_inbounds
 
     async def get_dynamic_protocols(self):
         available_inbounds = await self.get_available_inbounds()
-        
-        preferred_vless_inbounds = [
-            'VLESS Reality Steal Oneself',
-            'VLESS WS'
-        ]
-        
-        existing_vless_inbounds = [
-            inbound for inbound in preferred_vless_inbounds 
-            if inbound in available_inbounds
-        ]
-        
-        if not existing_vless_inbounds:
-            vless_inbounds = [
-                inbound for inbound in available_inbounds 
-                if 'vless' in inbound.lower()
-            ]
-            existing_vless_inbounds = vless_inbounds[:1] if vless_inbounds else []
-        
-        if existing_vless_inbounds:
-            return {
-                "proxies": {"vless": {"flow": "xtls-rprx-vision"}},
-                "inbounds": {"vless": existing_vless_inbounds}
-            }
-        else:
-            if available_inbounds:
-                return {
-                    "proxies": {"vless": {"flow": "xtls-rprx-vision"}},
-                    "inbounds": {"vless": available_inbounds[:1]}
-                }
-            else:
-                raise Exception("No inbounds available in the panel")
+
+        if not available_inbounds:
+            raise Exception("No inbounds available in the panel")
+
+        return {
+            "proxies": {"vless": {"flow": "xtls-rprx-vision"}},
+            "inbounds": {"vless": available_inbounds}
+        }
 
     async def check_if_user_exists(self, username):
         try:
