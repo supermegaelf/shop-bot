@@ -1,8 +1,7 @@
 import asyncio
-from typing import Union
 
 from aiogram import Bot, Dispatcher, Router
-from aiogram.types import Message, PhotoSize, InputMediaPhoto
+from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -26,23 +25,21 @@ async def start_broadcast(message: Message, state: FSMContext):
 @router.message(BroadcastStates.waiting_for_message)
 async def process_message(message: Message, state: FSMContext):
     if message.photo:
-        message_data = {
-            'text': message.caption or "",
-            'has_photo': True,
-            'photo_file_id': message.photo[-1].file_id,
-            'message_type': 'photo'
-        }
-        preview_text = f"[📷 Изображение]\n{message_data['text']}" if message_data['text'] else "[📷 Изображение]"
+        await state.update_data(
+            broadcast_text=message.caption or "",
+            broadcast_photo=message.photo[-1].file_id,
+            is_photo=True
+        )
+        preview_text = f"[📷 Изображение]\n{message.caption or ''}" if message.caption else "[📷 Изображение]"
     else:
-        message_data = message.text
+        await state.update_data(
+            broadcast_text=message.text,
+            broadcast_photo=None,
+            is_photo=False
+        )
         preview_text = message.text
     
-    await state.update_data(broadcast_message=message_data)
-    
-    await message.answer(
-        _("message_confirm_broadcast").format(text=preview_text), 
-        reply_markup=get_confirmation_keyboard()
-    )
+    await message.answer(_("message_confirm_broadcast").format(text=preview_text), reply_markup=get_confirmation_keyboard())
     await state.set_state(BroadcastStates.waiting_for_confirmation)
 
 @router.message(BroadcastStates.waiting_for_confirmation)
@@ -57,7 +54,9 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
         return
 
     data = await state.get_data()
-    broadcast_data = data['broadcast_message']
+    broadcast_text = data.get('broadcast_text', '')
+    broadcast_photo = data.get('broadcast_photo')
+    is_photo = data.get('is_photo', False)
     
     await message.answer(_("message_broadcast_started"), reply_markup=get_main_menu_keyboard(lang=message.from_user.language_code))
     
@@ -68,18 +67,17 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     
     for user in users:
         try:
-            if isinstance(broadcast_data, dict) and broadcast_data.get('message_type') == 'photo':
+            if is_photo and broadcast_photo:
                 await bot.send_photo(
                     chat_id=user.tg_id,
-                    photo=broadcast_data['photo_file_id'],
-                    caption=broadcast_data['text'],
+                    photo=broadcast_photo,
+                    caption=broadcast_text,
                     disable_web_page_preview=True
                 )
             else:
-                text = broadcast_data if isinstance(broadcast_data, str) else broadcast_data.get('text', '')
                 await bot.send_message(
                     chat_id=user.tg_id, 
-                    text=text,
+                    text=broadcast_text,
                     disable_web_page_preview=True
                 )
             success_count += 1
