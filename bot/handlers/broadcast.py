@@ -24,14 +24,8 @@ async def start_broadcast(message: Message, state: FSMContext):
 
 @router.message(BroadcastStates.waiting_for_message)
 async def process_message(message: Message, state: FSMContext):
-    if message.photo:
-        await state.update_data(broadcast_message=message.caption or "", photo_id=message.photo[-1].file_id)
-        preview_text = f"[📷 Изображение]\n{message.caption or ''}" if message.caption else "[📷 Изображение]"
-    else:
-        await state.update_data(broadcast_message=message.text)
-        preview_text = message.text
-    
-    await message.answer(_("message_confirm_broadcast").format(text=preview_text), reply_markup=get_confirmation_keyboard())
+    await state.update_data(broadcast_message=message.text)
+    await message.answer(_("message_confirm_broadcast").format(text=message.text), reply_markup=get_confirmation_keyboard())
     await state.set_state(BroadcastStates.waiting_for_confirmation)
 
 @router.message(BroadcastStates.waiting_for_confirmation)
@@ -47,7 +41,6 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
 
     data = await state.get_data()
     broadcast_message = data['broadcast_message']
-    photo_id = data.get('photo_id')
     
     await message.answer(_("message_broadcast_started"), reply_markup=get_main_menu_keyboard(lang=message.from_user.language_code))
     
@@ -58,10 +51,7 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     
     for user in users:
         try:
-            if photo_id:
-                await bot.send_photo(user.tg_id, photo_id, caption=broadcast_message, disable_web_page_preview=True)
-            else:
-                await bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
+            await bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
             success_count += 1
             await asyncio.sleep(0.5)
         except Exception as e:
