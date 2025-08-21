@@ -25,18 +25,10 @@ async def start_broadcast(message: Message, state: FSMContext):
 @router.message(BroadcastStates.waiting_for_message)
 async def process_message(message: Message, state: FSMContext):
     if message.photo:
-        await state.update_data(
-            broadcast_text=message.caption or "",
-            broadcast_photo=message.photo[-1].file_id,
-            is_photo=True
-        )
+        await state.update_data(broadcast_message=message.caption or "", photo_id=message.photo[-1].file_id)
         preview_text = f"[📷 Изображение]\n{message.caption or ''}" if message.caption else "[📷 Изображение]"
     else:
-        await state.update_data(
-            broadcast_text=message.text,
-            broadcast_photo=None,
-            is_photo=False
-        )
+        await state.update_data(broadcast_message=message.text)
         preview_text = message.text
     
     await message.answer(_("message_confirm_broadcast").format(text=preview_text), reply_markup=get_confirmation_keyboard())
@@ -54,9 +46,8 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
         return
 
     data = await state.get_data()
-    broadcast_text = data.get('broadcast_text', '')
-    broadcast_photo = data.get('broadcast_photo')
-    is_photo = data.get('is_photo', False)
+    broadcast_message = data['broadcast_message']
+    photo_id = data.get('photo_id')
     
     await message.answer(_("message_broadcast_started"), reply_markup=get_main_menu_keyboard(lang=message.from_user.language_code))
     
@@ -67,19 +58,10 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     
     for user in users:
         try:
-            if is_photo and broadcast_photo:
-                await bot.send_photo(
-                    chat_id=user.tg_id,
-                    photo=broadcast_photo,
-                    caption=broadcast_text,
-                    disable_web_page_preview=True
-                )
+            if photo_id:
+                await bot.send_photo(user.tg_id, photo_id, caption=broadcast_message, disable_web_page_preview=True)
             else:
-                await bot.send_message(
-                    chat_id=user.tg_id, 
-                    text=broadcast_text,
-                    disable_web_page_preview=True
-                )
+                await bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
             success_count += 1
             await asyncio.sleep(0.5)
         except Exception as e:
