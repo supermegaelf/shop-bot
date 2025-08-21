@@ -51,7 +51,7 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     
     for user in users:
         try:
-            await bot.send_message(user.tg_id, broadcast_message)
+            await bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
             success_count += 1
             await asyncio.sleep(0.5)
         except Exception as e:
