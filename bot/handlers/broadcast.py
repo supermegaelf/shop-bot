@@ -25,18 +25,19 @@ async def start_broadcast(message: Message, state: FSMContext):
 
 @router.message(BroadcastStates.waiting_for_message)
 async def process_message(message: Message, state: FSMContext):
-    message_data = {
-        'text': message.text or message.caption or "",
-        'has_photo': bool(message.photo),
-        'photo_file_id': message.photo[-1].file_id if message.photo else None,
-        'message_type': 'photo' if message.photo else 'text'
-    }
+    if message.photo:
+        message_data = {
+            'text': message.caption or "",
+            'has_photo': True,
+            'photo_file_id': message.photo[-1].file_id,
+            'message_type': 'photo'
+        }
+        preview_text = f"[📷 Изображение]\n{message_data['text']}" if message_data['text'] else "[📷 Изображение]"
+    else:
+        message_data = message.text
+        preview_text = message.text
     
     await state.update_data(broadcast_message=message_data)
-    
-    preview_text = message_data['text'] if message_data['text'] else "[Изображение без подписи]"
-    if message_data['has_photo']:
-        preview_text = f"[📷 Изображение]\n{preview_text}" if preview_text else "[📷 Изображение]"
     
     await message.answer(
         _("message_confirm_broadcast").format(text=preview_text), 
@@ -67,7 +68,7 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     
     for user in users:
         try:
-            if broadcast_data['message_type'] == 'photo':
+            if isinstance(broadcast_data, dict) and broadcast_data.get('message_type') == 'photo':
                 await bot.send_photo(
                     chat_id=user.tg_id,
                     photo=broadcast_data['photo_file_id'],
@@ -75,9 +76,10 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
                     disable_web_page_preview=True
                 )
             else:
+                text = broadcast_data if isinstance(broadcast_data, str) else broadcast_data.get('text', '')
                 await bot.send_message(
                     chat_id=user.tg_id, 
-                    text=broadcast_data['text'],
+                    text=text,
                     disable_web_page_preview=True
                 )
             success_count += 1
