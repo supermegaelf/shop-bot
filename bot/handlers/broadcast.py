@@ -72,14 +72,12 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
                     chat_id=user.tg_id,
                     photo=broadcast_data['photo_file_id'],
                     caption=broadcast_data['text'],
-                    parse_mode="HTML",
                     disable_web_page_preview=True
                 )
             else:
                 await bot.send_message(
                     chat_id=user.tg_id, 
                     text=broadcast_data['text'],
-                    parse_mode="HTML",
                     disable_web_page_preview=True
                 )
             success_count += 1
