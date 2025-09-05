@@ -5,27 +5,17 @@ from .models import PanelProfile
 import glv
 
 PROTOCOLS = {
-        "vmess": [
-            {},
-            ["VMess TCP"]
-        ],
-        "vless": [
-            {
-                "flow": "xtls-rprx-vision"
-            },
-            ["VLESS Reality Steal Oneself", "VLESS WS"]
-        ],
-        "trojan": [
-            {},
-            ["Trojan Websocket TLS"]
-        ],
-        "shadowsocks": [
-            {
-                "method": "chacha20-ietf-poly1305"
-            },
-            ["Shadowsocks TCP"]
-        ]
-    }
+    "vless": [
+        {},
+        ["VLESS Reality Steal Oneself", "VLESS WS"]
+    ],
+    "shadowsocks": [
+        {
+            "method": "chacha20-ietf-poly1305"
+        },
+        ["Shadowsocks TCP"]
+    ]
+}
 
 class Panel(ABC):
     @abstractmethod

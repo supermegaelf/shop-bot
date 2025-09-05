@@ -29,14 +29,88 @@ class MarzbanPanel(Panel):
 
     async def get_dynamic_protocols(self):
         available_inbounds = await self.get_available_inbounds()
+        configured_protocols = glv.config['PROTOCOLS']
 
         if not available_inbounds:
             raise Exception("No inbounds available in the panel")
 
-        return {
-            "proxies": {"vless": {"flow": "xtls-rprx-vision"}},
-            "inbounds": {"vless": available_inbounds}
-        }
+        try:
+            inbounds_data = await self.api.get_inbounds()
+            
+            protocol_inbounds = {}
+            protocol_configs = {}
+            
+            for protocol in configured_protocols:
+                protocol_lower = protocol.lower()
+                
+                if protocol_lower not in ['vless', 'shadowsocks']:
+                    continue
+                
+                if protocol_lower in inbounds_data and isinstance(inbounds_data[protocol_lower], list):
+                    
+                    if protocol_lower == 'vless':
+                        reality_inbounds = []
+                        ws_inbounds = []
+                        other_inbounds = []
+                        
+                        for inbound in inbounds_data[protocol_lower]:
+                            if 'tag' in inbound:
+                                tag = inbound['tag']
+                                network = inbound.get('network', '')
+                                tls = inbound.get('tls', '')
+                                
+                                if (tls == 'reality' or 
+                                    (network in ['raw', 'tcp'] and tls == 'reality')):
+                                    reality_inbounds.append(tag)
+                                elif network == 'ws':
+                                    ws_inbounds.append(tag)
+                                else:
+                                    other_inbounds.append(tag)
+                        
+                        all_inbounds = reality_inbounds + ws_inbounds + other_inbounds
+                        
+                        if all_inbounds:
+                            protocol_inbounds['vless'] = all_inbounds
+                            protocol_configs['vless'] = {"flow": "xtls-rprx-vision"} if reality_inbounds else {}
+                    
+                    elif protocol_lower == 'shadowsocks':
+                        ss_inbounds = []
+                        for inbound in inbounds_data[protocol_lower]:
+                            if 'tag' in inbound:
+                                ss_inbounds.append(inbound['tag'])
+                        
+                        if ss_inbounds:
+                            protocol_inbounds['shadowsocks'] = ss_inbounds
+                            protocol_configs['shadowsocks'] = {"method": "chacha20-ietf-poly1305"}
+            
+            if protocol_inbounds:
+                return {
+                    "proxies": protocol_configs,
+                    "inbounds": protocol_inbounds
+                }
+            else:
+                return {
+                    "proxies": {
+                        "vless": {"flow": "xtls-rprx-vision"},
+                        "shadowsocks": {"method": "chacha20-ietf-poly1305"}
+                    },
+                    "inbounds": {
+                        "vless": available_inbounds[:len(available_inbounds)//2] if len(available_inbounds) > 1 else available_inbounds,
+                        "shadowsocks": available_inbounds[len(available_inbounds)//2:] if len(available_inbounds) > 1 else available_inbounds
+                    }
+                }
+                
+        except Exception as e:
+            return {
+                "proxies": {
+                    "vless": {"flow": "xtls-rprx-vision"},
+                    "shadowsocks": {"method": "chacha20-ietf-poly1305"}
+                },
+                "inbounds": {
+                    "vless": available_inbounds,
+                    "shadowsocks": available_inbounds
+                }
+            }
 
     async def check_if_user_exists(self, username):
         try:
@@ -56,6 +130,7 @@ class MarzbanPanel(Panel):
     async def generate_subscription(self, username: str, months: int, data_limit: int):
         res = await self.check_if_user_exists(username)
         ps = await self.get_dynamic_protocols()
+        
         if res:
             user = await self.api.get_user(username)
             user['status'] = 'active'
@@ -81,6 +156,7 @@ class MarzbanPanel(Panel):
     async def generate_test_subscription(self, username):
         res = await self.check_if_user_exists(username)
         ps = await self.get_dynamic_protocols()
+        
         if res:
             user = await self.api.get_user(username)
             user['status'] = 'active'
