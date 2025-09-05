@@ -37,7 +37,7 @@ docker compose up -d
 BOT_TOKEN=12345678910:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
 ADMINS=[123456789, 987654321, 555666777]
 SHOP_NAME=My VPN Shop
-PROTOCOLS=vless
+PROTOCOLS=vless shadowsocks
 TEST_PERIOD=true
 PERIOD_LIMIT=120
 EMAIL=support@example.com
