@@ -143,6 +143,7 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery):
     keyboard = await get_months_keyboard(callback.from_user.id)
+    await callback.message.delete()
     await callback.message.answer(_("message_select_payment_period"), reply_markup=keyboard)
     await callback.answer()
 
