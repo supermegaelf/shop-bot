@@ -41,6 +41,7 @@ async def callback_extend_data_limit(callback: CallbackQuery):
     if filtered_goods:
         min_good = min(filtered_goods, key=lambda good: good['months'])
         keyboard = await get_buy_menu_keyboard(callback.from_user.id, min_good['months'], "update")
+        await callback.message.delete()        
         await callback.message.answer(
             text=_("message_select_traffic_amount"),
             reply_markup=keyboard
@@ -143,6 +144,7 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery):
     keyboard = await get_months_keyboard(callback.from_user.id)
+    await callback.message.delete()
     await callback.message.answer(_("message_select_payment_period"), reply_markup=keyboard)
     await callback.answer()
 
