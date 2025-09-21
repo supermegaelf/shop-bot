@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 from remnawave_api.models import UserResponseDto
 
@@ -10,9 +11,9 @@ class PanelProfile(BaseModel):
     status: str
     subscription_url: str
     used_traffic: int
-    data_limit: int
-    expire: datetime
-
+    data_limit: Optional[int] = None
+    expire: Optional[datetime] = None
+    
     @classmethod
     def from_UserResponseDto(cls, user: UserResponseDto):
         return cls(
@@ -34,4 +35,3 @@ class PanelProfile(BaseModel):
             data_limit=marzban_profile.get('data_limit'),
             expire=datetime.fromtimestamp(marzban_profile.get('expire')) if marzban_profile.get('expire') else None
         )
-
