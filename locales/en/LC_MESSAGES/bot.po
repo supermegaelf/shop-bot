@@ -38,9 +38,8 @@ msgstr ""
 "\n"
 "With our VPN you may:\n"
 "- Try it for free 🆓\n"
-"- Connect multiple devices📱💻 📺\n"
-"- Forget about ads 🕊\n\n"
-"⚠️ The use of torrent clients is prohibited."
+"- Connect 📱, 💻 and 📺 at once\n"
+"- Forget about ads 🕊"
 
 #: bot/handlers/commands.py:44
 msgid "message_select_welcome_action"
