@@ -54,8 +54,10 @@ async def check_crypto_payment(request: Request):
         if good['type'] == 'renew':
             is_trial = await is_test_subscription(payment.tg_id)
             if is_trial:
-                await panel.reset_subscription_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
+            
+            await panel.reset_subscription_data_limit(user.vpn_id)
+            
             panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
             panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
@@ -102,8 +104,10 @@ async def check_yookassa_payment(request: Request):
         if good['type'] == 'renew':
             is_trial = await is_test_subscription(payment.tg_id)
             if is_trial:
-                await panel.reset_subscription_data_limit(user.vpn_id)
                 await disable_trial(payment.tg_id)
+            
+            await panel.reset_subscription_data_limit(user.vpn_id)
+            
             panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
             panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
