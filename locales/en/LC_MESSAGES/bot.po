@@ -38,7 +38,7 @@ msgstr ""
 "\n"
 "With our VPN you may:\n"
 "- Try it for free 🆓\n"
-"- Connect 📱, 💻 and 📺 at once\n"
+"- Use📱, 💻 and 📺 at the same time\n"
 "- Forget about ads 🕊"
 
 #: bot/handlers/commands.py:44
@@ -330,15 +330,15 @@ msgstr "You are about to send the following message:\n\n{text}\n\n"
 "Send?"
 
 msgid "message_invalid_confirmation"
-msgstr "Invalid input, please confirm or cancel the broadcast."
+msgstr "Invalid input, please confirm or cancel the broadcast ❌"
 
 msgid "mesage_broadcast_cancelled"
-msgstr "Broadcast cancelled."
+msgstr "Broadcast cancelled ⛔"
 
 msgid "message_broadcast_started"
-msgstr "Broadcast started."
+msgstr "Broadcast started ⏳"
 
 msgid "message_broadcast_completed"
-msgstr "Broadcast completed!\n"
+msgstr "Broadcast completed ✅\n\n"
 "Successfully sent: {success_count}\n"
 "Failed to send: {fail_count}"
