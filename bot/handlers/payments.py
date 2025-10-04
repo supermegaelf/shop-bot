@@ -25,8 +25,8 @@ async def success_payment(message: Message):
     if good['type'] == 'renew':
         is_trial = await is_test_subscription(message.from_user.id)
         if is_trial:
-            await panel.reset_subscription_data_limit(user.vpn_id)
             await disable_trial(message.from_user.id)
+        await panel.reset_subscription_data_limit(user.vpn_id)
         marzban_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
     else:
         marzban_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
