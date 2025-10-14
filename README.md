@@ -31,7 +31,7 @@ docker compose up -d
 
 ## ⚙️ Configuration
 
-### Environment Variables for `MARZBAN` (.env)
+### `MARZBAN` .env
 ```env
 # MAIN SETTINGS
 BOT_TOKEN=12345678910:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
@@ -76,7 +76,7 @@ ABOUT=https://t.me/your_info_channel/about
 UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
 ```
 
-### Environment Variables for `REMNAWAVE` (.env)
+### `REMNAWAVE` .env
 ```env
 # MAIN SETTINGS
 BOT_TOKEN=12345678910:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
