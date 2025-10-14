@@ -1,8 +1,8 @@
-# Shop Bot 🚀
+# Shop Bot
 
 Telegram bot for VPN subscription sales with multi-panel support and multiple payment methods.
 
-## ✨ Features
+## Features
 
 - 🎯 **Multi-Panel Support**: Marzban and Remnawave
 - 💳 **Payment Methods**: YooKassa (RUB), Cryptomus (USD), Telegram Stars
@@ -10,7 +10,7 @@ Telegram bot for VPN subscription sales with multi-panel support and multiple pa
 - 📊 **Traffic Management**: Flexible data limits and top-ups
 - 🌍 **Multilingual**: Russian and English
 
-## 🚀 Quick Start
+## Quick Start
 
 1. **Clone and setup**
 ```bash
@@ -121,7 +121,7 @@ ABOUT=https://t.me/your_info_channel/about
 UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
 ```
 
-### Products Configuration (goods.json)
+### Products goods.json
 ```json
 [
     {
@@ -191,13 +191,13 @@ UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
 - `"type": "renew"` - Full subscription with time extension
 - `"type": "update"` - Traffic top-up for existing users
 
-## 📱 Webhooks
+## Webhooks
 
 Set these URLs in your payment provider dashboards:
 - YooKassa: `https://your-domain.com/yookassa_payment`
 - Cryptomus: `https://your-domain.com/cryptomus_payment`
 
-## 📄 License
+## License
 
 GPL-3.0 License - see [LICENSE](LICENSE) file.
 
