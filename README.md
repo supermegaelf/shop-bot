@@ -29,7 +29,7 @@ cp goods.example.json goods.json
 docker compose up -d
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 ### `MARZBAN` .env
 ```env
