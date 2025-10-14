@@ -14,6 +14,7 @@ import glv
 class RemnawavePanel(Panel):
     def __init__(self):
         # Create custom client with proxy headers to bypass ProxyCheckMiddleware
+        # These headers simulate a reverse proxy connection which remnawave requires
         headers = {
             'X-Forwarded-For': '127.0.0.1',
             'X-Forwarded-Proto': 'https',
