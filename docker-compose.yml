@@ -4,7 +4,11 @@ services:
         build: .
         restart: always
         stop_signal: SIGINT
-        network_mode: host
+        ports:
+            - "127.0.0.1:8777:8777"
+        networks:
+            - remnawave-network
+            - default
         environment:
             BOT_TOKEN: ${BOT_TOKEN}
             SHOP_NAME: ${SHOP_NAME}
@@ -62,5 +66,13 @@ services:
             interval: 10s
             timeout: 5s
             retries: 3
+        networks:
+            - default
+networks:
+  remnawave-network:
+    name: remnawave-network
+    external: true
+  default:
+    driver: bridge
 volumes:
   mysql-data:
