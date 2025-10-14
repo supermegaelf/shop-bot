@@ -31,13 +31,13 @@ docker compose up -d
 
 ## ⚙️ Configuration
 
-### Environment Variables (.env)
+### Environment Variables for `MARZBAN` (.env)
 ```env
 # MAIN SETTINGS
 BOT_TOKEN=12345678910:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
 ADMINS=[123456789, 987654321, 555666777]
 SHOP_NAME=My VPN Shop
-PROTOCOLS=vless shadowsocks
+PROTOCOLS=vless
 TEST_PERIOD=true
 PERIOD_LIMIT=120
 EMAIL=support@example.com
@@ -47,7 +47,7 @@ EXPIRED_NOTIFICATION_TIME="16:05"
 # PANEL CONFIGURATION
 PANEL_HOST=http://localhost:8000
 PANEL_GLOBAL=
-PANEL_USER=admin
+PANEL_USER=your_admin_user
 PANEL_PASS=your_secure_panel_password
 PANEL_TYPE=MARZBAN
 WEBHOOK_URL=https://your-bot-domain.com
@@ -61,6 +61,51 @@ DB_PASS=secure_db_password_here
 DB_ROOT_PASS=secure_root_password_here
 DB_ADDRESS=localhost
 DB_PORT=3307
+
+# PAYMENT SERVICES
+YOOKASSA_TOKEN=test_your_yookassa_token_here
+YOOKASSA_SHOPID=123456
+CRYPTO_TOKEN=your_cryptomus_api_token_here
+MERCHANT_UUID=12345678-1234-1234-1234-123456789abc
+
+# TELEGRAM SETTINGS
+TG_INFO_CHANEL=https://t.me/your_info_channel
+SUPPORT_LINK=https://t.me/your_support_bot
+STARS_PAYMENT_ENABLED=true
+ABOUT=https://t.me/your_info_channel/about
+UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
+```
+
+### Environment Variables for `REMNAWAVE` (.env)
+```env
+# MAIN SETTINGS
+BOT_TOKEN=12345678910:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
+ADMINS=[123456789, 987654321, 555666777]
+SHOP_NAME=My VPN Shop
+PROTOCOLS=vless
+TEST_PERIOD=true
+PERIOD_LIMIT=120
+EMAIL=support@example.com
+RENEW_NOTIFICATION_TIME="16:00"
+EXPIRED_NOTIFICATION_TIME="16:05"
+
+# PANEL CONFIGURATION
+PANEL_HOST=http://remnawave:3000
+PANEL_GLOBAL=
+PANEL_USER=your_admin_user
+PANEL_PASS=your_secure_panel_password
+PANEL_TYPE=REMNAWAVE
+WEBHOOK_URL=https://your-bot-domain.com
+WEBHOOK_PORT=8777
+WEBHOOK_SECRET="your_webhook_secret_key_32chars"
+
+# DATABASE
+DB_NAME=shop
+DB_USER=shopuser
+DB_PASS=secure_db_password_here
+DB_ROOT_PASS=secure_root_password_here
+DB_ADDRESS=db
+DB_PORT=3306
 
 # PAYMENT SERVICES
 YOOKASSA_TOKEN=test_your_yookassa_token_here
