@@ -285,12 +285,10 @@ class RemnawavePanel(Panel):
             response.raise_for_status()
             data = response.json()
             user_data = data['response']['users'][0]
-
             user_uuid = user_data['uuid']
-            reset_response = await self.api._client.post(f"/users/{user_uuid}/reset-traffic")
+            reset_response = await self.api._client.post(f"/users/{user_uuid}/actions/reset-traffic")
             reset_response.raise_for_status()
             reset_data = reset_response.json()
-
             reset_user = reset_data['response']
             return PanelProfile(
                 username=reset_user['username'],
