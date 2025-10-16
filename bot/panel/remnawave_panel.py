@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta, UTC
 import httpx
 from pydantic import ValidationError
-from remnawave_api import RemnawaveSDK
-from remnawave_api.models import UserResponseDto, UpdateUserRequestDto, CreateUserRequestDto
 from .panel import Panel
 from .models import PanelProfile
 from db.methods import get_vpn_user
@@ -13,18 +11,17 @@ class RemnawavePanel(Panel):
         headers = {
             'X-Forwarded-For': '127.0.0.1',
             'X-Forwarded-Proto': 'https',
-            'X-Forwarded-Host': 'familiartaste.xyz',
+            'X-Forwarded-Host': glv.config['PANEL_HOST'],
             'X-Real-IP': '127.0.0.1',
             'Authorization': f"Bearer {glv.config['REMNAWAVE_TOKEN']}"
         }
         api_base_url = f"{glv.config['PANEL_HOST']}/api"
         client = httpx.AsyncClient(headers=headers, base_url=api_base_url, timeout=30.0)
-        self.api = RemnawaveSDK(client=client)
+        self.client = client
 
     async def _get_default_squad(self) -> dict | None:
-        """Fetch the Default-Squad object from the API."""
         try:
-            response = await self.api._client.get("/internal-squads")
+            response = await self.client.get("/internal-squads")
             response.raise_for_status()
             data = response.json()
             squads = data['response']['internalSquads']
@@ -36,9 +33,8 @@ class RemnawavePanel(Panel):
             raise Exception(f"Failed to fetch Default-Squad: {str(e)}")
 
     async def _add_user_to_squad(self, user_uuid: str, squad_uuid: str, inbound_uuids: list[str]) -> bool:
-        """Add a user to the specified squad using bulk-actions/add-users endpoint."""
         try:
-            response = await self.api._client.get(f"/internal-squads/{squad_uuid}")
+            response = await self.client.get(f"/internal-squads/{squad_uuid}")
             response.raise_for_status()
             data = response.json()
             squad = data['response']
@@ -51,14 +47,14 @@ class RemnawavePanel(Panel):
                 'users': [user_uuid]
             }
 
-            update_response = await self.api._client.post(
+            update_response = await self.client.post(
                 f"/internal-squads/{squad_uuid}/bulk-actions/add-users",
                 json=add_users_payload
             )
             update_response.raise_for_status()
             updated_data = update_response.json()
 
-            verify_response = await self.api._client.get(f"/internal-squads/{squad_uuid}")
+            verify_response = await self.client.get(f"/internal-squads/{squad_uuid}")
             verify_response.raise_for_status()
             verify_data = verify_response.json()
 
@@ -68,10 +64,14 @@ class RemnawavePanel(Panel):
 
     async def check_if_user_exists(self, username) -> bool:
         try:
-            response = await self.api._client.get(f"/users?username={username}")
+            response = await self.client.get(f"/users?username={username}")
             response.raise_for_status()
             data = response.json()
-            return len(data['response']['users']) > 0
+            users = data['response']['users']
+            for user in users:
+                if user['username'] == username:
+                    return True
+            return False
         except Exception as e:
             return False
 
@@ -81,10 +81,16 @@ class RemnawavePanel(Panel):
         if not res:
             return None
         try:
-            response = await self.api._client.get(f"/users?username={result.vpn_id}")
+            response = await self.client.get(f"/users?username={result.vpn_id}")
             response.raise_for_status()
             data = response.json()
-            user_data = data['response']['users'][0]
+            user_data = None
+            for user in data['response']['users']:
+                if user['username'] == result.vpn_id:
+                    user_data = user
+                    break
+            if not user_data:
+                return None
             return PanelProfile(
                 username=user_data['username'],
                 status=user_data['status'].lower(),
@@ -100,16 +106,21 @@ class RemnawavePanel(Panel):
         res = await self.check_if_user_exists(username)
         if res:
             try:
-                response = await self.api._client.get(f"/users?username={username}")
+                response = await self.client.get(f"/users?username={username}")
                 response.raise_for_status()
                 data = response.json()
-                user_data = data['response']['users'][0]
-
+                user_data = None
+                for user in data['response']['users']:
+                    if user['username'] == username:
+                        user_data = user
+                        break
+                if not user_data:
+                    raise Exception("User not found in response")
                 user_uuid = user_data['uuid']
                 user_expire_at = datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00'))
 
                 if user_expire_at < datetime.now(UTC):
-                    reset_response = await self.api._client.post(f"/users/{user_uuid}/reset-traffic")
+                    reset_response = await self.client.post(f"/users/{user_uuid}/reset-traffic")
                     reset_response.raise_for_status()
                     new_expire_at = datetime.now(UTC) + timedelta(days=months*30)
                 else:
@@ -121,7 +132,7 @@ class RemnawavePanel(Panel):
                     'trafficLimitBytes': data_limit,
                     'expireAt': new_expire_at.isoformat().replace('+00:00', 'Z')
                 }
-                update_response = await self.api._client.patch(f"/users", json=update_payload)
+                update_response = await self.client.patch(f"/users", json=update_payload)
                 update_response.raise_for_status()
                 updated_data = update_response.json()
 
@@ -146,7 +157,7 @@ class RemnawavePanel(Panel):
                     'trafficLimitStrategy': 'MONTH',
                     'activateAllInbounds': True
                 }
-                create_response = await self.api._client.post(f"/users", json=create_payload)
+                create_response = await self.client.post(f"/users", json=create_payload)
                 create_response.raise_for_status()
                 created_data = create_response.json()
                 created_user = created_data['response']
@@ -175,11 +186,16 @@ class RemnawavePanel(Panel):
         res = await self.check_if_user_exists(username)
         if res:
             try:
-                response = await self.api._client.get(f"/users?username={username}")
+                response = await self.client.get(f"/users?username={username}")
                 response.raise_for_status()
                 data = response.json()
-                user_data = data['response']['users'][0]
-
+                user_data = None
+                for user in data['response']['users']:
+                    if user['username'] == username:
+                        user_data = user
+                        break
+                if not user_data:
+                    raise Exception("User not found in response")
                 user_uuid = user_data['uuid']
                 user_expire_at = datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00'))
 
@@ -188,13 +204,14 @@ class RemnawavePanel(Panel):
                 else:
                     new_expire_at = user_expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
 
+                traffic_limit = glv.config.get('DEFAULT_TRAFFIC_LIMIT', 10737418240)
                 update_payload = {
                     'uuid': user_uuid,
                     'status': 'ACTIVE',
-                    'trafficLimitBytes': 10737418240,
+                    'trafficLimitBytes': traffic_limit,
                     'expireAt': new_expire_at.isoformat().replace('+00:00', 'Z')
                 }
-                update_response = await self.api._client.patch(f"/users", json=update_payload)
+                update_response = await self.client.patch(f"/users", json=update_payload)
                 update_response.raise_for_status()
                 updated_data = update_response.json()
 
@@ -212,14 +229,15 @@ class RemnawavePanel(Panel):
         else:
             try:
                 new_expire_at = datetime.now(UTC) + timedelta(hours=glv.config['PERIOD_LIMIT'])
+                traffic_limit = glv.config.get('DEFAULT_TRAFFIC_LIMIT', 10737418240)
                 create_payload = {
                     'username': username,
                     'expireAt': new_expire_at.isoformat().replace('+00:00', 'Z'),
-                    'trafficLimitBytes': 10737418240,
+                    'trafficLimitBytes': traffic_limit,
                     'trafficLimitStrategy': 'MONTH',
                     'activateAllInbounds': True
                 }
-                create_response = await self.api._client.post(f"/users", json=create_payload)
+                create_response = await self.client.post(f"/users", json=create_payload)
                 create_response.raise_for_status()
                 created_data = create_response.json()
                 created_user = created_data['response']
@@ -248,11 +266,16 @@ class RemnawavePanel(Panel):
         if not await self.check_if_user_exists(username):
             return None
         try:
-            response = await self.api._client.get(f"/users?username={username}")
+            response = await self.client.get(f"/users?username={username}")
             response.raise_for_status()
             data = response.json()
-            user_data = data['response']['users'][0]
-
+            user_data = None
+            for user in data['response']['users']:
+                if user['username'] == username:
+                    user_data = user
+                    break
+            if not user_data:
+                raise Exception("User not found in response")
             user_uuid = user_data['uuid']
             current_limit = user_data.get('trafficLimitBytes', 0)
 
@@ -261,7 +284,7 @@ class RemnawavePanel(Panel):
                 'status': 'ACTIVE',
                 'trafficLimitBytes': current_limit + data_limit
             }
-            update_response = await self.api._client.patch(f"/users", json=update_payload)
+            update_response = await self.client.patch(f"/users", json=update_payload)
             update_response.raise_for_status()
             updated_data = update_response.json()
 
@@ -281,12 +304,18 @@ class RemnawavePanel(Panel):
         if not await self.check_if_user_exists(username):
             return None
         try:
-            response = await self.api._client.get(f"/users?username={username}")
+            response = await self.client.get(f"/users?username={username}")
             response.raise_for_status()
             data = response.json()
-            user_data = data['response']['users'][0]
+            user_data = None
+            for user in data['response']['users']:
+                if user['username'] == username:
+                    user_data = user
+                    break
+            if not user_data:
+                raise Exception("User not found in response")
             user_uuid = user_data['uuid']
-            reset_response = await self.api._client.post(f"/users/{user_uuid}/actions/reset-traffic")
+            reset_response = await self.client.post(f"/users/{user_uuid}/actions/reset-traffic")
             reset_response.raise_for_status()
             reset_data = reset_response.json()
             reset_user = reset_data['response']
