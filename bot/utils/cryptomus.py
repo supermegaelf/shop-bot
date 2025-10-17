@@ -33,8 +33,8 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
                 response = (await resp.json())['result']
             else:
                 raise Exception(f"Error: {resp.status}; Body: {await resp.text()}; Data: {data}")
-    await add_payment(tg_id, callback, lang_code, response['order_id'], PaymentPlatform.CRYPTOMUS)
     return {
         "url": response['url'],
-        "amount": response['amount']
+        "amount": response['amount'],
+        "order_id": response['order_id']
     }

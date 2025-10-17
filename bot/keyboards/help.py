@@ -8,6 +8,7 @@ def get_help_keyboard() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text=_("button_support"), callback_data='support'))
     builder.row(InlineKeyboardButton(text=_("button_frequent_questions"), callback_data='faq'))
+    builder.row(InlineKeyboardButton(text=_("button_back"), callback_data='back_to_main'))
 
     # if glv.config['RULES_LINK']:
     #     builder.row(InlineKeyboardButton(text=_("button_terms_of_service"), url=glv.config['RULES_LINK']))

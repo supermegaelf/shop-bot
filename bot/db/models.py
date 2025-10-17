@@ -19,9 +19,10 @@ class Payments(Base):
     lang = Column(String(64))
     payment_id = Column(String(64))
     callback = Column(String(64))
-    type=Column(Integer)
-    created_at=Column(DateTime)
-    confirmed=Column(Boolean, default=False)
+    type = Column(Integer)
+    created_at = Column(DateTime)
+    confirmed = Column(Boolean, default=False)
+    message_id = Column(BigInteger, nullable=True)
 
 class PromoCode(Base):
     __tablename__ = "promo_codes"
@@ -40,3 +41,4 @@ class UserPromoCode(Base):
     promo_code_id = Column(BigInteger, nullable=False)
     activated_at = Column(DateTime, nullable=False)
     used = Column(Boolean, default=False)
+

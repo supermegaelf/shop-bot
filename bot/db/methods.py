@@ -62,9 +62,9 @@ async def is_test_subscription(tg_id: int) -> bool:
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
     return result.test
 
-async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False) -> dict:
+async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False, message_id: int = None) -> dict:
     async with engine.connect() as conn:
-        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed, created_at=datetime.now()) 
+        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed, created_at=datetime.now(), message_id=message_id) 
         await conn.execute(sql_q)
         await conn.commit()
 

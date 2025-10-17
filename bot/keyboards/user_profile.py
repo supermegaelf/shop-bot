@@ -55,6 +55,13 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             )
         )
 
+    builder.row(
+        InlineKeyboardButton(
+            text=_("button_back"),
+            callback_data="back_to_main"
+        )
+    )
+
     return builder.as_markup()
 
 def get_buy_more_traffic_keyboard(lang) -> InlineKeyboardMarkup:
@@ -64,7 +71,7 @@ def get_buy_more_traffic_keyboard(lang) -> InlineKeyboardMarkup:
                 text=get_i18n_string("button_buy_more_traffic", lang),
                 callback_data='extend_data_limit')
         ]
-    ] 
+    ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def get_renew_subscription_keyboard(lang) -> InlineKeyboardMarkup:
@@ -74,7 +81,7 @@ def get_renew_subscription_keyboard(lang) -> InlineKeyboardMarkup:
                 text=get_i18n_string("button_renew", lang),
                 callback_data='payment')
         ]
-    ] 
+    ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyboardMarkup:
@@ -83,6 +90,12 @@ def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyb
             InlineKeyboardButton(
                 text=_("button_install") if lang is None else get_i18n_string("button_install", lang),
                 web_app=WebAppInfo(url=subscription_url)
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=_("button_back") if lang is None else get_i18n_string("button_back", lang),
+                callback_data="back_to_main"
             )
         ]
     ] 
