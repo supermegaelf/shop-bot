@@ -21,7 +21,10 @@ router = Router(name="callbacks-router")
 
 @router.callback_query(F.data == "vpn_access")
 async def callback_vpn_access(callback: CallbackQuery):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except:
+        pass
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -208,7 +211,10 @@ async def callback_frequent_questions(callback: CallbackQuery):
 
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery):
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except:
+        pass
     await callback.message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
     await callback.answer()
 
