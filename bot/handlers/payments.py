@@ -19,6 +19,16 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
 
 @router.message(F.successful_payment)
 async def success_payment(message: Message):
+    from db.methods import get_payment, PaymentPlatform
+    
+    payment = await get_payment(message.successful_payment.invoice_payload, PaymentPlatform.TELEGRAM)
+    
+    if payment and payment.message_id:
+        try:
+            await glv.bot.delete_message(message.from_user.id, payment.message_id)
+        except:
+            pass
+    
     try:
         await message.delete()
     except:
@@ -32,21 +42,21 @@ async def success_payment(message: Message):
         if is_trial:
             await disable_trial(message.from_user.id)
         await panel.reset_subscription_data_limit(user.vpn_id)
-        marzban_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
+        panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
     else:
-        marzban_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
+        panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
 
     user_has_payments = await has_confirmed_payments(message.from_user.id)
     if user_has_payments:
         await glv.bot.send_message(message.from_user.id,
             _("message_payment_success"),
-            reply_markup=get_payment_success_keyboard()
+            reply_markup=get_payment_success_keyboard(message.from_user.language_code)
         )
     else:
-        subscription_url = glv.config['PANEL_GLOBAL'] + marzban_profile['subscription_url']
+        subscription_url = panel_profile.subscription_url
         await glv.bot.send_message(message.from_user.id,
             _("message_new_subscription_created"),
-            reply_markup=get_install_subscription_keyboard(subscription_url)
+            reply_markup=get_install_subscription_keyboard(subscription_url, message.from_user.language_code)
         )
 
     await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)

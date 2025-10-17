@@ -123,7 +123,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     discount = await get_user_promo_discount(callback.from_user.id)
     price = int(good['price']['stars'] * (1 - discount / 100))
     prices = [LabeledPrice(label="XTR", amount=price)]
-    await callback.message.answer_invoice(
+    sent_message = await callback.message.answer_invoice(
         title = good['title'],
         currency="XTR",
         description=_("To be paid – {amount} ⭐️ ⬇️").format(
@@ -134,6 +134,10 @@ async def callback_payment_method_select(callback: CallbackQuery):
         payload=data,
         reply_markup=get_xtr_pay_keyboard(data)
     )
+    
+    from db.methods import add_payment, PaymentPlatform
+    await add_payment(callback.from_user.id, data, callback.from_user.language_code, data, PaymentPlatform.TELEGRAM, message_id=sent_message.message_id)
+    
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_crypto_"))
