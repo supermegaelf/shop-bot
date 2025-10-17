@@ -59,6 +59,11 @@ async def process_promo(message: Message, state: FSMContext):
     promo_code = message.text.strip().upper()
     tg_id = message.from_user.id
 
+    try:
+        await message.delete()
+    except:
+        pass
+
     data = await state.get_data()
     prompt_message_id = data.get('prompt_message_id')
 
