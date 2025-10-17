@@ -14,13 +14,13 @@ from db.methods import (
     get_payment,
     delete_payment,
     confirm_payment,
-    PaymentPlatform, 
+    PaymentPlatform,
     disable_trial,
     is_test_subscription,
     use_all_promo_codes,
     has_confirmed_payments
 )
-from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard
+from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods
 from utils import get_i18n_string
 from panel import get_panel
@@ -59,11 +59,18 @@ async def check_crypto_payment(request: Request):
             panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
             panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
+
+        if payment.message_id:
+            try:
+                await glv.bot.delete_message(payment.tg_id, payment.message_id)
+            except:
+                pass
+
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_main_menu_keyboard(payment.lang)
+                reply_markup=get_payment_success_keyboard(payment.lang)
             )
         else:
             subscription_url = panel_profile.subscription_url
@@ -107,12 +114,18 @@ async def check_yookassa_payment(request: Request):
             panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
         else:
             panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
-        
+
+        if payment.message_id:
+            try:
+                await glv.bot.delete_message(payment.tg_id, payment.message_id)
+            except:
+                pass
+
         user_has_payments = await has_confirmed_payments(payment.tg_id)
         if user_has_payments:
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_main_menu_keyboard(payment.lang)
+                reply_markup=get_payment_success_keyboard(payment.lang)
             )
         else:
             subscription_url = panel_profile.subscription_url
@@ -132,7 +145,7 @@ async def notify_user(request: Request):
 
         if secret != glv.config['WEBHOOK_SECRET']:
             return web.Response(status=403)
-    
+
         data = (await request.json())[0]
         if data['action'] not in ['reached_usage_percent', 'reached_days_left', 'user_expired', 'user_limited']:
             return web.Response()
@@ -214,5 +227,5 @@ async def notify_user(request: Request):
             case _:
                 return web.Response()
         logging.info(f"Message {event} sent to user id={user.tg_id}.")
-           
+
     return web.Response()

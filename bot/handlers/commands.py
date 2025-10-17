@@ -13,7 +13,7 @@ from keyboards import get_main_menu_keyboard
 from .messages import profile, help
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
 
-router = Router(name="commands-router") 
+router = Router(name="commands-router")
 
 @router.message(
     Command("start")
@@ -38,10 +38,8 @@ async def start(message: Message):
         await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
                          reply_markup=get_main_menu_keyboard())   
     else:
-        await message.answer(_("message_welcome").format(name=message.from_user.first_name))
-        async with ChatActionSender.typing(bot=message.bot, chat_id=message.chat.id):
-                await asyncio.sleep(1)
-        await message.answer(_("message_select_welcome_action"), reply_markup=get_main_menu_keyboard())
+        combined_message = _("message_welcome").format(name=message.from_user.first_name) + "\n\n" + _("message_select_welcome_action")
+        await message.answer(combined_message, reply_markup=get_main_menu_keyboard())
 
 @router.message(
     Command("access")
