@@ -74,6 +74,7 @@ SUPPORT_LINK=https://t.me/your_support_bot
 STARS_PAYMENT_ENABLED=true
 ABOUT=https://t.me/your_info_channel/about
 UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
+VPN_NOT_WORKING_LINK=https://t.me/your_info_channel/troubleshooting
 ```
 
 ### `REMNAWAVE` .env
@@ -119,6 +120,7 @@ SUPPORT_LINK=https://t.me/your_support_bot
 STARS_PAYMENT_ENABLED=true
 ABOUT=https://t.me/your_info_channel/about
 UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
+VPN_NOT_WORKING_LINK=https://t.me/your_info_channel/troubleshooting
 ```
 
 ### Products goods.json
