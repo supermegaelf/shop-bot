@@ -91,6 +91,12 @@ def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyb
                 text=_("button_install") if lang is None else get_i18n_string("button_install", lang),
                 web_app=WebAppInfo(url=subscription_url)
             )
+        ],
+        [
+            InlineKeyboardButton(
+                text=_("button_back") if lang is None else get_i18n_string("button_back", lang),
+                callback_data="back_to_main"
+            )
         ]
-    ]
+    ] 
     return InlineKeyboardMarkup(inline_keyboard=kb)

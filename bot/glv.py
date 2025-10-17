@@ -18,6 +18,7 @@ config = {
     'EMAIL': os.environ.get('EMAIL'),
     'CRYPTO_TOKEN': os.environ.get('CRYPTO_TOKEN'),
     'MERCHANT_UUID': os.environ.get('MERCHANT_UUID'),
+    'CRYPTO_PAYMENT_ENABLED': os.environ.get('CRYPTO_PAYMENT_ENABLED', False) == 'true',
     'PANEL_HOST': os.environ.get('PANEL_HOST'),
     'PANEL_GLOBAL': os.environ.get('PANEL_GLOBAL'),
     'PANEL_USER': os.environ.get('PANEL_USER'),

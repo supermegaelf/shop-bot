@@ -129,7 +129,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
         prices=prices,
         provider_token="",
         payload=data,
-        reply_markup=get_xtr_pay_keyboard()
+        reply_markup=get_xtr_pay_keyboard(data)
     )
     await callback.answer()
 
@@ -178,6 +178,9 @@ async def callback_trial(callback: CallbackQuery):
 
     await start_trial(callback.from_user.id)
     subscription_url = panel_profile.subscription_url
+    
+    await callback.message.delete()
+    
     await callback.message.answer(
         _("message_new_subscription_created"),
         reply_markup=get_install_subscription_keyboard(subscription_url)
