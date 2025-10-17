@@ -39,4 +39,7 @@ def get_payment_keyboard(good) -> InlineKeyboardMarkup:
                 callback_data=f"pay_stars_{good['callback']}"
             )
         )
+    
+    builder.row(InlineKeyboardButton(text=_("button_back"), callback_data=f"back_to_traffic_{good['type']}_{good['months']}"))
+    
     return builder.as_markup()

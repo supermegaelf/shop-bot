@@ -21,4 +21,5 @@ async def get_months_keyboard(tg_id: int) -> InlineKeyboardMarkup:
             ) + (f" (-{discount}%)" if discount else ""), 
             callback_data=f"months_{months}")
         )
+    builder.row(InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile"))
     return builder.as_markup()
