@@ -31,7 +31,8 @@ config = {
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'UPDATE_GEO_LINK': os.environ.get('UPDATE_GEO_LINK'),
-    'ADMINS': json.loads(os.environ.get('ADMINS', '[]'))
+    'ADMINS': json.loads(os.environ.get('ADMINS', '[]')),
+    'VPN_NOT_WORKING_LINK': os.environ.get('VPN_NOT_WORKING_LINK')
 }
 
 bot: Bot = None

@@ -234,17 +234,6 @@ async def callback_back(callback: CallbackQuery):
     await callback.message.answer(text=_("message_set_up_vpn"), reply_markup=get_reach_support_keyboard())
     await callback.answer()
 
-@router.callback_query(F.data == "usage_problem")
-async def callback_usage_problem(callback: CallbackQuery):
-    await callback.message.delete()
-    await callback.message.answer(
-        text=_("message_usage_problem").format(link=glv.config['UPDATE_GEO_LINK']),
-        reply_markup=get_reach_support_keyboard(),
-        parse_mode="HTML",
-        disable_web_page_preview=True
-    )
-    await callback.answer()
-
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery):
     await callback.message.delete()

@@ -41,6 +41,7 @@ services:
             CRYPTO_PAYMENT_ENABLED: ${CRYPTO_PAYMENT_ENABLED}
             ADMINS: ${ADMINS}
             UPDATE_GEO_LINK: ${UPDATE_GEO_LINK}
+            VPN_NOT_WORKING_LINK: ${VPN_NOT_WORKING_LINK}
             REMNAWAVE_TOKEN: ${REMNAWAVE_TOKEN}
         volumes:
             - "./goods.json:/app/goods.json"
