@@ -4,7 +4,7 @@ from aiogram.utils.i18n import gettext as _
 
 def get_xtr_pay_keyboard(good_callback=None) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
-    builder.button(text=_('Pay'), pay=True)
+    builder.button(text=_('button_pay_action'), pay=True)
     if good_callback:
         builder.row(InlineKeyboardButton(text=_("button_back"), callback_data=f"back_to_payment_{good_callback}"))
     return builder.as_markup()
