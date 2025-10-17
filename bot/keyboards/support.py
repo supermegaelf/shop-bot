@@ -9,7 +9,7 @@ def get_support_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text=_("button_vpn_setup_issue"), callback_data='set_up_problem')
         ],
         [
-            InlineKeyboardButton(text=_("button_vpn_not_working"), callback_data='usage_problem')
+            InlineKeyboardButton(text=_("button_vpn_not_working"), url=glv.config['VPN_NOT_WORKING_LINK'])
         ],
         [
             InlineKeyboardButton(text=_("button_other_question"), url=glv.config['SUPPORT_LINK'])
