@@ -7,6 +7,7 @@ from aiogram.utils.i18n import gettext as _
 from aiogram.utils.i18n import lazy_gettext as __
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from keyboards import get_user_profile_keyboard, get_help_keyboard, get_main_menu_keyboard
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
@@ -56,26 +57,32 @@ async def promo_start(callback: CallbackQuery, state: FSMContext):
 async def process_promo(message: Message, state: FSMContext):
     promo_code = message.text.strip().upper()
     tg_id = message.from_user.id
-
+    
+    from keyboards.help import get_back_to_help_keyboard
+    
     promo = await get_promo_code_by_code(promo_code)
     if not promo:
-        await message.answer(text=_("message_promo_not_found"))
+        kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
+        await message.answer(text=_("message_promo_not_found"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
         await state.clear()
         return
     
     if promo.expires_at and promo.expires_at < datetime.now():
-        await message.answer(text=_("message_promo_expired"))
+        kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
+        await message.answer(text=_("message_promo_expired"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
         await state.clear()
         return
     
     if await has_activated_promo_code(tg_id, promo.id):
-        await message.answer(text=_("message_promo_already_activated"))
+        kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
+        await message.answer(text=_("message_promo_already_activated"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
         await state.clear()
         return
     
     await activate_promo_code(tg_id, promo.id)
+    kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
     await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
-                         reply_markup=get_main_menu_keyboard())
+                         reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
     await state.clear()
 
 def register_messages(dp: Dispatcher):
