@@ -72,6 +72,7 @@ MERCHANT_UUID=12345678-1234-1234-1234-123456789abc
 TG_INFO_CHANEL=https://t.me/your_info_channel
 SUPPORT_LINK=https://t.me/your_support_bot
 STARS_PAYMENT_ENABLED=true
+CRYPTO_PAYMENT_ENABLED=false
 ABOUT=https://t.me/your_info_channel/about
 UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
 ```
@@ -117,6 +118,7 @@ MERCHANT_UUID=12345678-1234-1234-1234-123456789abc
 TG_INFO_CHANEL=https://t.me/your_info_channel
 SUPPORT_LINK=https://t.me/your_support_bot
 STARS_PAYMENT_ENABLED=true
+CRYPTO_PAYMENT_ENABLED=false
 ABOUT=https://t.me/your_info_channel/about
 UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
 ```
