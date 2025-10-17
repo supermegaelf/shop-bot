@@ -95,7 +95,7 @@ def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyb
         [
             InlineKeyboardButton(
                 text=_("button_back") if lang is None else get_i18n_string("button_back", lang),
-                callback_data="back_to_main"
+                callback_data="back_to_profile"
             )
         ]
     ] 
