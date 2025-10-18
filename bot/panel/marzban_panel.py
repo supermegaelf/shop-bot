@@ -121,6 +121,8 @@ class MarzbanPanel(Panel):
 
     async def get_panel_user(self, tg_id: int):
         result = await get_vpn_user(tg_id)
+        if result is None:
+            return None
         res = await self.check_if_user_exists(result.vpn_id)
         if not res:
             return None
