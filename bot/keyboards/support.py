@@ -6,9 +6,6 @@ import glv
 def get_support_keyboard() -> InlineKeyboardMarkup:
    kb = [
         [
-            InlineKeyboardButton(text=_("button_vpn_setup_issue"), callback_data='set_up_problem')
-        ],
-        [
             InlineKeyboardButton(text=_("button_vpn_not_working"), url=glv.config['VPN_NOT_WORKING_LINK'])
         ],
         [
