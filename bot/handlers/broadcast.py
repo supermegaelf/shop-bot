@@ -42,7 +42,7 @@ async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
     data = await state.get_data()
     broadcast_message = data['broadcast_message']
     
-    await message.answer(_("message_broadcast_started"), reply_markup=get_main_menu_keyboard(lang=message.from_user.language_code))
+    await message.answer(_("message_broadcast_started"), reply_markup=ReplyKeyboardRemove())
     
     success_count = 0
     fail_count = 0
