@@ -25,7 +25,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             )
         )
 
-    if subscription_url:
+    if subscription_url: 
         builder.row(
             InlineKeyboardButton(
                 text=_("button_install"),
@@ -39,12 +39,13 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             )
         )
 
-    builder.row(
-        InlineKeyboardButton(
-            text=_("button_pay" if trial_available else "button_renew"),
-            callback_data="payment"
+    if not trial_available:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_renew"),
+                callback_data="payment"
+            )
         )
-    )
 
     if not discount:
         builder.row(
