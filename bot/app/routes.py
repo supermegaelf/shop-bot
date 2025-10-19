@@ -163,19 +163,31 @@ async def notify_user(request: Request):
         match action:
             case "reached_usage_percent":
                 message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case "reached_days_left":
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case "user_expired":
                 message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code), disable_web_page_preview=True)
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code), disable_web_page_preview=True)
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case "user_limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case _:
                 return web.Response()
         logging.info(f"Message {action} sent to user id={user.tg_id}.")
@@ -211,19 +223,31 @@ async def notify_user(request: Request):
         match event:
             case "user.bandwidth_usage_threshold_reached":
                 message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['usedTrafficBytes'])))
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code))
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case "user.expired":
                 message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code), disable_web_page_preview=True)
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code), disable_web_page_preview=True)
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case "user.limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-                await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                try:
+                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code))
+                except Exception as e:
+                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
             case _:
                 return web.Response()
         logging.info(f"Message {event} sent to user id={user.tg_id}.")
