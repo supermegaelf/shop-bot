@@ -49,7 +49,11 @@ async def help(message: Message):
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):
-    sent_message = await callback.message.edit_text(text=_("message_enter_promo"))
+    kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
+    sent_message = await callback.message.edit_text(
+        text=_("message_enter_promo"),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+    )
     await state.update_data(prompt_message_id=sent_message.message_id)
     await state.set_state(PromoStates.waiting_for_promo)
     await callback.answer()
