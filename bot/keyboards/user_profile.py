@@ -7,7 +7,6 @@ from db.methods import is_trial_available, has_confirmed_payments, get_user_prom
 
 async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
     trial_available = await is_trial_available(tg_id)
-    is_new_user = not await has_confirmed_payments(tg_id)
     discount = await get_user_promo_discount(tg_id)
 
     builder = InlineKeyboardBuilder()
@@ -26,7 +25,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             )
         )
 
-    if subscription_url: 
+    if subscription_url:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_install"),
@@ -47,7 +46,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
         )
     )
 
-    if is_new_user and not discount:
+    if not discount:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_promo_code"),
@@ -98,5 +97,5 @@ def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyb
                 callback_data="back_to_profile"
             )
         ]
-    ] 
+    ]
     return InlineKeyboardMarkup(inline_keyboard=kb)

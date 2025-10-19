@@ -36,7 +36,7 @@ async def get_marzban_profile_by_vpn_id(vpn_id: str):
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.vpn_id == vpn_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
-    return result    
+    return result
 
 async def is_trial_available(tg_id: int) -> bool:
     async with engine.connect() as conn:
@@ -64,7 +64,7 @@ async def is_test_subscription(tg_id: int) -> bool:
 
 async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False, message_id: int = None) -> dict:
     async with engine.connect() as conn:
-        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed, created_at=datetime.now(), message_id=message_id) 
+        sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed, created_at=datetime.now(), message_id=message_id)
         await conn.execute(sql_q)
         await conn.commit()
 
@@ -106,7 +106,13 @@ async def activate_promo_code(tg_id: int, promo_code_id: int):
 
 async def get_user_promo_discount(tg_id: int) -> float:
     async with engine.connect() as conn:
-        sql_query = select(PromoCode.discount_percent).join(UserPromoCode, PromoCode.id == UserPromoCode.promo_code_id).where(UserPromoCode.tg_id == tg_id, UserPromoCode.used == False)
+        sql_query = select(PromoCode.discount_percent).join(
+            UserPromoCode, PromoCode.id == UserPromoCode.promo_code_id
+        ).where(
+            UserPromoCode.tg_id == tg_id, 
+            UserPromoCode.used == False,
+            PromoCode.expires_at > datetime.now()
+        )
         result = (await conn.execute(sql_query)).fetchone()
     return result[0] if result else 0.0
 
@@ -116,7 +122,7 @@ async def has_confirmed_payments(tg_id: int) -> bool:
         result = (await conn.execute(sql_query)).fetchone()
     return result is not None
 
-async def use_all_promo_codes(tg_id: int): # ToDo: rewrite logic to use only one promo code
+async def use_all_promo_codes(tg_id: int):
     async with engine.connect() as conn:
         sql_query = update(UserPromoCode).where(UserPromoCode.tg_id == tg_id).values(used=True)
         await conn.execute(sql_query)
@@ -127,4 +133,3 @@ async def get_vpn_users():
         sql_query = select(VPNUsers)
         result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
     return result
-    
