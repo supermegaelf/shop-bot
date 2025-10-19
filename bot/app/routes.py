@@ -66,18 +66,24 @@ async def check_crypto_payment(request: Request):
             except:
                 pass
 
-        user_has_payments = await has_confirmed_payments(payment.tg_id)
-        if user_has_payments:
+        if good['type'] == 'update':
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
                 reply_markup=get_payment_success_keyboard(payment.lang)
             )
         else:
-            subscription_url = panel_profile.subscription_url
-            await glv.bot.send_message(payment.tg_id,
-                get_i18n_string("message_new_subscription_created", payment.lang),
-                reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
-            )
+            user_has_payments = await has_confirmed_payments(payment.tg_id)
+            if user_has_payments:
+                await glv.bot.send_message(payment.tg_id,
+                    get_i18n_string("message_payment_success", payment.lang),
+                    reply_markup=get_payment_success_keyboard(payment.lang)
+                )
+            else:
+                subscription_url = panel_profile.subscription_url
+                await glv.bot.send_message(payment.tg_id,
+                    get_i18n_string("message_new_subscription_created", payment.lang),
+                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                )
         await confirm_payment(payment.payment_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'cancel':
@@ -121,18 +127,24 @@ async def check_yookassa_payment(request: Request):
             except:
                 pass
 
-        user_has_payments = await has_confirmed_payments(payment.tg_id)
-        if user_has_payments:
+        if good['type'] == 'update':
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
                 reply_markup=get_payment_success_keyboard(payment.lang)
             )
         else:
-            subscription_url = panel_profile.subscription_url
-            await glv.bot.send_message(payment.tg_id,
-                get_i18n_string("message_new_subscription_created", payment.lang),
-                reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
-            )
+            user_has_payments = await has_confirmed_payments(payment.tg_id)
+            if user_has_payments:
+                await glv.bot.send_message(payment.tg_id,
+                    get_i18n_string("message_payment_success", payment.lang),
+                    reply_markup=get_payment_success_keyboard(payment.lang)
+                )
+            else:
+                subscription_url = panel_profile.subscription_url
+                await glv.bot.send_message(payment.tg_id,
+                    get_i18n_string("message_new_subscription_created", payment.lang),
+                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                )
         await confirm_payment(payment.payment_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'canceled':
