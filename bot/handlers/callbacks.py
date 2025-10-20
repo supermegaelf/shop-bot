@@ -215,7 +215,7 @@ async def callback_trial(callback: CallbackQuery):
 
     await callback.message.answer(
         _("message_new_subscription_created"),
-        reply_markup=get_install_subscription_keyboard(subscription_url)
+        reply_markup=get_install_subscription_keyboard(subscription_url, callback.from_user.language_code)
     )
     await callback.answer()
 
@@ -354,10 +354,10 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         await callback.message.delete()
     except:
         pass
-    
+
     state_data = await state.get_data()
     profile_message_id = state_data.get('profile_message_id')
-    
+
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     if panel_profile:
@@ -376,7 +376,7 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         show_buy_traffic_button = False
 
     keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
-    
+
     text = _("subscription_data").format(
         status=status,
         expire_date=expire_date,
@@ -384,7 +384,7 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         data_limit=data_limit,
         link=glv.config['TG_INFO_CHANEL']
     )
-    
+
     if profile_message_id:
         try:
             await glv.bot.edit_message_text(
@@ -409,7 +409,7 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
             disable_web_page_preview=True
         )
         await state.update_data(profile_message_id=sent_message.message_id)
-    
+
     await callback.answer()
 
 @router.callback_query(F.data == "dismiss_after_install")
@@ -418,10 +418,10 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
         await callback.message.delete()
     except:
         pass
-    
+
     state_data = await state.get_data()
     profile_message_id = state_data.get('profile_message_id')
-    
+
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     if panel_profile:
@@ -440,7 +440,7 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
         show_buy_traffic_button = False
 
     keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
-    
+
     text = _("subscription_data").format(
         status=status,
         expire_date=expire_date,
@@ -448,7 +448,7 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
         data_limit=data_limit,
         link=glv.config['TG_INFO_CHANEL']
     )
-    
+
     if profile_message_id:
         try:
             await glv.bot.edit_message_text(
@@ -473,7 +473,7 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
             disable_web_page_preview=True
         )
         await state.update_data(profile_message_id=sent_message.message_id)
-    
+
     await callback.answer()
 
 @router.callback_query(F.data == "dismiss_after_install")

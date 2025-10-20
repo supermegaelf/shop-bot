@@ -88,17 +88,17 @@ def get_renew_subscription_keyboard(lang, back=True) -> InlineKeyboardMarkup:
         kb.append([InlineKeyboardButton(text=get_i18n_string("button_back", lang), callback_data="back_to_profile")])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
-def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyboardMarkup:
+def get_install_subscription_keyboard(subscription_url, lang='en') -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(
-                text=get_i18n_string("button_install", lang) if lang else "Install ⚙️",
+                text=get_i18n_string("button_install", lang),
                 web_app=WebAppInfo(url=subscription_url)
             )
         ],
         [
             InlineKeyboardButton(
-                text=get_i18n_string("button_dismiss", lang) if lang else "Dismiss ✖️",
+                text=get_i18n_string("button_dismiss", lang),
                 callback_data="dismiss_after_install"
             )
         ]
