@@ -25,7 +25,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             )
         )
 
-    if subscription_url: 
+    if subscription_url:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_install"),
@@ -92,14 +92,14 @@ def get_install_subscription_keyboard(subscription_url, lang=None) -> InlineKeyb
     kb = [
         [
             InlineKeyboardButton(
-                text=_("button_install") if lang is None else get_i18n_string("button_install", lang),
+                text=get_i18n_string("button_install", lang) if lang else "Install ⚙️",
                 web_app=WebAppInfo(url=subscription_url)
             )
         ],
         [
             InlineKeyboardButton(
-                text=_("button_back") if lang is None else get_i18n_string("button_back", lang),
-                callback_data="back_to_profile"
+                text=get_i18n_string("button_dismiss", lang) if lang else "Dismiss ✖️",
+                callback_data="dismiss_after_install"
             )
         ]
     ]

@@ -21,7 +21,7 @@ class PromoStates(StatesGroup):
     waiting_for_promo = State()
 
 @router.message(F.text == __("button_vpn_access"))
-async def profile(message: Message):
+async def profile(message: Message, state: FSMContext):
     panel = get_panel()
     panel_profile = await panel.get_panel_user(message.from_user.id)
     if panel_profile:
@@ -39,9 +39,19 @@ async def profile(message: Message):
         data_limit = "–"
         show_buy_traffic_button = False
     keyboard = await get_user_profile_keyboard(message.from_user.id, show_buy_traffic_button, url)
-    await message.answer(text=_("subscription_data").format(status = status, expire_date = expire_date, data_used = data_used, data_limit = data_limit, link = glv.config['TG_INFO_CHANEL']),
-                            reply_markup = keyboard,
-                            disable_web_page_preview = True)
+    sent_message = await message.answer(
+        text=_("subscription_data").format(
+            status=status, 
+            expire_date=expire_date, 
+            data_used=data_used, 
+            data_limit=data_limit, 
+            link=glv.config['TG_INFO_CHANEL']
+        ),
+        reply_markup=keyboard,
+        disable_web_page_preview=True
+    )
+    
+    await state.update_data(profile_message_id=sent_message.message_id)
 
 @router.message(F.text == __("button_help"))
 async def help(message: Message):

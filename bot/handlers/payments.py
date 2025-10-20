@@ -1,12 +1,27 @@
+import logging
+
 from aiogram import Router, Dispatcher, F
 from aiogram.types import Message, PreCheckoutQuery
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from utils import goods
-from db.methods import get_vpn_user, add_payment, PaymentPlatform, is_test_subscription, disable_trial, use_all_promo_codes, has_confirmed_payments
-from keyboards import get_main_menu_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
+from db.methods import (
+    get_vpn_user,
+    add_payment,
+    PaymentPlatform,
+    is_test_subscription,
+    disable_trial,
+    use_all_promo_codes,
+    has_confirmed_payments
+)
+from keyboards import (
+    get_main_menu_keyboard,
+    get_install_subscription_keyboard,
+    get_payment_success_keyboard,
+    get_user_profile_keyboard
+)
 from panel import get_panel
-
 import glv
 
 router = Router(name="payment-router")
@@ -18,7 +33,7 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
     await query.answer(ok=True)
 
 @router.message(F.successful_payment)
-async def success_payment(message: Message):
+async def success_payment(message: Message, state: FSMContext):
     from db.methods import get_payment, PaymentPlatform
     
     payment = await get_payment(message.successful_payment.invoice_payload, PaymentPlatform.TELEGRAM)
