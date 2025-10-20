@@ -72,6 +72,7 @@ async def check_crypto_payment(request: Request):
                 reply_markup=get_payment_success_keyboard(payment.lang)
             )
         else:
+            await confirm_payment(payment.payment_id)
             user_has_payments = await has_confirmed_payments(payment.tg_id)
             if user_has_payments:
                 await glv.bot.send_message(payment.tg_id,
@@ -84,7 +85,7 @@ async def check_crypto_payment(request: Request):
                     get_i18n_string("message_new_subscription_created", payment.lang),
                     reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
                 )
-        await confirm_payment(payment.payment_id)
+        await use_all_promo_codes(payment.tg_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'cancel':
         await delete_payment(payment.payment_id)
@@ -133,6 +134,7 @@ async def check_yookassa_payment(request: Request):
                 reply_markup=get_payment_success_keyboard(payment.lang)
             )
         else:
+            await confirm_payment(payment.payment_id)
             user_has_payments = await has_confirmed_payments(payment.tg_id)
             if user_has_payments:
                 await glv.bot.send_message(payment.tg_id,
@@ -145,7 +147,7 @@ async def check_yookassa_payment(request: Request):
                     get_i18n_string("message_new_subscription_created", payment.lang),
                     reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
                 )
-        await confirm_payment(payment.payment_id)
+        await use_all_promo_codes(payment.tg_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'canceled':
         await delete_payment(payment.payment_id)
@@ -153,7 +155,7 @@ async def check_yookassa_payment(request: Request):
 
 async def notify_user(request: Request):
     from utils.ephemeral import EphemeralNotification
-    
+
     if glv.config['PANEL_TYPE'] == 'MARZBAN':
         secret = request.headers.get('x-webhook-secret')
 
@@ -193,7 +195,7 @@ async def notify_user(request: Request):
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
             case _:
                 return web.Response()
-        
+
         msg_id = await EphemeralNotification.send_ephemeral(
             bot=glv.bot,
             chat_id=user.tg_id,
@@ -202,15 +204,15 @@ async def notify_user(request: Request):
             lang=chat_member.user.language_code,
             disable_web_page_preview=True
         )
-        
+
         if msg_id:
             logging.info(f"Ephemeral notification {action} sent to user id={user.tg_id}, msg_id={msg_id}")
         else:
             logging.warning(f"Failed to send ephemeral notification {action} to user id={user.tg_id}")
-            
+
     elif glv.config['PANEL_TYPE'] == 'REMNAWAVE':
         from utils.ephemeral import EphemeralNotification
-        
+
         signature = request.headers.get('x-remnawave-signature')
         if not signature:
             return web.Response(status=403)
@@ -258,7 +260,7 @@ async def notify_user(request: Request):
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
             case _:
                 return web.Response()
-        
+
         msg_id = await EphemeralNotification.send_ephemeral(
             bot=glv.bot,
             chat_id=user.tg_id,
@@ -267,7 +269,7 @@ async def notify_user(request: Request):
             lang=chat_member.user.language_code,
             disable_web_page_preview=True
         )
-        
+
         if msg_id:
             logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
         else:
