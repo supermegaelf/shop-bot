@@ -2,17 +2,25 @@ from datetime import datetime, timedelta
 import asyncio
 import logging
 
-from aiogram import Router, F
-from aiogram import Dispatcher
+from aiogram import Router, F, Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
+from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
-from panel.panel_provider import get_panel
 
-from keyboards import get_main_menu_keyboard, get_payment_keyboard, get_pay_keyboard, \
-    get_buy_menu_keyboard, get_xtr_pay_keyboard, get_back_to_help_keyboard, get_help_keyboard, \
-    get_months_keyboard, get_support_keyboard, get_install_subscription_keyboard
+from keyboards import (
+    get_main_menu_keyboard,
+    get_payment_keyboard,
+    get_pay_keyboard,
+    get_buy_menu_keyboard,
+    get_xtr_pay_keyboard,
+    get_back_to_help_keyboard,
+    get_help_keyboard,
+    get_months_keyboard,
+    get_support_keyboard,
+    get_install_subscription_keyboard,
+    get_user_profile_keyboard
+)
 from db.methods import is_trial_available, start_trial, get_vpn_user, get_user_promo_discount
-
 from utils import goods, yookassa, cryptomus
 from panel import get_panel
 import glv
@@ -20,7 +28,7 @@ import glv
 router = Router(name="callbacks-router")
 
 @router.callback_query(F.data == "vpn_access")
-async def callback_vpn_access(callback: CallbackQuery):
+async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.delete()
     except:
@@ -45,7 +53,7 @@ async def callback_vpn_access(callback: CallbackQuery):
 
     from keyboards import get_user_profile_keyboard
     keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
-    await callback.message.answer(
+    sent_message = await callback.message.answer(
         text=_("subscription_data").format(
             status=status,
             expire_date=expire_date,
@@ -56,14 +64,24 @@ async def callback_vpn_access(callback: CallbackQuery):
         reply_markup=keyboard,
         disable_web_page_preview=True
     )
+
+    await state.update_data(profile_message_id=sent_message.message_id)
     await callback.answer()
 
 @router.callback_query(F.data.startswith("months_"))
 async def callback_month_amount_select(callback: CallbackQuery):
-    await callback.message.delete()
     months = int(callback.data.replace("months_", ""))
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, "renew")
-    await callback.message.answer(text=_("message_traffic_renewal_info"), reply_markup=keyboard)
+
+    try:
+        await callback.message.edit_text(
+            text=_("message_traffic_renewal_info"),
+            reply_markup=keyboard
+        )
+    except:
+        await callback.message.delete()
+        await callback.message.answer(text=_("message_traffic_renewal_info"), reply_markup=keyboard)
+
     await callback.answer()
 
 @router.callback_query(F.data.startswith("extend_data_limit"))
@@ -80,18 +98,25 @@ async def callback_extend_data_limit(callback: CallbackQuery):
     if filtered_goods:
         min_good = min(filtered_goods, key=lambda good: good['months'])
         keyboard = await get_buy_menu_keyboard(callback.from_user.id, min_good['months'], "update")
-        await callback.message.delete()
-        await callback.message.answer(
-            text=_("message_select_traffic_amount"),
-            reply_markup=keyboard
-        )
+
+        try:
+            await callback.message.edit_text(
+                text=_("message_select_traffic_amount"),
+                reply_markup=keyboard
+            )
+        except:
+            await callback.message.delete()
+            await callback.message.answer(
+                text=_("message_select_traffic_amount"),
+                reply_markup=keyboard
+            )
     else:
         await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
 
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_kassa_"))
-async def callback_payment_method_select(callback: CallbackQuery):
+async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete()
     data = callback.data.replace("pay_kassa_", "")
     if data not in goods.get_callbacks():
@@ -113,7 +138,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_stars_"))
-async def callback_payment_method_select(callback: CallbackQuery):
+async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete()
     data = callback.data.replace("pay_stars_", "")
     if data not in goods.get_callbacks():
@@ -134,14 +159,14 @@ async def callback_payment_method_select(callback: CallbackQuery):
         payload=data,
         reply_markup=get_xtr_pay_keyboard(data)
     )
-    
+
     from db.methods import add_payment, PaymentPlatform
     await add_payment(callback.from_user.id, data, callback.from_user.language_code, data, PaymentPlatform.TELEGRAM, message_id=sent_message.message_id)
-    
+
     await callback.answer()
 
 @router.callback_query(F.data.startswith("pay_crypto_"))
-async def callback_payment_method_select(callback: CallbackQuery):
+async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete()
     data = callback.data.replace("pay_crypto_", "")
     if data not in goods.get_callbacks():
@@ -185,9 +210,9 @@ async def callback_trial(callback: CallbackQuery):
 
     await start_trial(callback.from_user.id)
     subscription_url = panel_profile.subscription_url
-    
+
     await callback.message.delete()
-    
+
     await callback.message.answer(
         _("message_new_subscription_created"),
         reply_markup=get_install_subscription_keyboard(subscription_url)
@@ -197,8 +222,13 @@ async def callback_trial(callback: CallbackQuery):
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery):
     keyboard = await get_months_keyboard(callback.from_user.id)
-    await callback.message.delete()
-    await callback.message.answer(_("message_select_payment_period"), reply_markup=keyboard)
+
+    try:
+        await callback.message.edit_text(_("message_select_payment_period"), reply_markup=keyboard)
+    except:
+        await callback.message.delete()
+        await callback.message.answer(_("message_select_payment_period"), reply_markup=keyboard)
+
     await callback.answer()
 
 @router.callback_query(F.data == "faq")
@@ -230,9 +260,17 @@ async def callback_terms_of_service(callback: CallbackQuery):
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery):
-    await callback.message.delete()
     good = goods.get(callback.data)
-    await callback.message.answer(text=_("message_select_payment_method"), reply_markup=get_payment_keyboard(good))
+
+    try:
+        await callback.message.edit_text(
+            text=_("message_select_payment_method"),
+            reply_markup=get_payment_keyboard(good)
+        )
+    except:
+        await callback.message.delete()
+        await callback.message.answer(text=_("message_select_payment_method"), reply_markup=get_payment_keyboard(good))
+
     await callback.answer()
 
 @router.callback_query(F.data == "back_to_main")
@@ -308,6 +346,175 @@ async def callback_dismiss_notification(callback: CallbackQuery):
         await callback.message.delete()
     except:
         pass
+    await callback.answer()
+
+@router.callback_query(F.data == "dismiss_payment_success")
+async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except:
+        pass
+    
+    state_data = await state.get_data()
+    profile_message_id = state_data.get('profile_message_id')
+    
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    if panel_profile:
+        url = panel_profile.subscription_url
+        status = _(panel_profile.status)
+        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
+        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
+        data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
+        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
+    else:
+        url = ""
+        status = "–"
+        expire_date = "–"
+        data_used = "–"
+        data_limit = "–"
+        show_buy_traffic_button = False
+
+    keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
+    
+    text = _("subscription_data").format(
+        status=status,
+        expire_date=expire_date,
+        data_used=data_used,
+        data_limit=data_limit,
+        link=glv.config['TG_INFO_CHANEL']
+    )
+    
+    if profile_message_id:
+        try:
+            await glv.bot.edit_message_text(
+                text=text,
+                chat_id=callback.from_user.id,
+                message_id=profile_message_id,
+                reply_markup=keyboard,
+                disable_web_page_preview=True
+            )
+        except Exception as e:
+            logging.debug(f"Could not update profile message: {e}")
+            sent_message = await callback.message.answer(
+                text=text,
+                reply_markup=keyboard,
+                disable_web_page_preview=True
+            )
+            await state.update_data(profile_message_id=sent_message.message_id)
+    else:
+        sent_message = await callback.message.answer(
+            text=text,
+            reply_markup=keyboard,
+            disable_web_page_preview=True
+        )
+        await state.update_data(profile_message_id=sent_message.message_id)
+    
+    await callback.answer()
+
+@router.callback_query(F.data == "dismiss_after_install")
+async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except:
+        pass
+    
+    state_data = await state.get_data()
+    profile_message_id = state_data.get('profile_message_id')
+    
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    if panel_profile:
+        url = panel_profile.subscription_url
+        status = _(panel_profile.status)
+        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
+        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
+        data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
+        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
+    else:
+        url = ""
+        status = "–"
+        expire_date = "–"
+        data_used = "–"
+        data_limit = "–"
+        show_buy_traffic_button = False
+
+    keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
+    
+    text = _("subscription_data").format(
+        status=status,
+        expire_date=expire_date,
+        data_used=data_used,
+        data_limit=data_limit,
+        link=glv.config['TG_INFO_CHANEL']
+    )
+    
+    if profile_message_id:
+        try:
+            await glv.bot.edit_message_text(
+                text=text,
+                chat_id=callback.from_user.id,
+                message_id=profile_message_id,
+                reply_markup=keyboard,
+                disable_web_page_preview=True
+            )
+        except Exception as e:
+            logging.debug(f"Could not update profile message: {e}")
+            sent_message = await callback.message.answer(
+                text=text,
+                reply_markup=keyboard,
+                disable_web_page_preview=True
+            )
+            await state.update_data(profile_message_id=sent_message.message_id)
+    else:
+        sent_message = await callback.message.answer(
+            text=text,
+            reply_markup=keyboard,
+            disable_web_page_preview=True
+        )
+        await state.update_data(profile_message_id=sent_message.message_id)
+    
+    await callback.answer()
+
+@router.callback_query(F.data == "dismiss_after_install")
+async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except:
+        pass
+
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    if panel_profile:
+        url = panel_profile.subscription_url
+        status = _(panel_profile.status)
+        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
+        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
+        data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
+        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
+    else:
+        url = ""
+        status = "–"
+        expire_date = "–"
+        data_used = "–"
+        data_limit = "–"
+        show_buy_traffic_button = False
+
+    keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
+
+    sent_message = await callback.message.answer(
+        text=_("subscription_data").format(
+            status=status,
+            expire_date=expire_date,
+            data_used=data_used,
+            data_limit=data_limit,
+            link=glv.config['TG_INFO_CHANEL']
+        ),
+        reply_markup=keyboard,
+        disable_web_page_preview=True
+    )
+
+    await state.update_data(profile_message_id=sent_message.message_id)
     await callback.answer()
 
 def register_callbacks(dp: Dispatcher):
