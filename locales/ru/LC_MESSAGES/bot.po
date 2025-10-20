@@ -342,3 +342,6 @@ msgid "message_broadcast_completed"
 msgstr "Рассылка завершена ✅\n\n"
 "Успешно отправлено: {success_count}\n"
 "Не удалось отправить: {fail_count}"
+
+msgid "button_dismiss"
+msgstr "Скрыть ⏪"

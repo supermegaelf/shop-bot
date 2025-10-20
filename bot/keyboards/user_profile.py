@@ -64,7 +64,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
 
     return builder.as_markup()
 
-def get_buy_more_traffic_keyboard(lang, back=False) -> InlineKeyboardMarkup:
+def get_buy_more_traffic_keyboard(lang, back=True) -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(
@@ -76,7 +76,7 @@ def get_buy_more_traffic_keyboard(lang, back=False) -> InlineKeyboardMarkup:
         kb.append([InlineKeyboardButton(text=get_i18n_string("button_back", lang), callback_data="back_to_profile")])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
-def get_renew_subscription_keyboard(lang, back=False) -> InlineKeyboardMarkup:
+def get_renew_subscription_keyboard(lang, back=True) -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(

@@ -342,3 +342,6 @@ msgid "message_broadcast_completed"
 msgstr "Broadcast completed ✅\n\n"
 "Successfully sent: {success_count}\n"
 "Failed to send: {fail_count}"
+
+msgid "button_dismiss"
+msgstr "Dismiss ⏪"

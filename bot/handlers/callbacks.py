@@ -302,5 +302,13 @@ async def callback_back_to_traffic(callback: CallbackQuery):
 
     await callback.answer()
 
+@router.callback_query(F.data == "dismiss_notification")
+async def callback_dismiss_notification(callback: CallbackQuery):
+    try:
+        await callback.message.delete()
+    except:
+        pass
+    await callback.answer()
+
 def register_callbacks(dp: Dispatcher):
     dp.include_router(router)
