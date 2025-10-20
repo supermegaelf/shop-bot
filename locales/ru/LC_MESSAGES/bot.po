@@ -344,4 +344,4 @@ msgstr "Рассылка завершена ✅\n\n"
 "Не удалось отправить: {fail_count}"
 
 msgid "button_dismiss"
-msgstr "Скрыть ⏪"
+msgstr "Скрыть ⏫"
