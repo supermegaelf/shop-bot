@@ -152,6 +152,8 @@ async def check_yookassa_payment(request: Request):
     return web.Response()
 
 async def notify_user(request: Request):
+    from utils.ephemeral import EphemeralNotification
+    
     if glv.config['PANEL_TYPE'] == 'MARZBAN':
         secret = request.headers.get('x-webhook-secret')
 
@@ -172,38 +174,43 @@ async def notify_user(request: Request):
             return web.Response(status=404)
         action = data['action']
         message = ""
+        keyboard = None
         match action:
             case "reached_usage_percent":
                 message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code, back=True))
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
             case "reached_days_left":
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code, back=True))
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
             case "user_expired":
                 message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code, back=True), disable_web_page_preview=True)
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
             case "user_limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code, back=True))
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
             case _:
                 return web.Response()
-        logging.info(f"Message {action} sent to user id={user.tg_id}.")
+        
+        msg_id = await EphemeralNotification.send_ephemeral(
+            bot=glv.bot,
+            chat_id=user.tg_id,
+            text=message,
+            reply_markup=keyboard,
+            lang=chat_member.user.language_code,
+            disable_web_page_preview=True
+        )
+        
+        if msg_id:
+            logging.info(f"Ephemeral notification {action} sent to user id={user.tg_id}, msg_id={msg_id}")
+        else:
+            logging.warning(f"Failed to send ephemeral notification {action} to user id={user.tg_id}")
+            
     elif glv.config['PANEL_TYPE'] == 'REMNAWAVE':
+        from utils.ephemeral import EphemeralNotification
+        
         signature = request.headers.get('x-remnawave-signature')
         if not signature:
             return web.Response(status=403)
@@ -232,36 +239,38 @@ async def notify_user(request: Request):
             return web.Response(status=404)
         event = payload['event']
         message = ""
+        keyboard = None
         match event:
             case "user.bandwidth_usage_threshold_reached":
                 message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['usedTrafficBytes'])))
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code, back=True))
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code, back=True))
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
             case "user.expired":
                 message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_renew_subscription_keyboard(chat_member.user.language_code, back=True), disable_web_page_preview=True)
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
             case "user.limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-                try:
-                    await glv.bot.send_message(chat_id=user.tg_id, text=message, reply_markup=get_buy_more_traffic_keyboard(chat_member.user.language_code, back=True))
-                except Exception as e:
-                    logging.info(f"Failed to send message to user id={user.tg_id}: {e}")
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
             case _:
                 return web.Response()
-        logging.info(f"Message {event} sent to user id={user.tg_id}.")
+        
+        msg_id = await EphemeralNotification.send_ephemeral(
+            bot=glv.bot,
+            chat_id=user.tg_id,
+            text=message,
+            reply_markup=keyboard,
+            lang=chat_member.user.language_code,
+            disable_web_page_preview=True
+        )
+        
+        if msg_id:
+            logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
+        else:
+            logging.warning(f"Failed to send ephemeral notification {event} to user id={user.tg_id}")
 
     return web.Response()
