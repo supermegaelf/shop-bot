@@ -39,12 +39,9 @@ msgstr ""
 "С нашим VPN вы можете:\n"
 "- Попробовать бесплатно 🆓\n"
 "- Использовать одновременно📱, 💻 и 📺\n"
-"- Забыть о рекламе 🕊"
-
-#: bot/handlers/commands.py:44
-msgid "message_select_welcome_action"
-msgstr "Готовы? 🏄🏻‍♂️\n"
-"Выберите действие ⬇️"
+"- Забыть о рекламе 🕊\n\n"
+"Готовы? 🏄🏻‍♂️\n"
+"Нажмите на кнопку ниже ⬇️"
 
 #: bot/handlers/callbacks.py:43
 msgid "message_select_traffic_amount"
@@ -79,7 +76,7 @@ msgstr ""
 #: bot/keyboards/help.py:22
 #: bot/keyboards/support.py:18,30
 msgid "button_back"
-msgstr "⏪ Назад"
+msgstr "⬅️ Назад"
 
 #: bot/keyboards/buy_menu.py:15
 msgid "{title} – {price_ru} ₽"
@@ -88,7 +85,7 @@ msgstr "{title} – {price_ru} ₽"
 #: bot/keyboards/messages.py:22
 #: bot/keyboards/main_menu.py:9
 msgid "button_vpn_access"
-msgstr "Доступ к VPN 🏄🏻‍♂️"
+msgstr "Начать 🚀"
 
 #: bot/keyboards/help.py:10
 msgid "button_frequent_questions"
@@ -150,7 +147,7 @@ msgstr "Выберете период оплаты ⬇️"
 #: bot/keyboards/callbacks.py:161
 #: bot/keyboards/messages.py:46
 msgid "message_select_action"
-msgstr "Выберите действие ⬇️"
+msgstr "Выберите вариант ⬇️"
 
 #: bot/keyboards/callbacks.py:167
 msgid "message_issue_prompt"
@@ -344,4 +341,4 @@ msgstr "Рассылка завершена ✅\n\n"
 "Не удалось отправить: {fail_count}"
 
 msgid "button_dismiss"
-msgstr "Скрыть ⏫"
+msgstr "⬅️ Назад"

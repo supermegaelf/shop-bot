@@ -8,11 +8,7 @@ def get_help_keyboard(from_profile: bool = False) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text=_("button_support"), callback_data='support'))
     builder.row(InlineKeyboardButton(text=_("button_frequent_questions"), callback_data='faq'))
-    
-    if from_profile:
-        builder.row(InlineKeyboardButton(text=_("button_back"), callback_data='back_to_profile'))
-    else:
-        builder.row(InlineKeyboardButton(text=_("button_back"), callback_data='back_to_main'))
+    builder.row(InlineKeyboardButton(text=_("button_back"), callback_data='back_to_profile'))
 
     return builder.as_markup()
 
