@@ -23,6 +23,7 @@ class Payments(Base):
     created_at = Column(DateTime)
     confirmed = Column(Boolean, default=False)
     message_id = Column(BigInteger, nullable=True)
+    from_notification = Column(Boolean, default=False, nullable=True)
 
 class PromoCode(Base):
     __tablename__ = "promo_codes"
