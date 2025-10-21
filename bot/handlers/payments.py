@@ -52,6 +52,9 @@ async def success_payment(message: Message, state: FSMContext):
     panel = get_panel()
     good = goods.get(message.successful_payment.invoice_payload)
     user = await get_vpn_user(message.from_user.id)
+    
+    from_notification = payment.from_notification if payment else False
+    
     if good['type'] == 'renew':
         is_trial = await is_test_subscription(message.from_user.id)
         if is_trial:
@@ -65,7 +68,7 @@ async def success_payment(message: Message, state: FSMContext):
     if user_has_payments:
         await glv.bot.send_message(message.from_user.id,
             _("message_payment_success"),
-            reply_markup=get_payment_success_keyboard(message.from_user.language_code)
+            reply_markup=get_payment_success_keyboard(message.from_user.language_code, from_notification)
         )
     else:
         subscription_url = panel_profile.subscription_url
@@ -74,7 +77,7 @@ async def success_payment(message: Message, state: FSMContext):
             reply_markup=get_install_subscription_keyboard(subscription_url, message.from_user.language_code)
         )
 
-    await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True)
+    await add_payment(message.from_user.id, good['callback'], message.from_user.language_code, message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM, True, from_notification=from_notification)
     await use_all_promo_codes(message.from_user.id)
 
 def register_payments(dp: Dispatcher):

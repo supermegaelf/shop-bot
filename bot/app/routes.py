@@ -69,7 +69,7 @@ async def check_crypto_payment(request: Request):
         if good['type'] == 'update':
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_payment_success_keyboard(payment.lang)
+                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
             )
         else:
             await confirm_payment(payment.payment_id)
@@ -77,7 +77,7 @@ async def check_crypto_payment(request: Request):
             if user_has_payments:
                 await glv.bot.send_message(payment.tg_id,
                     get_i18n_string("message_payment_success", payment.lang),
-                    reply_markup=get_payment_success_keyboard(payment.lang)
+                    reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
                 )
             else:
                 subscription_url = panel_profile.subscription_url
@@ -131,7 +131,7 @@ async def check_yookassa_payment(request: Request):
         if good['type'] == 'update':
             await glv.bot.send_message(payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_payment_success_keyboard(payment.lang)
+                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
             )
         else:
             await confirm_payment(payment.payment_id)
@@ -139,7 +139,7 @@ async def check_yookassa_payment(request: Request):
             if user_has_payments:
                 await glv.bot.send_message(payment.tg_id,
                     get_i18n_string("message_payment_success", payment.lang),
-                    reply_markup=get_payment_success_keyboard(payment.lang)
+                    reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
                 )
             else:
                 subscription_url = panel_profile.subscription_url

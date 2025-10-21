@@ -122,6 +122,10 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
     if data not in goods.get_callbacks():
         await callback.answer()
         return
+
+    state_data = await state.get_data()
+    from_notification = 'profile_message_id' not in state_data
+
     result = await yookassa.create_payment(
         callback.from_user.id,
         data,
@@ -133,7 +137,15 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
         reply_markup=get_pay_keyboard(result['url'], data))
 
     from db.methods import add_payment, PaymentPlatform
-    await add_payment(callback.from_user.id, data, callback.from_user.language_code, result['payment_id'], PaymentPlatform.YOOKASSA, message_id=sent_message.message_id)
+    await add_payment(
+        callback.from_user.id,
+        data,
+        callback.from_user.language_code,
+        result['payment_id'],
+        PaymentPlatform.YOOKASSA,
+        message_id=sent_message.message_id,
+        from_notification=from_notification
+    )
 
     await callback.answer()
 
@@ -144,6 +156,10 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     if data not in goods.get_callbacks():
         await callback.answer()
         return
+
+    state_data = await state.get_data()
+    from_notification = 'profile_message_id' not in state_data
+
     good = goods.get(data)
     discount = await get_user_promo_discount(callback.from_user.id)
     price = int(good['price']['stars'] * (1 - discount / 100))
@@ -161,7 +177,15 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     )
 
     from db.methods import add_payment, PaymentPlatform
-    await add_payment(callback.from_user.id, data, callback.from_user.language_code, data, PaymentPlatform.TELEGRAM, message_id=sent_message.message_id)
+    await add_payment(
+        callback.from_user.id,
+        data,
+        callback.from_user.language_code,
+        data,
+        PaymentPlatform.TELEGRAM,
+        message_id=sent_message.message_id,
+        from_notification=from_notification
+    )
 
     await callback.answer()
 
@@ -172,6 +196,10 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
     if data not in goods.get_callbacks():
         await callback.answer()
         return
+
+    state_data = await state.get_data()
+    from_notification = 'profile_message_id' not in state_data
+
     result = await cryptomus.create_payment(
         callback.from_user.id,
         data,
@@ -186,7 +214,15 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
         reply_markup=get_pay_keyboard(result['url'], data))
 
     from db.methods import add_payment, PaymentPlatform
-    await add_payment(callback.from_user.id, data, callback.from_user.language_code, result['order_id'], PaymentPlatform.CRYPTOMUS, message_id=sent_message.message_id)
+    await add_payment(
+        callback.from_user.id,
+        data,
+        callback.from_user.language_code,
+        result['order_id'],
+        PaymentPlatform.CRYPTOMUS,
+        message_id=sent_message.message_id,
+        from_notification=from_notification
+    )
 
     await callback.answer()
 
@@ -356,6 +392,12 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         pass
 
     state_data = await state.get_data()
+
+    if state_data.get('payment_from_notification'):
+        await state.update_data(payment_from_notification=False)
+        await callback.answer()
+        return
+
     profile_message_id = state_data.get('profile_message_id')
 
     panel = get_panel()
@@ -410,6 +452,14 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         )
         await state.update_data(profile_message_id=sent_message.message_id)
 
+    await callback.answer()
+
+@router.callback_query(F.data == "dismiss_payment_success_notification")
+async def callback_dismiss_payment_success_notification(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except:
+        pass
     await callback.answer()
 
 @router.callback_query(F.data == "dismiss_after_install")
