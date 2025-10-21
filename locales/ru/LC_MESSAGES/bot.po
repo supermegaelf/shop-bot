@@ -91,18 +91,10 @@ msgstr "Начать 🚀"
 msgid "button_frequent_questions"
 msgstr "Частые вопросы 📝"
 
-#: bot/keyboards/help.py:13,15
-msgid "button_terms_of_service"
-msgstr "Условия использования 📃"
-
-#: bot/keyboards/help.py:9
-msgid "button_support"
-msgstr "Поддержка ❤️"
-
 #: bot/keyboards/messages.py:44
 #: bot/keyboards/main_menu.py:10
 msgid "button_help"
-msgstr "Помощь 🕊"
+msgstr "Помощь ❤️"
 
 #: bot/keyboards/user_profile.py:44
 msgid "button_renew"
@@ -183,13 +175,9 @@ msgstr "1️⃣ Перезагрузите устройство.\n"
 "\n"
 "5️⃣ Выключите VPN и измерьте скорость интернета по <a href=\"https://speed.cloudflare.com/\">ссылке</a>. Дождитесь завершения теста (надпись <i>«Running»</i> исчезнет). Если скорость ниже 40 Мбит/с, найдите место с лучшим сигналом сотовой связи."
 
-#: bot/keyboards/support.py:27
-msgid "button_support_failed"
-msgstr "Ничего не помогло 🆘"
-
 #: bot/keyboards/support.py:15
 msgid "button_other_question"
-msgstr "Другой вопрос❔"
+msgstr "Задать вопрос 🧑🏻‍💻"
 
 #: bot/keyboards/callbacks.py:149
 msgid "message_frequent_questions"

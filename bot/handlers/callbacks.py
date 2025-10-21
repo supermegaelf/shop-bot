@@ -16,7 +16,6 @@ from keyboards import (
     get_back_to_help_keyboard,
     get_help_keyboard,
     get_months_keyboard,
-    get_support_keyboard,
     get_install_subscription_keyboard,
     get_user_profile_keyboard
 )
@@ -290,15 +289,6 @@ async def callback_help(callback: CallbackQuery):
     except:
         pass
     await callback.message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
-    await callback.answer()
-
-@router.callback_query(F.data == "support")
-async def callback_support(callback: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    from_profile = 'profile_message_id' in data
-
-    await callback.message.delete()
-    await callback.message.answer(text=_("message_issue_prompt"), reply_markup=get_support_keyboard(from_profile=from_profile))
     await callback.answer()
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
