@@ -39,12 +39,9 @@ msgstr ""
 "With our VPN you may:\n"
 "- Try it for free 🆓\n"
 "- Use📱, 💻 and 📺 at the same time\n"
-"- Forget about ads 🕊"
-
-#: bot/handlers/commands.py:44
-msgid "message_select_welcome_action"
-msgstr "Ready? 🏄🏻‍♂️\n"
-"Select action ⬇️"
+"- Forget about ads 🕊\n\n"
+"Ready? 🏄🏻‍♂️\n"
+"Press the button below ⬇️"
 
 #: bot/handlers/callbacks.py:43
 msgid "message_select_traffic_amount"
@@ -79,7 +76,7 @@ msgstr ""
 #: bot/keyboards/help.py:22
 #: bot/keyboards/support.py:18,30
 msgid "button_back"
-msgstr "⏪ Back"
+msgstr "⬅️ Back"
 
 #: bot/keyboards/buy_menu.py:15
 msgid "{title} – {price_ru} ₽"
@@ -88,7 +85,7 @@ msgstr ""
 #: bot/keyboards/messages.py:22
 #: bot/keyboards/main_menu.py:9
 msgid "button_vpn_access"
-msgstr "Access to VPN 🏄🏻‍♂️"
+msgstr "Start 🚀"
 
 #: bot/keyboards/help.py:10
 msgid "button_frequent_questions"
@@ -150,7 +147,7 @@ msgstr "Select payment period ⬇️"
 #: bot/keyboards/callbacks.py:161
 #: bot/keyboards/messages.py:46
 msgid "message_select_action"
-msgstr "Select action ⬇️"
+msgstr "Select option ⬇️"
 
 #: bot/keyboards/callbacks.py:167
 msgid "message_issue_prompt"
@@ -233,7 +230,7 @@ msgstr "on_hold ⚠️"
 
 #: bot/keyboards/callbacks.py:155
 msgid "message_terms_of_service"
-msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n" 
+msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n"
 "Refunds are not provided. The use of torrent clients for downloading or sharing files is prohibited. By subscribing, you confirm your agreement with the terms of use."
 
 #: bot/keyboards/month.py:18
@@ -344,4 +341,4 @@ msgstr "Broadcast completed ✅\n\n"
 "Failed to send: {fail_count}"
 
 msgid "button_dismiss"
-msgstr "Dismiss ⏫"
+msgstr "⬅️ Back"
