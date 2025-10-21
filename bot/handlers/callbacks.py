@@ -89,7 +89,7 @@ async def callback_extend_data_limit(callback: CallbackQuery):
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     if not panel_profile or not panel_profile.data_limit or not panel_profile.expire:
-        await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
+        await callback.answer(_("message_error"), show_alert=True)
         return
 
     subscription_months_left = (panel_profile.expire.timestamp() - datetime.now().timestamp()) / 2592000
@@ -111,7 +111,7 @@ async def callback_extend_data_limit(callback: CallbackQuery):
                 reply_markup=keyboard
             )
     else:
-        await callback.answer(_("message_error"), reply_markup=get_main_menu_keyboard())
+        await callback.answer(_("message_error"), show_alert=True)
 
     await callback.answer()
 
@@ -194,9 +194,7 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
 async def callback_trial(callback: CallbackQuery):
     result = await is_trial_available(callback.from_user.id)
     if not result:
-        await callback.message.answer(
-            _("message_subscription_access"),
-            reply_markup=get_main_menu_keyboard())
+        await callback.answer(_("message_subscription_access"), show_alert=True)
         return
     result = await get_vpn_user(callback.from_user.id)
     panel = get_panel()
@@ -235,16 +233,10 @@ async def callback_payment(callback: CallbackQuery):
 async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     from_profile = 'profile_message_id' in data
-    
+
     await callback.message.delete()
     await callback.message.answer(_("message_frequent_questions").format(shop_name=glv.config['SHOP_NAME']), reply_markup=get_back_to_help_keyboard(from_profile=from_profile))
     await callback.answer()
-
-# @router.callback_query(F.data == "tos")
-# async def callback_terms_of_service(callback: CallbackQuery):
-#     await callback.message.delete()
-#     await callback.message.answer(text=_("message_terms_of_service"), reply_markup=get_back_to_help_keyboard())
-#     await callback.answer()
 
 @router.callback_query(F.data == "help_from_profile")
 async def callback_help_from_profile(callback: CallbackQuery):
@@ -268,7 +260,7 @@ async def callback_help(callback: CallbackQuery):
 async def callback_support(callback: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     from_profile = 'profile_message_id' in data
-    
+
     await callback.message.delete()
     await callback.message.answer(text=_("message_issue_prompt"), reply_markup=get_support_keyboard(from_profile=from_profile))
     await callback.answer()
@@ -286,12 +278,6 @@ async def callback_payment_method_select(callback: CallbackQuery):
         await callback.message.delete()
         await callback.message.answer(text=_("message_select_payment_method"), reply_markup=get_payment_keyboard(good))
 
-    await callback.answer()
-
-@router.callback_query(F.data == "back_to_main")
-async def callback_back_to_main(callback: CallbackQuery):
-    await callback.message.delete()
-    await callback.message.answer(_("message_welcome").format(name=callback.from_user.first_name), reply_markup=get_main_menu_keyboard(callback.from_user.language_code))
     await callback.answer()
 
 @router.callback_query(F.data == "back_to_profile")
