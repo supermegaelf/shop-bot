@@ -57,8 +57,8 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
 
     builder.row(
         InlineKeyboardButton(
-            text=_("button_back"),
-            callback_data="back_to_main"
+            text=_("button_help"),
+            callback_data="help_from_profile"
         )
     )
 

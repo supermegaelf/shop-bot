@@ -7,10 +7,7 @@ def get_main_menu_keyboard(lang=None) -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(text=get_i18n_str("button_vpn_access", lang), callback_data="vpn_access")
-        ],
-        [
-            InlineKeyboardButton(text=get_i18n_str("button_help", lang), callback_data="help")
-        ],
+        ]
     ]
 
     return InlineKeyboardMarkup(inline_keyboard=kb)

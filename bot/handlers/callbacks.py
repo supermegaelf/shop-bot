@@ -232,9 +232,12 @@ async def callback_payment(callback: CallbackQuery):
     await callback.answer()
 
 @router.callback_query(F.data == "faq")
-async def callback_frequent_questions(callback: CallbackQuery):
+async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    from_profile = 'profile_message_id' in data
+    
     await callback.message.delete()
-    await callback.message.answer(_("message_frequent_questions").format(shop_name=glv.config['SHOP_NAME']), reply_markup=get_back_to_help_keyboard())
+    await callback.message.answer(_("message_frequent_questions").format(shop_name=glv.config['SHOP_NAME']), reply_markup=get_back_to_help_keyboard(from_profile=from_profile))
     await callback.answer()
 
 # @router.callback_query(F.data == "tos")
@@ -242,6 +245,15 @@ async def callback_frequent_questions(callback: CallbackQuery):
 #     await callback.message.delete()
 #     await callback.message.answer(text=_("message_terms_of_service"), reply_markup=get_back_to_help_keyboard())
 #     await callback.answer()
+
+@router.callback_query(F.data == "help_from_profile")
+async def callback_help_from_profile(callback: CallbackQuery):
+    try:
+        await callback.message.delete()
+    except:
+        pass
+    await callback.message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard(from_profile=True))
+    await callback.answer()
 
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery):
@@ -253,9 +265,12 @@ async def callback_help(callback: CallbackQuery):
     await callback.answer()
 
 @router.callback_query(F.data == "support")
-async def callback_terms_of_service(callback: CallbackQuery):
+async def callback_support(callback: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    from_profile = 'profile_message_id' in data
+    
     await callback.message.delete()
-    await callback.message.answer(text=_("message_issue_prompt"), reply_markup=get_support_keyboard())
+    await callback.message.answer(text=_("message_issue_prompt"), reply_markup=get_support_keyboard(from_profile=from_profile))
     await callback.answer()
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
@@ -276,8 +291,7 @@ async def callback_payment_method_select(callback: CallbackQuery):
 @router.callback_query(F.data == "back_to_main")
 async def callback_back_to_main(callback: CallbackQuery):
     await callback.message.delete()
-    combined_message = _("message_welcome").format(name=callback.from_user.first_name) + "\n\n" + _("message_select_welcome_action")
-    await callback.message.answer(combined_message, reply_markup=get_main_menu_keyboard(callback.from_user.language_code))
+    await callback.message.answer(_("message_welcome").format(name=callback.from_user.first_name), reply_markup=get_main_menu_keyboard(callback.from_user.language_code))
     await callback.answer()
 
 @router.callback_query(F.data == "back_to_profile")

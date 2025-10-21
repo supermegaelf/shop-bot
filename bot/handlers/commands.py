@@ -38,20 +38,7 @@ async def start(message: Message):
         await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
                          reply_markup=get_main_menu_keyboard())   
     else:
-        combined_message = _("message_welcome").format(name=message.from_user.first_name) + "\n\n" + _("message_select_welcome_action")
-        await message.answer(combined_message, reply_markup=get_main_menu_keyboard())
-
-@router.message(
-    Command("access")
-)
-async def access(message: Message):
-    await profile(message)
-
-@router.message(
-    Command("help")
-)
-async def open_help(message: Message):
-    await help(message)
+        await message.answer(_("message_welcome").format(name=message.from_user.first_name), reply_markup=get_main_menu_keyboard())
 
 def register_commands(dp: Dispatcher):
     dp.include_router(router)
