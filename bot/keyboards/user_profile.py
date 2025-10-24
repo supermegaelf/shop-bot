@@ -64,12 +64,14 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
 
     return builder.as_markup()
 
-def get_buy_more_traffic_keyboard(lang, back=True) -> InlineKeyboardMarkup:
+def get_buy_more_traffic_keyboard(lang, back=True, from_notification=False) -> InlineKeyboardMarkup:
+    callback_data = 'extend_data_limit_notification' if from_notification else 'extend_data_limit'
+    
     kb = [
         [
             InlineKeyboardButton(
                 text=get_i18n_string("button_buy_more_traffic", lang),
-                callback_data='extend_data_limit')
+                callback_data=callback_data)
         ]
     ]
     if back:
