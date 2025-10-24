@@ -114,6 +114,12 @@ async def callback_extend_data_limit(callback: CallbackQuery):
 
     await callback.answer()
 
+@router.callback_query(F.data == "extend_data_limit_notification")
+async def callback_extend_data_limit_notification(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(payment_from_notification=True)
+
+    await callback_extend_data_limit(callback)
+
 @router.callback_query(F.data.startswith("pay_kassa_"))
 async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
     await callback.message.delete()
@@ -123,7 +129,7 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
         return
 
     state_data = await state.get_data()
-    from_notification = 'profile_message_id' not in state_data
+    from_notification = state_data.get('payment_from_notification', False) or ('profile_message_id' not in state_data)
 
     result = await yookassa.create_payment(
         callback.from_user.id,
@@ -157,7 +163,7 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
         return
 
     state_data = await state.get_data()
-    from_notification = 'profile_message_id' not in state_data
+    from_notification = state_data.get('payment_from_notification', False) or ('profile_message_id' not in state_data)
 
     good = goods.get(data)
     discount = await get_user_promo_discount(callback.from_user.id)
@@ -197,7 +203,7 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
         return
 
     state_data = await state.get_data()
-    from_notification = 'profile_message_id' not in state_data
+    from_notification = state_data.get('payment_from_notification', False) or ('profile_message_id' not in state_data)
 
     result = await cryptomus.create_payment(
         callback.from_user.id,

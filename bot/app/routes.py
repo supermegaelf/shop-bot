@@ -180,7 +180,7 @@ async def notify_user(request: Request):
         match action:
             case "reached_usage_percent":
                 message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
-                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case "reached_days_left":
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
@@ -192,7 +192,7 @@ async def notify_user(request: Request):
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
             case "user_limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case _:
                 return web.Response()
 
@@ -245,7 +245,7 @@ async def notify_user(request: Request):
         match event:
             case "user.bandwidth_usage_threshold_reached":
                 message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['usedTrafficBytes'])))
-                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
@@ -257,7 +257,7 @@ async def notify_user(request: Request):
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
             case "user.limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case _:
                 return web.Response()
 
