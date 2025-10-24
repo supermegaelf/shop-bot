@@ -41,21 +41,22 @@ async def profile(message: Message, state: FSMContext):
     keyboard = await get_user_profile_keyboard(message.from_user.id, show_buy_traffic_button, url)
     sent_message = await message.answer(
         text=_("subscription_data").format(
-            status=status, 
-            expire_date=expire_date, 
-            data_used=data_used, 
-            data_limit=data_limit, 
+            status=status,
+            expire_date=expire_date,
+            data_used=data_used,
+            data_limit=data_limit,
             link=glv.config['TG_INFO_CHANEL']
         ),
         reply_markup=keyboard,
         disable_web_page_preview=True
     )
-    
+
     await state.update_data(profile_message_id=sent_message.message_id)
 
 @router.message(F.text == __("button_help"))
-async def help(message: Message):
-    await message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
+async def help(message: Message, state: FSMContext):
+    sent_message = await message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
+    await state.update_data(profile_message_id=sent_message.message_id)
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):
@@ -90,27 +91,31 @@ async def process_promo(message: Message, state: FSMContext):
     promo = await get_promo_code_by_code(promo_code)
     if not promo:
         kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-        await message.answer(text=_("message_promo_not_found"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+        sent_message = await message.answer(text=_("message_promo_not_found"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
         await state.clear()
+        await state.update_data(profile_message_id=sent_message.message_id)
         return
 
     if promo.expires_at and promo.expires_at < datetime.now():
         kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-        await message.answer(text=_("message_promo_expired"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+        sent_message = await message.answer(text=_("message_promo_expired"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
         await state.clear()
+        await state.update_data(profile_message_id=sent_message.message_id)
         return
 
     if await has_activated_promo_code(tg_id, promo.id):
         kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-        await message.answer(text=_("message_promo_already_activated"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+        sent_message = await message.answer(text=_("message_promo_already_activated"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
         await state.clear()
+        await state.update_data(profile_message_id=sent_message.message_id)
         return
 
     await activate_promo_code(tg_id, promo.id)
     kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-    await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent),
-                         reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+    sent_message = await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent),
+                        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
     await state.clear()
+    await state.update_data(profile_message_id=sent_message.message_id)
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)
