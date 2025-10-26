@@ -122,7 +122,7 @@ class RemnawavePanel(Panel):
                 user_expire_at = datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00'))
 
                 if user_expire_at < datetime.now(UTC):
-                    reset_response = await self.client.post(f"/users/{user_uuid}/reset-traffic")
+                    reset_response = await self.client.post(f"/users/{user_uuid}/actions/reset-traffic")
                     reset_response.raise_for_status()
                     new_expire_at = datetime.now(UTC) + timedelta(days=months*30)
                 else:
