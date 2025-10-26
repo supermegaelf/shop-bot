@@ -66,7 +66,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
 
 def get_buy_more_traffic_keyboard(lang, back=True, from_notification=False) -> InlineKeyboardMarkup:
     callback_data = 'extend_data_limit_notification' if from_notification else 'extend_data_limit'
-    
+
     kb = [
         [
             InlineKeyboardButton(
@@ -78,7 +78,7 @@ def get_buy_more_traffic_keyboard(lang, back=True, from_notification=False) -> I
         kb.append([InlineKeyboardButton(text=get_i18n_string("button_back", lang), callback_data="back_to_profile")])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
-def get_renew_subscription_keyboard(lang, back=True) -> InlineKeyboardMarkup:
+def get_renew_subscription_keyboard(lang, back=True, from_notification=False) -> InlineKeyboardMarkup:
     kb = [
         [
             InlineKeyboardButton(

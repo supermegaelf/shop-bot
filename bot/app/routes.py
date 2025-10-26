@@ -188,10 +188,10 @@ async def notify_user(request: Request):
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case "user_expired":
                 message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case "user_limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
@@ -255,10 +255,10 @@ async def notify_user(request: Request):
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case "user.expired":
                 message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case "user.limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
