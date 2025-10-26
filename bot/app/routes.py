@@ -179,7 +179,9 @@ async def notify_user(request: Request):
         keyboard = None
         match action:
             case "reached_usage_percent":
-                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(data['used_percent'])))
+                usage_percent = int(data.get('usage_percent', 80))
+                remaining_percent = 100 - usage_percent
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=remaining_percent)
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case "reached_days_left":
                 panel = get_panel()
@@ -244,7 +246,9 @@ async def notify_user(request: Request):
         keyboard = None
         match event:
             case "user.bandwidth_usage_threshold_reached":
-                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=(100 - int(payload['data']['usedTrafficBytes'])))
+                threshold = int(payload['data'].get('threshold_percent', 80))
+                remaining_percent = 100 - threshold
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=remaining_percent)
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
