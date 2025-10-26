@@ -10,7 +10,6 @@ config = {
     'TEST_PERIOD': os.environ.get('TEST_PERIOD', False) == 'true',
     'PERIOD_LIMIT': int(os.environ.get('PERIOD_LIMIT', 72)),
     'ABOUT': os.environ.get('ABOUT'),
-    'RULES_LINK': os.environ.get('RULES_LINK'),
     'SUPPORT_LINK': os.environ.get('SUPPORT_LINK'),
     'DB_URL': f"mysql+asyncmy://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASS')}@{os.environ.get('DB_ADDRESS')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}",
     'YOOKASSA_TOKEN': os.environ.get('YOOKASSA_TOKEN'),
