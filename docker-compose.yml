@@ -15,7 +15,6 @@ services:
             TEST_PERIOD: ${TEST_PERIOD}
             PERIOD_LIMIT: ${PERIOD_LIMIT}
             ABOUT: ${ABOUT}
-            RULES_LINK: ${RULES_LINK}
             SUPPORT_LINK: ${SUPPORT_LINK}
             YOOKASSA_TOKEN: ${YOOKASSA_TOKEN}
             YOOKASSA_SHOPID: ${YOOKASSA_SHOPID}
