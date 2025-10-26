@@ -384,7 +384,7 @@ async def callback_dismiss_notification(callback: CallbackQuery):
         pass
     await callback.answer()
 
-@router.callback_query(F.data == "dismiss_payment_success")
+@router.callback_query(F.data.in_(["dismiss_payment_success", "dismiss_payment_success_notification"]))
 async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMContext):
     try:
         await callback.message.delete()
@@ -392,78 +392,8 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         pass
 
     state_data = await state.get_data()
-
-    if state_data.get('payment_from_notification'):
-        await state.update_data(payment_from_notification=False)
-        await callback.answer()
-        return
-
     profile_message_id = state_data.get('profile_message_id')
-
-    panel = get_panel()
-    panel_profile = await panel.get_panel_user(callback.from_user.id)
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
-        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
-
-    text = _("subscription_data").format(
-        status=status,
-        expire_date=expire_date,
-        data_used=data_used,
-        data_limit=data_limit,
-        link=glv.config['TG_INFO_CHANEL']
-    )
-
-    if profile_message_id:
-        try:
-            await glv.bot.edit_message_text(
-                text=text,
-                chat_id=callback.from_user.id,
-                message_id=profile_message_id,
-                reply_markup=keyboard,
-                disable_web_page_preview=True
-            )
-        except Exception as e:
-            logging.debug(f"Could not update profile message: {e}")
-            sent_message = await callback.message.answer(
-                text=text,
-                reply_markup=keyboard,
-                disable_web_page_preview=True
-            )
-            await state.update_data(profile_message_id=sent_message.message_id)
-    else:
-        sent_message = await callback.message.answer(
-            text=text,
-            reply_markup=keyboard,
-            disable_web_page_preview=True
-        )
-        await state.update_data(profile_message_id=sent_message.message_id)
-
-    await callback.answer()
-
-@router.callback_query(F.data == "dismiss_payment_success_notification")
-async def callback_dismiss_payment_success_notification(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except:
-        pass
-
-    state_data = await state.get_data()
-    profile_message_id = state_data.get('profile_message_id')
-
+    
     if profile_message_id:
         try:
             await glv.bot.delete_message(callback.from_user.id, profile_message_id)
@@ -472,6 +402,7 @@ async def callback_dismiss_payment_success_notification(callback: CallbackQuery,
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
+    
     if panel_profile:
         url = panel_profile.subscription_url
         status = _(panel_profile.status)
@@ -502,70 +433,6 @@ async def callback_dismiss_payment_success_notification(callback: CallbackQuery,
     )
 
     await state.update_data(profile_message_id=sent_message.message_id)
-    await callback.answer()
-
-@router.callback_query(F.data == "dismiss_after_install")
-async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except:
-        pass
-
-    state_data = await state.get_data()
-    profile_message_id = state_data.get('profile_message_id')
-
-    panel = get_panel()
-    panel_profile = await panel.get_panel_user(callback.from_user.id)
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
-        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    keyboard = await get_user_profile_keyboard(callback.from_user.id, show_buy_traffic_button, url)
-
-    text = _("subscription_data").format(
-        status=status,
-        expire_date=expire_date,
-        data_used=data_used,
-        data_limit=data_limit,
-        link=glv.config['TG_INFO_CHANEL']
-    )
-
-    if profile_message_id:
-        try:
-            await glv.bot.edit_message_text(
-                text=text,
-                chat_id=callback.from_user.id,
-                message_id=profile_message_id,
-                reply_markup=keyboard,
-                disable_web_page_preview=True
-            )
-        except Exception as e:
-            logging.debug(f"Could not update profile message: {e}")
-            sent_message = await callback.message.answer(
-                text=text,
-                reply_markup=keyboard,
-                disable_web_page_preview=True
-            )
-            await state.update_data(profile_message_id=sent_message.message_id)
-    else:
-        sent_message = await callback.message.answer(
-            text=text,
-            reply_markup=keyboard,
-            disable_web_page_preview=True
-        )
-        await state.update_data(profile_message_id=sent_message.message_id)
-
     await callback.answer()
 
 @router.callback_query(F.data == "dismiss_after_install")
