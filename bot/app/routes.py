@@ -86,7 +86,6 @@ async def check_crypto_payment(request: Request):
                     reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
                 )
         await use_all_promo_codes(payment.tg_id)
-        await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'cancel':
         await delete_payment(payment.payment_id)
     return web.Response()
@@ -147,7 +146,6 @@ async def check_yookassa_payment(request: Request):
                     get_i18n_string("message_new_subscription_created", payment.lang),
                     reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
                 )
-        await use_all_promo_codes(payment.tg_id)
         await use_all_promo_codes(payment.tg_id)
     if data['status'] == 'canceled':
         await delete_payment(payment.payment_id)
