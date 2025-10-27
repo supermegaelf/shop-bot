@@ -1,8 +1,3 @@
-# Russian translations for PROJECT.
-# Copyright (C) 2023 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
@@ -19,19 +14,15 @@ msgstr ""
 "Generated-By: Babel 2.12.1\n"
 "X-Generator: Poedit 2.0.2\n"
 
-#: bot/handlers/callbacks.py:63
 msgid "To be paid – {amount} ₽ ⬇️"
 msgstr "К оплате – {amount} ₽ ⬇️"
 
-#: bot/handlers/callbacks.py:108
 msgid "To be paid – {amount} $ ⬇️"
 msgstr "️К оплате – {amount} $ ⬇️"
 
-#: bot/handlers/callbacks.py:191
 msgid "message_select_payment_method"
 msgstr "Выберите способ оплаты ⬇️"
 
-#: bot/handlers/commands.py:41
 msgid "message_welcome"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -43,113 +34,89 @@ msgstr ""
 "Готовы? 🏄🏻‍♂️\n"
 "Нажмите на кнопку ниже ⬇️"
 
-#: bot/handlers/callbacks.py:43
 msgid "message_select_traffic_amount"
 msgstr "Выберите подходящий объём трафика ⬇️"
 
-#: bot/handlers/callbacks.py:25
 msgid "message_traffic_renewal_info"
 msgstr "Трафик обновляется ежемесячно, начиная с даты покупки.\n\n"
 "Выберите подходящий объём трафика на месяц (закончится — докупите ещё 🙃) ⬇️"
 
-#: bot/handlers/user_profile.py:38
 msgid "\n\nFollow the link below to install VPN ⬇️\n\n{link}"
 msgstr "\n\nПерейдите по ссылке ниже, чтобы установить VPN ⬇️\n\n{link}"
 
-#: bot/handlers/callbacks.py:120
 msgid "message_subscription_access"
 msgstr "Ваша подписка доступна в разделе <i>«Доступ к VPN 🏄🏻‍♂️»</i>."
 
-#: bot/handlers/payments.py:35
 msgid "message_new_subscription_created"
 msgstr ""
+"Подписка активирована ✅\n️"
+"\n"
 "Благодарим за ваш выбор ❤️\n️"
 "\n"
 "Чтобы начать пользоваться VPN, нажмите на кнопку ниже ⬇️"
 
 msgid "message_payment_success"
 msgstr ""
+"Оплата прошла успешно ✅\n️"
+"\n"
 "Спасибо, что вы с нами ❤️\n️"
 "\n"
 "Приятного сёрфинга 🏄🏻‍♂️"
 
-#: bot/keyboards/help.py:22
-#: bot/keyboards/support.py:18,30
 msgid "button_back"
 msgstr "⬅️ Назад"
 
-#: bot/keyboards/buy_menu.py:15
 msgid "{title} – {price_ru} ₽"
 msgstr "{title} – {price_ru} ₽"
 
-#: bot/keyboards/messages.py:22
-#: bot/keyboards/main_menu.py:9
 msgid "button_vpn_access"
 msgstr "Начать 🚀"
 
-#: bot/keyboards/help.py:10
 msgid "button_frequent_questions"
 msgstr "Частые вопросы 📝"
 
-#: bot/keyboards/messages.py:44
-#: bot/keyboards/main_menu.py:10
 msgid "button_help"
 msgstr "Помощь ❤️"
 
-#: bot/keyboards/user_profile.py:44
 msgid "button_renew"
 msgstr "Продлить 💳"
 
-#: bot/keyboards/user_profile.py:16
 msgid "button_free_trial"
 msgstr "5 дней бесплатно 🆓"
 
-#: bot/keyboards/user_profile.py:31
 msgid "button_install"
 msgstr "Установить ⚙️"
 
-#: bot/keyboards/confirmation.py:7
 msgid "button_yes"
 msgstr "✅ Да"
 
-#: bot/keyboards/confirmation.py:8
 msgid "button_no"
 msgstr "❌ Нет"
 
-#: bot/keyboards/user_profile.py:37
 msgid "button_share"
 msgstr "Поделиться 🔗"
 
-#: bot/handlers/callbacks.py:84
 msgid "To be paid – {amount} ⭐️ ⬇️"
 msgstr "К оплате – {amount} ⭐️ ⬇️"
 
-#: bot/keyboards/user_profile.py:44
 msgid "button_pay"
 msgstr "Оплатить 💳"
 
-#: bot/keyboards/pay.py:9
 msgid "button_pay_action"
 msgstr "Оплатить"
 
-#: bot/keyboards/callbacks.py:143
 msgid "message_select_payment_period"
 msgstr "Выберете период оплаты ⬇️"
 
-#: bot/keyboards/callbacks.py:161
-#: bot/keyboards/messages.py:46
 msgid "message_select_action"
 msgstr "Выберите вариант ⬇️"
 
-#: bot/keyboards/callbacks.py:167
 msgid "message_issue_prompt"
 msgstr "Выберите вариант ⬇️"
 
-#: bot/keyboards/support.py:9
 msgid "button_vpn_setup_issue"
 msgstr "Не могу установить VPN 🔌"
 
-#: bot/keyboards/callbacks.py:173
 msgid "message_set_up_vpn"
 msgstr "1️⃣ Перейдите в раздел <i>«Доступ к VPN 🏄🏻‍♂️»</i>.\n"
 "\n"
@@ -159,11 +126,9 @@ msgstr "1️⃣ Перейдите в раздел <i>«Доступ к VPN 🏄
 "\n"
 "4️⃣ Выполните установку по инструкции."
 
-#: bot/keyboards/support.py:12
 msgid "button_vpn_not_working"
 msgstr "Не работает VPN ⛔️"
 
-#: bot/keyboards/callbacks.py:180
 msgid "message_usage_problem"
 msgstr "1️⃣ Перезагрузите устройство.\n"
 "\n"
@@ -175,11 +140,9 @@ msgstr "1️⃣ Перезагрузите устройство.\n"
 "\n"
 "5️⃣ Выключите VPN и измерьте скорость интернета по <a href=\"https://speed.cloudflare.com/\">ссылке</a>. Дождитесь завершения теста (надпись <i>«Running»</i> исчезнет). Если скорость ниже 40 Мбит/с, найдите место с лучшим сигналом сотовой связи."
 
-#: bot/keyboards/support.py:15
 msgid "button_other_question"
 msgstr "Задать вопрос 🧑🏻‍💻"
 
-#: bot/keyboards/callbacks.py:149
 msgid "message_frequent_questions"
 msgstr "<b>1. Что такое VPN?</b>\n\n"
 "Это защищённый канал через удалённый сервер, который позволяет обеспечить конфиденциальность вашего трафика.\n\n"
@@ -190,7 +153,6 @@ msgstr "<b>1. Что такое VPN?</b>\n\n"
 "<b>4. Сколько устройств я могу подключить?</b>\n\n"
 "Вы можете подключить любое количество устройств, ограничение распространяется только на объём трафика."
 
-#: bot/keyboards/messages.py:40
 msgid "subscription_data"
 msgstr ""
 "Статус подписки: {status}\n"
@@ -216,32 +178,25 @@ msgstr "истекла ⛔️"
 msgid "on_hold"
 msgstr "приостановлена ⚠️"
 
-#: bot/keyboards/callbacks.py:155
 msgid "message_terms_of_service"
 msgstr "Услуга предоставляется исключительно для установления защищённого сетевого соединения, необходимого для удалённой работы или обмена личными данными.\n\n"
 "Возврат средств не осуществляется. Использование торрент-клиентов для загрузки или раздачи файлов запрещено. Оформляя подписку, вы подтверждаете согласие с условиями использования."
 
-#: bot/keyboards/month.py:18
 msgid "{months} months – from {price} ₽"
 msgstr "{months} мес. – от {price} ₽"
 
-#: bot/keyboards/payments.py:23
 msgid "button_card"
 msgstr "Банковская карта 💳"
 
-#: bot/keyboards/payments.py:30
 msgid "button_cryptocurrency"
 msgstr "Криптовалюта 💲"
 
-#: bot/keyboards/user_profile.py:23
 msgid "button_buy_more_traffic"
 msgstr "Докупить трафик ➕"
 
-#: bot/keyboards/callbacks.py:33,47,126
 msgid "message_error"
 msgstr "Упс! Что-то пошло не так..."
 
-#: bot/app/routes.py:129
 msgid "message_reached_usage_percent"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -250,7 +205,6 @@ msgstr ""
 "\n"
 "Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
 
-#: bot/app/routes.py:131
 msgid "message_reached_days_left"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -259,7 +213,6 @@ msgstr ""
 "\n"
 "Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
 
-#: bot/app/routes.py:133
 msgid "message_user_expired"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -270,7 +223,6 @@ msgstr ""
 "\n"
 "Чтобы продолжить пользоваться сервисом, нажмите на кнопку ниже ⬇️"
 
-#: bot/app/routes.py:135
 msgid "message_user_limited"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n"
@@ -279,31 +231,21 @@ msgstr ""
 "\n"
 "Чтобы продолжить пользоваться сервисом, нажмите на кнопку ниже ⬇️"
 
-#: bot/keyboards/commands.py:29
-#: bot/keyboards/messages.py:61
 msgid "message_promo_not_found"
 msgstr "Промокод не найден. Пожалуйста, проверьте ввод ⛔️"
 
-#: bot/keyboards/commands.py:32
-#: bot/keyboards/messages.py:66
 msgid "message_promo_expired"
 msgstr "Промокод истек. Пожалуйста, используйте другой промокод ⛔️"
 
-#: bot/keyboards/commands.py:35
-#: bot/keyboards/messages.py:71
 msgid "message_promo_already_activated"
 msgstr "Этот промокод уже был активирован ⛔️"
 
-#: bot/keyboards/commands.py:38
-#: bot/keyboards/messages.py:76
 msgid "message_promo_activated"
 msgstr "Скидка {discount}% на первый месяц активирована ✅"
 
-#: bot/keyboards/messages.py:50
 msgid "message_enter_promo"
 msgstr "Введите промокод ⬇️"
 
-#: bot/keyboards/user_profile.py:52
 msgid "button_promo_code"
 msgstr "Промокод 🎁"
 
