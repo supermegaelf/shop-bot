@@ -100,7 +100,7 @@ async def has_activated_promo_code(tg_id: int, promo_code_id: int) -> bool:
 
 async def activate_promo_code(tg_id: int, promo_code_id: int):
     async with engine.connect() as conn:
-        sql_query = insert(UserPromoCode).values(tg_id=tg_id, promo_code_id=promo_code_id)
+        sql_query = insert(UserPromoCode).values(tg_id=tg_id, promo_code_id=promo_code_id, activated_at=datetime.now())
         await conn.execute(sql_query)
         await conn.commit()
 
