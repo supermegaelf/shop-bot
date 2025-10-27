@@ -35,6 +35,7 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
 @router.message(F.successful_payment)
 async def success_payment(message: Message, state: FSMContext):
     from db.methods import get_payment, PaymentPlatform
+    from utils import MessageCleanup
     
     payment = await get_payment(message.successful_payment.invoice_payload, PaymentPlatform.TELEGRAM)
     
@@ -55,6 +56,8 @@ async def success_payment(message: Message, state: FSMContext):
     
     from_notification = payment.from_notification if payment else False
     
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    
     if good['type'] == 'renew':
         is_trial = await is_test_subscription(message.from_user.id)
         if is_trial:
@@ -66,14 +69,16 @@ async def success_payment(message: Message, state: FSMContext):
 
     user_has_payments = await has_confirmed_payments(message.from_user.id)
     if user_has_payments:
-        await glv.bot.send_message(message.from_user.id,
-            _("message_payment_success"),
+        await cleanup.send_success(
+            chat_id=message.from_user.id,
+            text=_("message_payment_success"),
             reply_markup=get_payment_success_keyboard(message.from_user.language_code, from_notification)
         )
     else:
         subscription_url = panel_profile.subscription_url
-        await glv.bot.send_message(message.from_user.id,
-            _("message_new_subscription_created"),
+        await cleanup.send_important(
+            chat_id=message.from_user.id,
+            text=_("message_new_subscription_created"),
             reply_markup=get_install_subscription_keyboard(subscription_url, message.from_user.language_code)
         )
 

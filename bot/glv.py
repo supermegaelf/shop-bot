@@ -37,3 +37,4 @@ config = {
 bot: Bot = None
 storage = None
 dp: Dispatcher = None
+MESSAGE_CLEANUP_DEBUG = os.environ.get('MESSAGE_CLEANUP_DEBUG', 'false') == 'true'
