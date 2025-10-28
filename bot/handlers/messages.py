@@ -22,6 +22,8 @@ class PromoStates(StatesGroup):
 
 @router.message(F.text == __("button_vpn_access"))
 async def profile(message: Message, state: FSMContext):
+    from utils import MessageCleanup
+    
     panel = get_panel()
     panel_profile = await panel.get_panel_user(message.from_user.id)
     if panel_profile:
@@ -38,8 +40,12 @@ async def profile(message: Message, state: FSMContext):
         data_used = "–"
         data_limit = "–"
         show_buy_traffic_button = False
+    
     keyboard = await get_user_profile_keyboard(message.from_user.id, show_buy_traffic_button, url)
-    sent_message = await message.answer(
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_profile(
+        chat_id=message.from_user.id,
         text=_("subscription_data").format(
             status=status,
             expire_date=expire_date,
@@ -51,26 +57,38 @@ async def profile(message: Message, state: FSMContext):
         disable_web_page_preview=True
     )
 
-    await state.update_data(profile_message_id=sent_message.message_id)
-
 @router.message(F.text == __("button_help"))
 async def help(message: Message, state: FSMContext):
-    sent_message = await message.answer(text=_("message_select_action"), reply_markup=get_help_keyboard())
-    await state.update_data(profile_message_id=sent_message.message_id)
+    from utils import MessageCleanup
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=message.from_user.id,
+        text=_("message_select_action"),
+        reply_markup=get_help_keyboard()
+    )
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):
+    from utils import MessageCleanup
+    
     kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-    sent_message = await callback.message.edit_text(
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.edit_navigation(
+        chat_id=callback.from_user.id,
+        message_id=callback.message.message_id,
         text=_("message_enter_promo"),
         reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
     )
-    await state.update_data(prompt_message_id=sent_message.message_id)
+    
     await state.set_state(PromoStates.waiting_for_promo)
     await callback.answer()
 
 @router.message(PromoStates.waiting_for_promo)
 async def process_promo(message: Message, state: FSMContext):
+    from utils import MessageCleanup
+    
     promo_code = message.text.strip().upper()
     tg_id = message.from_user.id
 
@@ -79,43 +97,45 @@ async def process_promo(message: Message, state: FSMContext):
     except:
         pass
 
-    data = await state.get_data()
-    prompt_message_id = data.get('prompt_message_id')
-
-    if prompt_message_id:
-        try:
-            await message.bot.delete_message(message.from_user.id, prompt_message_id)
-        except:
-            pass
-
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    
     promo = await get_promo_code_by_code(promo_code)
+    kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
+    
     if not promo:
-        kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-        sent_message = await message.answer(text=_("message_promo_not_found"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+        await cleanup.send_navigation(
+            chat_id=tg_id,
+            text=_("message_promo_not_found"),
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+        )
         await state.clear()
-        await state.update_data(profile_message_id=sent_message.message_id)
         return
 
     if promo.expires_at and promo.expires_at < datetime.now():
-        kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-        sent_message = await message.answer(text=_("message_promo_expired"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+        await cleanup.send_navigation(
+            chat_id=tg_id,
+            text=_("message_promo_expired"),
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+        )
         await state.clear()
-        await state.update_data(profile_message_id=sent_message.message_id)
         return
 
     if await has_activated_promo_code(tg_id, promo.id):
-        kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-        sent_message = await message.answer(text=_("message_promo_already_activated"), reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+        await cleanup.send_navigation(
+            chat_id=tg_id,
+            text=_("message_promo_already_activated"),
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+        )
         await state.clear()
-        await state.update_data(profile_message_id=sent_message.message_id)
         return
 
     await activate_promo_code(tg_id, promo.id)
-    kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
-    sent_message = await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent),
-                        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
+    await cleanup.send_navigation(
+        chat_id=tg_id,
+        text=_("message_promo_activated").format(discount=promo.discount_percent),
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+    )
     await state.clear()
-    await state.update_data(profile_message_id=sent_message.message_id)
 
 def register_messages(dp: Dispatcher):
     dp.include_router(router)

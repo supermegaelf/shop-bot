@@ -4,3 +4,4 @@ from . import webhook_data
 from . import yookassa
 from .lang import get_i18n_string
 from .ephemeral import EphemeralNotification
+from .message_cleanup import MessageCleanup, MessageType
