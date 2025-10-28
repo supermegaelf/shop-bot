@@ -3,7 +3,7 @@ from enum import Enum
 from datetime import datetime
 
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy import insert, select, update, delete
+from sqlalchemy import insert, select, update, delete, exists
 
 from db.models import VPNUsers, Payments, PromoCode, UserPromoCode
 import glv
@@ -118,9 +118,12 @@ async def get_user_promo_discount(tg_id: int) -> float:
 
 async def has_confirmed_payments(tg_id: int) -> bool:
     async with engine.connect() as conn:
-        sql_query = select(Payments).where(Payments.tg_id == tg_id, Payments.confirmed == True)
-        result = (await conn.execute(sql_query)).fetchone()
-    return result is not None
+        sql_query = select(exists().where(
+            Payments.tg_id == tg_id, 
+            Payments.confirmed == True
+        ))
+        result = (await conn.execute(sql_query)).scalar()
+    return result
 
 async def use_all_promo_codes(tg_id: int):
     async with engine.connect() as conn:
