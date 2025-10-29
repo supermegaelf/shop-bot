@@ -32,15 +32,7 @@ import glv
 router = Router(name="callbacks-router")
 
 
-@router.callback_query(F.data == "vpn_access")
-async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except:
-        pass
-
-    panel = get_panel()
-    panel_profile = await panel.get_panel_user(callback.from_user.id)
+def _format_profile_data(panel_profile):
     if panel_profile:
         url = panel_profile.subscription_url
         status = _(panel_profile.status)
@@ -64,26 +56,50 @@ async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
         data_used = "–"
         data_limit = "–"
         show_buy_traffic_button = False
+    
+    return {
+        "url": url,
+        "status": status,
+        "expire_date": expire_date,
+        "data_used": data_used,
+        "data_limit": data_limit,
+        "show_buy_traffic_button": show_buy_traffic_button,
+    }
 
-    from keyboards import get_user_profile_keyboard
 
+async def _build_and_send_profile(cleanup: MessageCleanup, user_id: int, panel_profile):
+    profile_data = _format_profile_data(panel_profile)
+    
     keyboard = await get_user_profile_keyboard(
-        callback.from_user.id, show_buy_traffic_button, url
+        user_id, profile_data["show_buy_traffic_button"], profile_data["url"]
     )
-
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    
     await cleanup.send_profile(
-        chat_id=callback.from_user.id,
+        chat_id=user_id,
         text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
+            status=profile_data["status"],
+            expire_date=profile_data["expire_date"],
+            data_used=profile_data["data_used"],
+            data_limit=profile_data["data_limit"],
             link=glv.config["TG_INFO_CHANEL"],
         ),
         reply_markup=keyboard,
         disable_web_page_preview=True,
     )
+
+
+@router.callback_query(F.data == "vpn_access")
+async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
+
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
 
     await callback.answer()
 
@@ -360,7 +376,7 @@ async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext)
 
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
@@ -374,10 +390,9 @@ async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery, state: FSMContext):
-
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
@@ -407,54 +422,13 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
 
 @router.callback_query(F.data == "back_to_profile")
 async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.back_to_profile(callback.from_user.id, callback.message.message_id)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = (
-            f"{panel_profile.data_limit // 1073741824}"
-            if panel_profile.data_limit
-            else "∞"
-        )
-        show_buy_traffic_button = (
-            panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-        )
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    from keyboards import get_user_profile_keyboard
-
-    keyboard = await get_user_profile_keyboard(
-        callback.from_user.id, show_buy_traffic_button, url
-    )
-
-    await cleanup.send_profile(
-        chat_id=callback.from_user.id,
-        text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
-            link=glv.config["TG_INFO_CHANEL"],
-        ),
-        reply_markup=keyboard,
-        disable_web_page_preview=True,
-    )
+    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
+    
     await callback.answer()
 
 
@@ -503,10 +477,9 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "dismiss_notification")
 async def callback_dismiss_notification(callback: CallbackQuery, state: FSMContext):
-
     try:
         await callback.message.delete()
-    except:
+    except Exception:
         pass
 
     await callback.answer()
@@ -514,53 +487,14 @@ async def callback_dismiss_notification(callback: CallbackQuery, state: FSMConte
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = (
-            f"{panel_profile.data_limit // 1073741824}"
-            if panel_profile.data_limit
-            else "∞"
-        )
-        show_buy_traffic_button = (
-            panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-        )
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    keyboard = await get_user_profile_keyboard(
-        callback.from_user.id, show_buy_traffic_button, url
-    )
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
 
     try:
         await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except:
+    except Exception:
         pass
 
-    await cleanup.send_profile(
-        chat_id=callback.from_user.id,
-        text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
-            link=glv.config["TG_INFO_CHANEL"],
-        ),
-        reply_markup=keyboard,
-        disable_web_page_preview=True,
-    )
+    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
 
 
 @router.callback_query(F.data == "dismiss_payment_success")
@@ -578,34 +512,6 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = (
-            f"{panel_profile.data_limit // 1073741824}"
-            if panel_profile.data_limit
-            else "∞"
-        )
-        show_buy_traffic_button = (
-            panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-        )
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    keyboard = await get_user_profile_keyboard(
-        callback.from_user.id, show_buy_traffic_button, url
-    )
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
 
     try:
@@ -613,18 +519,7 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
     except Exception as e:
         logging.warning(f"Cleanup failed: {e}")
 
-    await cleanup.send_profile(
-        chat_id=callback.from_user.id,
-        text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
-            link=glv.config["TG_INFO_CHANEL"],
-        ),
-        reply_markup=keyboard,
-        disable_web_page_preview=True,
-    )
+    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
 
     logging.info(f"Profile sent to user {callback.from_user.id}")
 
@@ -648,34 +543,6 @@ async def callback_dismiss_payment_success_notification(
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = (
-            f"{panel_profile.data_limit // 1073741824}"
-            if panel_profile.data_limit
-            else "∞"
-        )
-        show_buy_traffic_button = (
-            panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-        )
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    keyboard = await get_user_profile_keyboard(
-        callback.from_user.id, show_buy_traffic_button, url
-    )
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
 
     try:
@@ -683,71 +550,20 @@ async def callback_dismiss_payment_success_notification(
     except Exception as e:
         logging.warning(f"Cleanup failed: {e}")
 
-    await cleanup.send_profile(
-        chat_id=callback.from_user.id,
-        text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
-            link=glv.config["TG_INFO_CHANEL"],
-        ),
-        reply_markup=keyboard,
-        disable_web_page_preview=True,
-    )
+    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
 
     logging.info(f"Profile sent to user {callback.from_user.id}")
 
 
 @router.callback_query(F.data == "dismiss_after_install")
 async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMContext):
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.back_to_profile(callback.from_user.id, callback.message.message_id)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
-    if panel_profile:
-        url = panel_profile.subscription_url
-        status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
-        data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
-        data_limit = (
-            f"{panel_profile.data_limit // 1073741824}"
-            if panel_profile.data_limit
-            else "∞"
-        )
-        show_buy_traffic_button = (
-            panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
-        )
-    else:
-        url = ""
-        status = "–"
-        expire_date = "–"
-        data_used = "–"
-        data_limit = "–"
-        show_buy_traffic_button = False
-
-    keyboard = await get_user_profile_keyboard(
-        callback.from_user.id, show_buy_traffic_button, url
-    )
-
-    await cleanup.send_profile(
-        chat_id=callback.from_user.id,
-        text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
-            link=glv.config["TG_INFO_CHANEL"],
-        ),
-        reply_markup=keyboard,
-        disable_web_page_preview=True,
-    )
+    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
 
     await callback.answer()
 
