@@ -214,6 +214,7 @@ class MessageCleanup:
                 text=text,
                 reply_markup=reply_markup
             )
+            await self.register_message(chat_id, message_id, MessageType.NAVIGATION)
             return True
         except TelegramBadRequest:
             await self._delete_message(chat_id, message_id)
