@@ -241,7 +241,7 @@ msgid "message_broadcast_start"
 msgstr "Введите сообщение для рассылки ⬇️"
 
 msgid "message_confirm_broadcast"
-msgstr "Вы собираетесь отправить следующее сообщение:\n\n{text}\n\n"
+msgstr "Вы собираетесь отправить следующее сообщение ⬇️\n\n{text}\n\n"
 "Отправить?"
 
 msgid "message_invalid_confirmation"
