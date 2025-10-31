@@ -114,9 +114,6 @@ msgstr "Select option ⬇️"
 msgid "message_issue_prompt"
 msgstr "Select option ⬇️"
 
-msgid "button_vpn_setup_issue"
-msgstr "Can't set up VPN 🔌"
-
 msgid "message_set_up_vpn"
 msgstr "1️⃣ Go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section.\n"
 "\n"
@@ -128,17 +125,6 @@ msgstr "1️⃣ Go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section.\n"
 
 msgid "button_vpn_not_working"
 msgstr "VPN doesn't work ⛔️"
-
-msgid "message_usage_problem"
-msgstr "1️⃣ Reboot your device.\n"
-"\n"
-"2️⃣ Update your smartphone firmware and VPN app to the latest versions.\n"
-"\n"
-"3️⃣ Check the status of your subscription in the <i>«Access to VPN 🏄🏻‍♂️»</i> section. It must be active.\n"
-"\n"
-"4️⃣ If using a smartphone, update the geosite and geodat files in the app according to the <a href=\"{link}\">instructions</a>.\n"
-"\n"
-"5️⃣ Turn off the VPN and measure the internet speed using the <a href=\"https://speed.cloudflare.com/\">link</a>. Wait for the test to complete (<i>«Running»</i> will disappear). If the speed is below 40 Mbps, find a location with a better cellular signal."
 
 msgid "button_other_question"
 msgstr "Ask question 🧑🏻‍💻"
@@ -177,10 +163,6 @@ msgstr "expired ⛔️"
 
 msgid "on_hold"
 msgstr "on_hold ⚠️"
-
-msgid "message_terms_of_service"
-msgstr "The service is provided exclusively for establishing a secure network connection necessary for remote work or exchanging personal data.\n\n"
-"Refunds are not provided. The use of torrent clients for downloading or sharing files is prohibited. By subscribing, you confirm your agreement with the terms of use."
 
 msgid "{months} months – from {price} ₽"
 msgstr ""
@@ -232,16 +214,22 @@ msgstr ""
 "To continue using our service, click the button below ⬇️"
 
 msgid "message_promo_not_found"
-msgstr "Promo code not found. Please try again ⛔️"
+msgstr ""
+"Promo code not found ⛔️\n"
+"\n"
+"Please check your entry."
 
 msgid "message_promo_expired"
-msgstr "Promo code has expired. Please use another promo code ⛔️"
+msgstr ""
+"Promo code expired ⛔️\n"
+"\n"
+"Please use another one."
 
 msgid "message_promo_already_activated"
 msgstr "This promo code has already been activated ⛔️"
 
 msgid "message_promo_activated"
-msgstr "Promo code activated! Your discount is {discount}% ✅"
+msgstr "{discount}% discount activated ✅"
 
 msgid "message_enter_promo"
 msgstr "Enter the promo code ⬇️"
