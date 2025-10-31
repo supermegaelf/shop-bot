@@ -238,7 +238,7 @@ msgid "button_promo_code"
 msgstr "Promo code 🎁"
 
 msgid "message_broadcast_start"
-msgstr "Enter the message for the broadcast:"
+msgstr "Enter the message for the broadcast ⬇️"
 
 msgid "message_confirm_broadcast"
 msgstr "You are about to send the following message:\n\n{text}\n\n"
