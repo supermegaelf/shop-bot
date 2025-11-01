@@ -136,7 +136,7 @@ class MarzbanPanel(Panel):
         if res:
             user = await self.api.get_user(username)
             user['status'] = 'active'
-            if user['expire'] < time.time():
+            if user['expire'] is None or user['expire'] < time.time():
                 await self.api.user_data_limit_reset(username)
                 user['expire'] = self.get_subscription_end_date(months)
             else:
@@ -162,7 +162,7 @@ class MarzbanPanel(Panel):
         if res:
             user = await self.api.get_user(username)
             user['status'] = 'active'
-            if user['expire'] < time.time():
+            if user['expire'] is None or user['expire'] < time.time():
                 user['expire'] = self.get_test_subscription_end_date(glv.config['PERIOD_LIMIT'])
             else:
                 user['expire'] += self.get_test_subscription_end_date(glv.config['PERIOD_LIMIT'], True)
