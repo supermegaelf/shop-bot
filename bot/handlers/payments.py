@@ -49,12 +49,12 @@ async def success_payment(message: Message, state: FSMContext):
     if payment and payment.message_id:
         try:
             await glv.bot.delete_message(message.from_user.id, payment.message_id)
-        except:
+        except Exception:
             pass
 
     try:
         await message.delete()
-    except:
+    except Exception:
         pass
 
     panel = get_panel()

@@ -17,15 +17,8 @@ import glv
 
 router = Router(name="messages-router")
 
-class PromoStates(StatesGroup):
-    waiting_for_promo = State()
 
-@router.message(F.text == __("button_vpn_access"))
-async def profile(message: Message, state: FSMContext):
-    from utils import MessageCleanup
-    
-    panel = get_panel()
-    panel_profile = await panel.get_panel_user(message.from_user.id)
+def _format_profile_data(panel_profile):
     if panel_profile:
         url = panel_profile.subscription_url
         status = _(panel_profile.status)
@@ -41,21 +34,49 @@ async def profile(message: Message, state: FSMContext):
         data_limit = "–"
         show_buy_traffic_button = False
     
-    keyboard = await get_user_profile_keyboard(message.from_user.id, show_buy_traffic_button, url)
+    return {
+        "url": url,
+        "status": status,
+        "expire_date": expire_date,
+        "data_used": data_used,
+        "data_limit": data_limit,
+        "show_buy_traffic_button": show_buy_traffic_button,
+    }
+
+
+async def _build_and_send_profile(cleanup, user_id: int, panel_profile):
+    profile_data = _format_profile_data(panel_profile)
     
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    keyboard = await get_user_profile_keyboard(
+        user_id, profile_data["show_buy_traffic_button"], profile_data["url"]
+    )
+    
     await cleanup.send_profile(
-        chat_id=message.from_user.id,
+        chat_id=user_id,
         text=_("subscription_data").format(
-            status=status,
-            expire_date=expire_date,
-            data_used=data_used,
-            data_limit=data_limit,
+            status=profile_data["status"],
+            expire_date=profile_data["expire_date"],
+            data_used=profile_data["data_used"],
+            data_limit=profile_data["data_limit"],
             link=glv.config['TG_INFO_CHANEL']
         ),
         reply_markup=keyboard,
         disable_web_page_preview=True
     )
+
+
+class PromoStates(StatesGroup):
+    waiting_for_promo = State()
+
+@router.message(F.text == __("button_vpn_access"))
+async def profile(message: Message, state: FSMContext):
+    from utils import MessageCleanup
+    
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(message.from_user.id)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await _build_and_send_profile(cleanup, message.from_user.id, panel_profile)
 
 @router.message(F.text == __("button_help"))
 async def help(message: Message, state: FSMContext):
@@ -94,7 +115,7 @@ async def process_promo(message: Message, state: FSMContext):
 
     try:
         await message.delete()
-    except:
+    except Exception:
         pass
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)

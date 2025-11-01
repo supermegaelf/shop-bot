@@ -37,6 +37,54 @@ YOOKASSA_IPS = (
     "2a02:5180::/32"
 )
 
+
+async def _process_payment_success(payment, good, user):
+    panel = get_panel()
+    
+    if good['type'] == 'renew':
+        is_trial = await is_test_subscription(payment.tg_id)
+        if is_trial:
+            await disable_trial(payment.tg_id)
+        await panel.reset_subscription_data_limit(user.vpn_id)
+        panel_profile = await panel.generate_subscription(
+            username=user.vpn_id, 
+            months=good['months'], 
+            data_limit=good['data_limit']
+        )
+    else:
+        panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
+
+    if payment.message_id:
+        try:
+            await glv.bot.delete_message(payment.tg_id, payment.message_id)
+        except Exception:
+            pass
+
+    if good['type'] == 'update':
+        await glv.bot.send_message(
+            payment.tg_id,
+            get_i18n_string("message_payment_success", payment.lang),
+            reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
+        )
+    else:
+        await confirm_payment(payment.payment_id)
+        user_has_payments = await has_confirmed_payments(payment.tg_id)
+        if user_has_payments:
+            await glv.bot.send_message(
+                payment.tg_id,
+                get_i18n_string("message_payment_success", payment.lang),
+                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
+            )
+        else:
+            subscription_url = panel_profile.subscription_url
+            await glv.bot.send_message(
+                payment.tg_id,
+                get_i18n_string("message_new_subscription_created", payment.lang),
+                reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+            )
+    
+    await use_all_promo_codes(payment.tg_id)
+
 async def check_crypto_payment(request: Request):
     client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For') or request.remote
     if client_ip not in ["91.227.144.54"]:
@@ -45,110 +93,48 @@ async def check_crypto_payment(request: Request):
     if not webhook_data.check(data, glv.config['CRYPTO_TOKEN']):
         return web.Response(status=403)
     payment = await get_payment(data['order_id'], PaymentPlatform.CRYPTOMUS)
-    if payment == None:
+    if payment is None:
         return web.Response()
+    
     if data['status'] in ['paid', 'paid_over']:
-        panel = get_panel()
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
-        if good['type'] == 'renew':
-            is_trial = await is_test_subscription(payment.tg_id)
-            if is_trial:
-                await disable_trial(payment.tg_id)
-            await panel.reset_subscription_data_limit(user.vpn_id)
-            panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
-        else:
-            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
-
-        if payment.message_id:
-            try:
-                await glv.bot.delete_message(payment.tg_id, payment.message_id)
-            except:
-                pass
-
-        if good['type'] == 'update':
-            await glv.bot.send_message(payment.tg_id,
-                get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
-            )
-        else:
-            await confirm_payment(payment.payment_id)
-            user_has_payments = await has_confirmed_payments(payment.tg_id)
-            if user_has_payments:
-                await glv.bot.send_message(payment.tg_id,
-                    get_i18n_string("message_payment_success", payment.lang),
-                    reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
-                )
-            else:
-                subscription_url = panel_profile.subscription_url
-                await glv.bot.send_message(payment.tg_id,
-                    get_i18n_string("message_new_subscription_created", payment.lang),
-                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
-                )
-        await use_all_promo_codes(payment.tg_id)
+        await _process_payment_success(payment, good, user)
+    
     if data['status'] == 'cancel':
         await delete_payment(payment.payment_id)
+    
     return web.Response()
+
+def _check_ip_in_subnets(client_ip: str, subnets: tuple) -> bool:
+    for subnet in subnets:
+        if "/" in subnet:
+            if ipaddress.ip_address(client_ip) in ipaddress.ip_network(subnet):
+                return True
+        else:
+            if client_ip == subnet:
+                return True
+    return False
+
 
 async def check_yookassa_payment(request: Request):
     client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For') or request.remote
-    f = True
-    for subnet in YOOKASSA_IPS:
-        if "/" in subnet:
-            if ipaddress.ip_address(client_ip) in ipaddress.ip_network(subnet):
-                f = False
-                break
-        else:
-            if client_ip == subnet:
-                f = False
-                break
-    if f:
+    if not _check_ip_in_subnets(client_ip, YOOKASSA_IPS):
         return web.Response(status=403)
+    
     data = (await request.json())['object']
     payment = await get_payment(data['id'], PaymentPlatform.YOOKASSA)
-    if payment == None:
+    if payment is None:
         return web.Response()
+    
     if data['status'] in ['succeeded']:
-        panel = get_panel()
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
-        if good['type'] == 'renew':
-            is_trial = await is_test_subscription(payment.tg_id)
-            if is_trial:
-                await disable_trial(payment.tg_id)
-            await panel.reset_subscription_data_limit(user.vpn_id)
-            panel_profile = await panel.generate_subscription(username=user.vpn_id, months=good['months'], data_limit=good['data_limit'])
-        else:
-            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
-
-        if payment.message_id:
-            try:
-                await glv.bot.delete_message(payment.tg_id, payment.message_id)
-            except:
-                pass
-
-        if good['type'] == 'update':
-            await glv.bot.send_message(payment.tg_id,
-                get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
-            )
-        else:
-            await confirm_payment(payment.payment_id)
-            user_has_payments = await has_confirmed_payments(payment.tg_id)
-            if user_has_payments:
-                await glv.bot.send_message(payment.tg_id,
-                    get_i18n_string("message_payment_success", payment.lang),
-                    reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
-                )
-            else:
-                subscription_url = panel_profile.subscription_url
-                await glv.bot.send_message(payment.tg_id,
-                    get_i18n_string("message_new_subscription_created", payment.lang),
-                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
-                )
-        await use_all_promo_codes(payment.tg_id)
+        await _process_payment_success(payment, good, user)
+    
     if data['status'] == 'canceled':
         await delete_payment(payment.payment_id)
+    
     return web.Response()
 
 async def notify_user(request: Request):
@@ -184,6 +170,8 @@ async def notify_user(request: Request):
             case "reached_days_left":
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return web.Response()
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
@@ -251,6 +239,8 @@ async def notify_user(request: Request):
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return web.Response()
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
