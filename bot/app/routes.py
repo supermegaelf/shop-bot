@@ -170,6 +170,8 @@ async def notify_user(request: Request):
             case "reached_days_left":
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return web.Response()
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
@@ -237,6 +239,8 @@ async def notify_user(request: Request):
             case s if s.startswith('user.expires_in'):
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return web.Response()
                 time_of_expiration = panel_profile.expire.strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
