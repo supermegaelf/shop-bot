@@ -9,11 +9,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards import get_user_profile_keyboard, get_help_keyboard, get_main_menu_keyboard
+from keyboards import get_user_profile_keyboard, get_help_keyboard
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
 from panel import get_panel
 
 import glv
+from utils import MessageCleanup, try_delete_message
 
 router = Router(name="messages-router")
 
@@ -70,8 +71,6 @@ class PromoStates(StatesGroup):
 
 @router.message(F.text == __("button_vpn_access"))
 async def profile(message: Message, state: FSMContext):
-    from utils import MessageCleanup
-    
     panel = get_panel()
     panel_profile = await panel.get_panel_user(message.from_user.id)
     
@@ -80,8 +79,6 @@ async def profile(message: Message, state: FSMContext):
 
 @router.message(F.text == __("button_help"))
 async def help(message: Message, state: FSMContext):
-    from utils import MessageCleanup
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=message.from_user.id,
@@ -91,8 +88,6 @@ async def help(message: Message, state: FSMContext):
 
 @router.callback_query(lambda c: c.data == "enter_promo")
 async def promo_start(callback: CallbackQuery, state: FSMContext):
-    from utils import MessageCleanup
-    
     kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
@@ -108,15 +103,10 @@ async def promo_start(callback: CallbackQuery, state: FSMContext):
 
 @router.message(PromoStates.waiting_for_promo)
 async def process_promo(message: Message, state: FSMContext):
-    from utils import MessageCleanup
-    
     promo_code = message.text.strip().upper()
     tg_id = message.from_user.id
 
-    try:
-        await message.delete()
-    except Exception:
-        pass
+    await try_delete_message(message)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     
