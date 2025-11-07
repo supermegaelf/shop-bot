@@ -5,7 +5,7 @@ from aiogram.types import Message, PreCheckoutQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from utils import goods
+from utils import goods, MessageCleanup, try_delete_message
 from db.methods import (
     get_vpn_user,
     add_payment,
@@ -14,12 +14,11 @@ from db.methods import (
     disable_trial,
     use_all_promo_codes,
     has_confirmed_payments,
+    get_payment,
 )
 from keyboards import (
-    get_main_menu_keyboard,
     get_install_subscription_keyboard,
     get_payment_success_keyboard,
-    get_user_profile_keyboard,
 )
 from panel import get_panel
 import glv
@@ -39,9 +38,6 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
 
 @router.message(F.successful_payment)
 async def success_payment(message: Message, state: FSMContext):
-    from db.methods import get_payment, PaymentPlatform
-    from utils import MessageCleanup
-
     payment = await get_payment(
         message.successful_payment.invoice_payload, PaymentPlatform.TELEGRAM
     )
@@ -52,10 +48,7 @@ async def success_payment(message: Message, state: FSMContext):
         except Exception:
             pass
 
-    try:
-        await message.delete()
-    except Exception:
-        pass
+    await try_delete_message(message)
 
     panel = get_panel()
     good = goods.get(message.successful_payment.invoice_payload)

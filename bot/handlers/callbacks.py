@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import asyncio
 import logging
 
 from aiogram import Router, F, Dispatcher
@@ -25,7 +24,7 @@ from db.methods import (
     get_vpn_user,
     get_user_promo_discount,
 )
-from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType
+from utils import goods, yookassa, cryptomus, MessageCleanup, try_delete_message
 from panel import get_panel
 import glv
 
@@ -90,10 +89,7 @@ async def _build_and_send_profile(cleanup: MessageCleanup, user_id: int, panel_p
 
 @router.callback_query(F.data == "vpn_access")
 async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
+    await try_delete_message(callback.message)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -170,7 +166,7 @@ async def callback_extend_data_limit_notification(
 @router.callback_query(F.data.startswith("pay_kassa_"))
 async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
     data = callback.data.replace("pay_kassa_", "")
     if data not in goods.get_callbacks():
         await callback.answer()
@@ -210,7 +206,7 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("pay_stars_"))
 async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
     data = callback.data.replace("pay_stars_", "")
     if data not in goods.get_callbacks():
         await callback.answer()
@@ -262,7 +258,7 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("pay_crypto_"))
 async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
     data = callback.data.replace("pay_crypto_", "")
     if data not in goods.get_callbacks():
         await callback.answer()
@@ -325,7 +321,7 @@ async def callback_trial(callback: CallbackQuery, state: FSMContext):
     await start_trial(callback.from_user.id)
     subscription_url = panel_profile.subscription_url
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_important(
@@ -360,7 +356,7 @@ async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext
     data = await state.get_data()
     from_profile = "profile_message_id" in data
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -374,10 +370,7 @@ async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext
 @router.callback_query(F.data == "help_from_profile")
 async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext):
 
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
+    await try_delete_message(callback.message)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -390,10 +383,7 @@ async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
+    await try_delete_message(callback.message)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -435,7 +425,7 @@ async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("back_to_payment_"))
 async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
     good_callback = callback.data.replace("back_to_payment_", "")
     good = goods.get(good_callback)
 
@@ -451,7 +441,7 @@ async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("back_to_traffic_"))
 async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
 
-    await callback.message.delete()
+    await try_delete_message(callback.message)
     parts = callback.data.replace("back_to_traffic_", "").split("_")
     purchase_type = parts[0]
     months = int(parts[1])
@@ -477,10 +467,7 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "dismiss_notification")
 async def callback_dismiss_notification(callback: CallbackQuery, state: FSMContext):
-    try:
-        await callback.message.delete()
-    except Exception:
-        pass
+    await try_delete_message(callback.message)
 
     await callback.answer()
 
@@ -501,11 +488,11 @@ async def callback_dismiss_notification(callback: CallbackQuery, state: FSMConte
 async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMContext):
     logging.info(f"dismiss_payment_success called by user {callback.from_user.id}")
 
-    try:
-        await callback.message.delete()
+    deleted = await try_delete_message(callback.message)
+    if deleted:
         logging.info(f"Message {callback.message.message_id} deleted")
-    except Exception as e:
-        logging.error(f"Failed to delete message: {e}")
+    else:
+        logging.warning(f"Message {callback.message.message_id} deletion skipped")
 
     await callback.answer()
 
@@ -532,11 +519,11 @@ async def callback_dismiss_payment_success_notification(
         f"dismiss_payment_success_notification called by user {callback.from_user.id}"
     )
 
-    try:
-        await callback.message.delete()
+    deleted = await try_delete_message(callback.message)
+    if deleted:
         logging.info(f"Message {callback.message.message_id} deleted")
-    except Exception as e:
-        logging.error(f"Failed to delete message: {e}")
+    else:
+        logging.warning(f"Message {callback.message.message_id} deletion skipped")
 
     await callback.answer()
 
