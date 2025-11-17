@@ -41,6 +41,7 @@ services:
             UPDATE_GEO_LINK: ${UPDATE_GEO_LINK}
             VPN_NOT_WORKING_LINK: ${VPN_NOT_WORKING_LINK}
             REMNAWAVE_TOKEN: ${REMNAWAVE_TOKEN}
+            MESSAGE_CLEANUP_DEBUG: ${MESSAGE_CLEANUP_DEBUG:-false}
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
