@@ -14,7 +14,7 @@ from aiogram.fsm.context import FSMContext
 from keyboards import get_main_menu_keyboard
 from .messages import profile, help
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
-from utils import MessageCleanup, try_delete_message
+from utils import MessageCleanup
 import glv
 
 router = Router(name="commands-router")
@@ -33,37 +33,41 @@ async def start(message: Message, state: FSMContext):
     
     await cleanup.cleanup_all(tg_id)
     
-    await try_delete_message(message, glv.MESSAGE_CLEANUP_DEBUG)
-    
     args = message.text.split()
     
     if len(args) > 1 and args[1].startswith("promo_"):
         promo_code = args[1].replace("promo_", "").upper()
         promo = await get_promo_code_by_code(promo_code)
         if not promo:
-            await message.answer(text=_("message_promo_not_found"), reply_markup=get_main_menu_keyboard())
+            sent_message = await message.answer(text=_("message_promo_not_found"), reply_markup=get_main_menu_keyboard())
+            await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
             return
     
         if promo.expires_at and promo.expires_at < datetime.now():
-            await message.answer(text=_("message_promo_expired"), reply_markup=get_main_menu_keyboard())
+            sent_message = await message.answer(text=_("message_promo_expired"), reply_markup=get_main_menu_keyboard())
+            await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
             return
     
         if await has_activated_promo_code(tg_id, promo.id):
-            await message.answer(text=_("message_promo_already_activated"), reply_markup=get_main_menu_keyboard())
+            sent_message = await message.answer(text=_("message_promo_already_activated"), reply_markup=get_main_menu_keyboard())
+            await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
             return
     
         try:
             await activate_promo_code(tg_id, promo.id)
-            await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
+            sent_message = await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
                              reply_markup=get_main_menu_keyboard())
+            await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
         except Exception as e:
             logging.error(f"Failed to activate promo code {promo_code} for user {tg_id}: {e}", exc_info=True)
-            await message.answer(
+            sent_message = await message.answer(
                 text=_("message_error") + "\n\n" + _("Failed to activate promo code. Please try again or contact support."),
                 reply_markup=get_main_menu_keyboard()
             )
+            await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
     else:
-        await message.answer(_("message_welcome").format(name=message.from_user.first_name), reply_markup=get_main_menu_keyboard())
+        sent_message = await message.answer(_("message_welcome").format(name=message.from_user.first_name), reply_markup=get_main_menu_keyboard())
+        await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
 
 def register_commands(dp: Dispatcher):
     dp.include_router(router)
