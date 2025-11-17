@@ -67,7 +67,7 @@ async def start(message: Message, state: FSMContext):
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
     else:
         sent_message = await message.answer(_("message_welcome").format(name=message.from_user.first_name), reply_markup=get_main_menu_keyboard())
-        await cleanup.register_message(tg_id, sent_message.message_id, MessageCleanup.MessageType.NAVIGATION)
+        await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
 
 def register_commands(dp: Dispatcher):
     dp.include_router(router)
