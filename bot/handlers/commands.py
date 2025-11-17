@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from datetime import datetime
 
 from aiogram import Router
@@ -44,9 +45,16 @@ async def start(message: Message, state: FSMContext):
             await message.answer(text=_("message_promo_already_activated"), reply_markup=get_main_menu_keyboard())
             return
     
-        await activate_promo_code(tg_id, promo.id)
-        await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
-                         reply_markup=get_main_menu_keyboard())
+        try:
+            await activate_promo_code(tg_id, promo.id)
+            await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
+                             reply_markup=get_main_menu_keyboard())
+        except Exception as e:
+            logging.error(f"Failed to activate promo code {promo_code} for user {tg_id}: {e}", exc_info=True)
+            await message.answer(
+                text=_("message_error") + "\n\n" + _("Failed to activate promo code. Please try again or contact support."),
+                reply_markup=get_main_menu_keyboard()
+            )
     else:
         await message.answer(_("message_welcome").format(name=message.from_user.first_name), reply_markup=get_main_menu_keyboard())
 
