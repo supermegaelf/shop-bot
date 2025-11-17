@@ -14,7 +14,7 @@ from aiogram.fsm.context import FSMContext
 from keyboards import get_main_menu_keyboard
 from .messages import profile, help
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
-from utils import MessageCleanup
+from utils import MessageCleanup, try_delete_message
 import glv
 
 router = Router(name="commands-router")
@@ -27,6 +27,8 @@ async def start(message: Message, state: FSMContext):
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.cleanup_all(tg_id)
+    
+    await try_delete_message(message, glv.MESSAGE_CLEANUP_DEBUG)
     
     args = message.text.split()
     
