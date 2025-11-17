@@ -31,6 +31,18 @@ async def start(message: Message, state: FSMContext):
     if glv.MESSAGE_CLEANUP_DEBUG:
         logging.info(f"Start command: state data for user {tg_id}: {state_data}")
     
+    previous_start_message_id = state_data.get('last_start_message_id')
+    if previous_start_message_id:
+        try:
+            await glv.bot.delete_message(tg_id, previous_start_message_id)
+            if glv.MESSAGE_CLEANUP_DEBUG:
+                logging.info(f"Deleted previous /start message {previous_start_message_id}")
+        except Exception as e:
+            if glv.MESSAGE_CLEANUP_DEBUG:
+                logging.debug(f"Failed to delete previous /start message: {e}")
+    
+    await state.update_data(last_start_message_id=message.message_id)
+    
     await cleanup.cleanup_all(tg_id)
     
     args = message.text.split()
