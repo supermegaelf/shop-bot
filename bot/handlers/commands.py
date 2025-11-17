@@ -26,6 +26,11 @@ async def start(message: Message, state: FSMContext):
     tg_id = message.from_user.id
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    
+    state_data = await state.get_data()
+    if glv.MESSAGE_CLEANUP_DEBUG:
+        logging.info(f"Start command: state data for user {tg_id}: {state_data}")
+    
     await cleanup.cleanup_all(tg_id)
     
     await try_delete_message(message, glv.MESSAGE_CLEANUP_DEBUG)

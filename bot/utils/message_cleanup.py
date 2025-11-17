@@ -156,7 +156,14 @@ class MessageCleanup:
 
     async def cleanup_all(self, chat_id: int):
         messages = await self._get_messages_state()
-        if not messages:
+        
+        if self.debug:
+            logging.info(f"Cleanup: cleanup_all called for chat {chat_id}, messages in state: {messages}")
+        
+        if not messages or all(
+            (isinstance(v, list) and not v) or (not isinstance(v, list) and v is None)
+            for v in messages.values()
+        ):
             if self.debug:
                 logging.debug(f"Cleanup: no messages to delete for chat {chat_id}")
             return
@@ -166,10 +173,14 @@ class MessageCleanup:
         for type_key, message_data in messages.items():
             if isinstance(message_data, list):
                 if message_data:
+                    if self.debug:
+                        logging.info(f"Cleanup: deleting {len(message_data)} {type_key} message(s): {message_data}")
                     await self._delete_messages(chat_id, message_data)
                     deleted_count += len(message_data)
                     messages[type_key] = []
             elif message_data is not None:
+                if self.debug:
+                    logging.info(f"Cleanup: deleting {type_key} message: {message_data}")
                 if await self._delete_message(chat_id, message_data):
                     deleted_count += 1
                 messages[type_key] = None
