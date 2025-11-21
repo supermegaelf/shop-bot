@@ -259,7 +259,7 @@ msgstr "Рассылка завершена ✅\n\n"
 "Не удалось отправить: {fail_count}"
 
 msgid "button_dismiss"
-msgstr "⬅️ Назад"
+msgstr "Скрыть ⬆️"
 
 msgid "button_admin_management"
 msgstr "Управление ⚙️"

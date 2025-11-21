@@ -259,7 +259,7 @@ msgstr "Broadcast completed ✅\n\n"
 "Failed to send: {fail_count}"
 
 msgid "button_dismiss"
-msgstr "⬅️ Back"
+msgstr "Hide ⬆️"
 
 msgid "button_admin_management"
 msgstr "Management ⚙️"
