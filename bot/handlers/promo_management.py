@@ -36,6 +36,8 @@ class PromoManagementStates(StatesGroup):
 async def callback_admin_promo_codes(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
+    await state.clear()
+    
     message_deleted = await try_delete_message(callback.message)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
@@ -59,7 +61,7 @@ async def callback_admin_add_promo(callback: CallbackQuery, state: FSMContext):
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_enter_promo_code"),
-        reply_markup=None,
+        reply_markup=get_promo_back_keyboard(),
         reuse_message=reuse_message,
     )
     
@@ -79,7 +81,7 @@ async def process_promo_code(message: Message, state: FSMContext):
         await cleanup.send_navigation(
             chat_id=message.from_user.id,
             text=_("message_invalid_promo_code"),
-            reply_markup=None,
+            reply_markup=get_promo_back_keyboard(),
         )
         return
     
@@ -89,7 +91,7 @@ async def process_promo_code(message: Message, state: FSMContext):
     await cleanup.send_navigation(
         chat_id=message.from_user.id,
         text=_("message_enter_promo_discount"),
-        reply_markup=None,
+        reply_markup=get_promo_back_keyboard(),
     )
     
     await state.set_state(PromoManagementStates.waiting_for_discount)
@@ -111,7 +113,7 @@ async def process_promo_discount(message: Message, state: FSMContext):
         await cleanup.send_navigation(
             chat_id=message.from_user.id,
             text=_("message_invalid_discount"),
-            reply_markup=None,
+            reply_markup=get_promo_back_keyboard(),
         )
         return
     
@@ -121,7 +123,7 @@ async def process_promo_discount(message: Message, state: FSMContext):
     await cleanup.send_navigation(
         chat_id=message.from_user.id,
         text=_("message_enter_promo_expires_at"),
-        reply_markup=None,
+        reply_markup=get_promo_back_keyboard(),
     )
     
     await state.set_state(PromoManagementStates.waiting_for_expires_at)
@@ -146,7 +148,7 @@ async def process_promo_expires_at(message: Message, state: FSMContext):
         await cleanup.send_navigation(
             chat_id=message.from_user.id,
             text=_("message_invalid_date_format"),
-            reply_markup=None,
+            reply_markup=get_promo_back_keyboard(),
         )
         return
     
