@@ -11,7 +11,7 @@ def get_main_menu_keyboard(user_id: int = None, lang=None) -> InlineKeyboardMark
         ]
     ]
 
-    if user_id and user_id in glv.config['ADMINS']:
+    if user_id and int(user_id) in glv.config['ADMINS']:
         kb.append([
             InlineKeyboardButton(text=get_i18n_str("button_admin_management", lang), callback_data="admin_management")
         ])
