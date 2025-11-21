@@ -139,3 +139,34 @@ async def get_vpn_users():
         sql_query = select(VPNUsers)
         result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
     return result
+
+async def get_active_promo_codes():
+    async with engine.connect() as conn:
+        sql_query = select(PromoCode).where(
+            PromoCode.expires_at > datetime.now()
+        ).order_by(PromoCode.created_at.desc())
+        result: list[PromoCode] = (await conn.execute(sql_query)).fetchall()
+    return result
+
+async def add_promo_code(code: str, discount_percent: int, expires_at: datetime = None):
+    async with engine.connect() as conn:
+        sql_query = insert(PromoCode).values(
+            code=code.upper(),
+            discount_percent=discount_percent,
+            expires_at=expires_at,
+            created_at=datetime.now()
+        )
+        await conn.execute(sql_query)
+        await conn.commit()
+
+async def delete_promo_code(promo_code_id: int):
+    async with engine.connect() as conn:
+        sql_query = delete(PromoCode).where(PromoCode.id == promo_code_id)
+        await conn.execute(sql_query)
+        await conn.commit()
+
+async def get_promo_code_by_id(promo_code_id: int) -> PromoCode:
+    async with engine.connect() as conn:
+        sql_query = select(PromoCode).where(PromoCode.id == promo_code_id)
+        result: PromoCode = (await conn.execute(sql_query)).fetchone()
+    return result
