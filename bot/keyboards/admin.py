@@ -70,6 +70,15 @@ def get_promo_delete_keyboard(promo_codes, lang=None) -> InlineKeyboardMarkup:
     
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
+def get_promo_back_keyboard(lang=None) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(text=get_i18n_str("button_back", lang), callback_data="admin_promo_codes")
+        ]
+    ]
+    
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
 def get_i18n_str(text: str, lang = None):
     if lang is None:
         return _(text)

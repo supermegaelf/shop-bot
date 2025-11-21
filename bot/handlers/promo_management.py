@@ -17,6 +17,7 @@ from db.methods import (
 from keyboards import (
     get_promo_codes_management_keyboard,
     get_promo_delete_keyboard,
+    get_promo_back_keyboard,
     get_admin_management_keyboard
 )
 from utils import MessageCleanup, try_delete_message
@@ -184,7 +185,7 @@ async def callback_admin_delete_promo(callback: CallbackQuery, state: FSMContext
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
             text=_("message_no_active_promos"),
-            reply_markup=get_promo_codes_management_keyboard(),
+            reply_markup=get_promo_back_keyboard(),
             reuse_message=reuse_message,
         )
         return
@@ -241,7 +242,7 @@ async def callback_admin_active_promos(callback: CallbackQuery, state: FSMContex
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
             text=_("message_no_active_promos"),
-            reply_markup=get_promo_codes_management_keyboard(),
+            reply_markup=get_promo_back_keyboard(),
             reuse_message=reuse_message,
         )
         return

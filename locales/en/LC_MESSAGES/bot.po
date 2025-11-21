@@ -294,7 +294,9 @@ msgstr ""
 "Select an action ⬇️"
 
 msgid "message_no_active_promos"
-msgstr "No active promo codes 🥲"
+msgstr ""
+"No active promo codes 🥲\n\n"
+"Select an action ⬇️"
 
 msgid "message_select_promo_to_delete"
 msgstr "Select promo code to delete ⬇️"
