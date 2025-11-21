@@ -21,6 +21,7 @@ from keyboards import (
     get_admin_management_keyboard,
     get_broadcast_confirmation_keyboard,
     get_broadcast_start_keyboard,
+    get_broadcast_dismiss_keyboard,
 )
 from db.methods import (
     is_trial_available,
@@ -592,6 +593,18 @@ async def callback_dismiss_payment_success_notification(
     logging.info(f"Profile sent to user {callback.from_user.id}")
 
 
+@router.callback_query(F.data == "dismiss_broadcast")
+async def callback_dismiss_broadcast(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    if not callback.message:
+        return
+    
+    if callback.message.chat.id != callback.from_user.id:
+        return
+    
+    await try_delete_message(callback.message)
+
 @router.callback_query(F.data == "dismiss_after_install")
 async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
@@ -680,7 +693,14 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
             continue
         
         try:
-            await glv.bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
+            lang = 'ru'
+            dismiss_keyboard = get_broadcast_dismiss_keyboard(lang=lang)
+            await glv.bot.send_message(
+                user.tg_id, 
+                broadcast_message, 
+                disable_web_page_preview=True,
+                reply_markup=dismiss_keyboard
+            )
             success_count += 1
             await asyncio.sleep(0.5)
         except Exception as e:
