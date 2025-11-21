@@ -20,6 +20,7 @@ from keyboards import (
     get_user_profile_keyboard,
     get_admin_management_keyboard,
     get_broadcast_confirmation_keyboard,
+    get_broadcast_start_keyboard,
 )
 from db.methods import (
     is_trial_available,
@@ -606,7 +607,13 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
 
 @router.callback_query(F.data == "admin_management", IsAdminCallbackFilter(is_admin=True))
 async def callback_admin_management(callback: CallbackQuery, state: FSMContext):
+    from handlers.broadcast import BroadcastStates
+    
     await callback.answer()
+    
+    current_state = await state.get_state()
+    if current_state in [BroadcastStates.waiting_for_message, BroadcastStates.waiting_for_confirmation]:
+        await state.clear()
     
     message_deleted = await try_delete_message(callback.message)
     
@@ -632,7 +639,7 @@ async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_broadcast_start"),
-        reply_markup=None,
+        reply_markup=get_broadcast_start_keyboard(),
         reuse_message=reuse_message,
     )
     

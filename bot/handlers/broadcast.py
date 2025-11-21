@@ -9,7 +9,7 @@ from aiogram.utils.i18n import gettext as _
 
 from filters import IsAdminFilter
 from db.methods import get_vpn_users
-from keyboards import get_confirmation_keyboard, get_main_menu_keyboard, get_broadcast_confirmation_keyboard
+from keyboards import get_confirmation_keyboard, get_main_menu_keyboard, get_broadcast_confirmation_keyboard, get_broadcast_start_keyboard
 from utils import MessageCleanup, try_delete_message
 import glv
 
@@ -25,7 +25,7 @@ async def start_broadcast(message: Message, state: FSMContext):
     await cleanup.send_navigation(
         chat_id=message.from_user.id,
         text=_("message_broadcast_start"),
-        reply_markup=None,
+        reply_markup=get_broadcast_start_keyboard(),
     )
     await state.set_state(BroadcastStates.waiting_for_message)
 

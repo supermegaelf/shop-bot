@@ -15,6 +15,15 @@ def get_admin_management_keyboard(lang=None) -> InlineKeyboardMarkup:
     
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
+def get_broadcast_start_keyboard(lang=None) -> InlineKeyboardMarkup:
+    kb = [
+        [
+            InlineKeyboardButton(text=get_i18n_str("button_back", lang), callback_data="admin_management")
+        ]
+    ]
+    
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
 def get_broadcast_confirmation_keyboard(lang=None) -> InlineKeyboardMarkup:
     kb = [
         [
