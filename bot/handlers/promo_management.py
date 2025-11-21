@@ -262,7 +262,7 @@ async def callback_admin_active_promos(callback: CallbackQuery, state: FSMContex
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text="\n".join(text_parts),
-        reply_markup=get_promo_codes_management_keyboard(),
+        reply_markup=get_promo_back_keyboard(),
         reuse_message=reuse_message,
     )
 
