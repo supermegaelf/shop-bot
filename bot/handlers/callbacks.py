@@ -673,8 +673,12 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
 
     from db.methods import get_vpn_users
     users = await get_vpn_users()
+    admin_ids = glv.config['ADMINS']
     
     for user in users:
+        if user.tg_id in admin_ids:
+            continue
+        
         try:
             await glv.bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
             success_count += 1
