@@ -260,3 +260,12 @@ msgstr "Рассылка завершена ✅\n\n"
 
 msgid "button_dismiss"
 msgstr "⬅️ Назад"
+
+msgid "button_admin_management"
+msgstr "Управление ⚙️"
+
+msgid "message_admin_management"
+msgstr "Выберите действие ⬇️"
+
+msgid "button_broadcast"
+msgstr "Рассылка 📢"

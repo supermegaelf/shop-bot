@@ -9,7 +9,9 @@ from aiogram.utils.i18n import gettext as _
 
 from filters import IsAdminFilter
 from db.methods import get_vpn_users
-from keyboards import get_confirmation_keyboard, get_main_menu_keyboard
+from keyboards import get_confirmation_keyboard, get_main_menu_keyboard, get_broadcast_confirmation_keyboard
+from utils import MessageCleanup, try_delete_message
+import glv
 
 class BroadcastStates(StatesGroup):
     waiting_for_message = State()
@@ -19,46 +21,31 @@ router = Router(name="broadcast-router")
 
 @router.message(IsAdminFilter(is_admin=True), Command("broadcast"))
 async def start_broadcast(message: Message, state: FSMContext):
-    await message.answer(_("message_broadcast_start"))
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=message.from_user.id,
+        text=_("message_broadcast_start"),
+        reply_markup=None,
+    )
     await state.set_state(BroadcastStates.waiting_for_message)
 
-@router.message(BroadcastStates.waiting_for_message)
+@router.message(BroadcastStates.waiting_for_message, IsAdminFilter(is_admin=True))
 async def process_message(message: Message, state: FSMContext):
-    await state.update_data(broadcast_message=message.text)
-    await message.answer(_("message_confirm_broadcast").format(text=message.text), reply_markup=get_confirmation_keyboard())
+    await try_delete_message(message)
+    
+    broadcast_message = message.text or message.caption or ""
+    if not broadcast_message:
+        return
+    
+    await state.update_data(broadcast_message=broadcast_message)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=message.from_user.id,
+        text=_("message_confirm_broadcast").format(text=broadcast_message),
+        reply_markup=get_broadcast_confirmation_keyboard(),
+    )
     await state.set_state(BroadcastStates.waiting_for_confirmation)
-
-@router.message(BroadcastStates.waiting_for_confirmation)
-async def process_confirmation(message: Message, state: FSMContext, bot: Bot):
-    if message.text not in [_("button_yes"), _("button_no")]:
-        await message.answer(_("message_invalid_confirmation"))
-        return
-
-    if message.text == _("button_no"):
-        await message.answer(_("mesage_broadcast_cancelled"))
-        await state.clear()
-        return
-
-    data = await state.get_data()
-    broadcast_message = data['broadcast_message']
-    
-    await message.answer(_("message_broadcast_started"), reply_markup=ReplyKeyboardRemove())
-    
-    success_count = 0
-    fail_count = 0
-
-    users = await get_vpn_users()
-    
-    for user in users:
-        try:
-            await bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
-            success_count += 1
-            await asyncio.sleep(0.5)
-        except Exception as e:
-            fail_count += 1
-    
-    await message.answer(_("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count))
-    await state.clear()
 
 def register_broadcast(dp: Dispatcher):
     dp.include_router(router)

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import logging
+import asyncio
 
 from aiogram import Router, F, Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice
@@ -17,6 +18,8 @@ from keyboards import (
     get_months_keyboard,
     get_install_subscription_keyboard,
     get_user_profile_keyboard,
+    get_admin_management_keyboard,
+    get_broadcast_confirmation_keyboard,
 )
 from db.methods import (
     is_trial_available,
@@ -26,6 +29,7 @@ from db.methods import (
 )
 from utils import goods, yookassa, cryptomus, MessageCleanup, try_delete_message
 from panel import get_panel
+from filters import IsAdminCallbackFilter
 import glv
 
 router = Router(name="callbacks-router")
@@ -599,6 +603,101 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
 
     await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
 
+
+@router.callback_query(F.data == "admin_management", IsAdminCallbackFilter(is_admin=True))
+async def callback_admin_management(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    message_deleted = await try_delete_message(callback.message)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    reuse_message = None if message_deleted else callback.message
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_admin_management"),
+        reply_markup=get_admin_management_keyboard(),
+        reuse_message=reuse_message,
+    )
+
+@router.callback_query(F.data == "admin_broadcast", IsAdminCallbackFilter(is_admin=True))
+async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
+    from handlers.broadcast import BroadcastStates
+    
+    await callback.answer()
+    
+    message_deleted = await try_delete_message(callback.message)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    reuse_message = None if message_deleted else callback.message
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_broadcast_start"),
+        reply_markup=None,
+        reuse_message=reuse_message,
+    )
+    
+    await state.set_state(BroadcastStates.waiting_for_message)
+
+@router.callback_query(F.data == "broadcast_confirm_yes", IsAdminCallbackFilter(is_admin=True))
+async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    data = await state.get_data()
+    broadcast_message = data.get('broadcast_message')
+    
+    if not broadcast_message:
+        await callback.message.edit_text(_("message_error"))
+        await state.clear()
+        return
+    
+    message_deleted = await try_delete_message(callback.message)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    reuse_message = None if message_deleted else callback.message
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_broadcast_started"),
+        reply_markup=None,
+        reuse_message=reuse_message,
+    )
+    
+    success_count = 0
+    fail_count = 0
+
+    from db.methods import get_vpn_users
+    users = await get_vpn_users()
+    
+    for user in users:
+        try:
+            await glv.bot.send_message(user.tg_id, broadcast_message, disable_web_page_preview=True)
+            success_count += 1
+            await asyncio.sleep(0.5)
+        except Exception as e:
+            fail_count += 1
+    
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count),
+        reply_markup=get_admin_management_keyboard(),
+    )
+    await state.clear()
+
+@router.callback_query(F.data == "broadcast_confirm_no", IsAdminCallbackFilter(is_admin=True))
+async def callback_broadcast_confirm_no(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    message_deleted = await try_delete_message(callback.message)
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    reuse_message = None if message_deleted else callback.message
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("mesage_broadcast_cancelled"),
+        reply_markup=get_admin_management_keyboard(),
+        reuse_message=reuse_message,
+    )
+    
+    await state.clear()
 
 def register_callbacks(dp: Dispatcher):
     dp.include_router(router)

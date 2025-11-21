@@ -260,3 +260,12 @@ msgstr "Broadcast completed ✅\n\n"
 
 msgid "button_dismiss"
 msgstr "⬅️ Back"
+
+msgid "button_admin_management"
+msgstr "Management ⚙️"
+
+msgid "message_admin_management"
+msgstr "Select an action ⬇️"
+
+msgid "button_broadcast"
+msgstr "Broadcast 📢"
