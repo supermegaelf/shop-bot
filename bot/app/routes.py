@@ -41,49 +41,69 @@ YOOKASSA_IPS = (
 async def _process_payment_success(payment, good, user):
     panel = get_panel()
     
-    if good['type'] == 'renew':
-        is_trial = await is_test_subscription(payment.tg_id)
-        if is_trial:
-            await disable_trial(payment.tg_id)
-        await panel.reset_subscription_data_limit(user.vpn_id)
-        panel_profile = await panel.generate_subscription(
-            username=user.vpn_id, 
-            months=good['months'], 
-            data_limit=good['data_limit']
-        )
-    else:
-        panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
+    try:
+        if good['type'] == 'renew':
+            is_trial = await is_test_subscription(payment.tg_id)
+            if is_trial:
+                await disable_trial(payment.tg_id)
+            await panel.reset_subscription_data_limit(user.vpn_id)
+            panel_profile = await panel.generate_subscription(
+                username=user.vpn_id, 
+                months=good['months'], 
+                data_limit=good['data_limit']
+            )
+        else:
+            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, good['data_limit'])
 
-    if payment.message_id:
-        try:
-            await glv.bot.delete_message(payment.tg_id, payment.message_id)
-        except Exception:
-            pass
+        if panel_profile is None:
+            raise Exception("Panel returned None profile")
 
-    if good['type'] == 'update':
-        await glv.bot.send_message(
-            payment.tg_id,
-            get_i18n_string("message_payment_success", payment.lang),
-            reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
-        )
-    else:
-        await confirm_payment(payment.payment_id)
-        user_has_payments = await has_confirmed_payments(payment.tg_id)
-        if user_has_payments:
+        if payment.message_id:
+            try:
+                await glv.bot.delete_message(payment.tg_id, payment.message_id)
+            except Exception as e:
+                logging.debug(f"Failed to delete payment message {payment.message_id}: {e}")
+
+        if good['type'] == 'update':
             await glv.bot.send_message(
                 payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
                 reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
             )
         else:
-            subscription_url = panel_profile.subscription_url
+            await confirm_payment(payment.payment_id)
+            user_has_payments = await has_confirmed_payments(payment.tg_id)
+            if user_has_payments:
+                await glv.bot.send_message(
+                    payment.tg_id,
+                    get_i18n_string("message_payment_success", payment.lang),
+                    reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
+                )
+            else:
+                subscription_url = panel_profile.subscription_url
+                await glv.bot.send_message(
+                    payment.tg_id,
+                    get_i18n_string("message_new_subscription_created", payment.lang),
+                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                )
+        
+        await use_all_promo_codes(payment.tg_id)
+    except Exception as e:
+        logging.error(
+            f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",
+            exc_info=True
+        )
+        error_text = get_i18n_string("message_error", payment.lang)
+        support_link = glv.config.get('SUPPORT_LINK', '')
+        if support_link:
+            error_text += f"\n\nPlease contact support. Your payment has been registered."
+        try:
             await glv.bot.send_message(
                 payment.tg_id,
-                get_i18n_string("message_new_subscription_created", payment.lang),
-                reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                error_text
             )
-    
-    await use_all_promo_codes(payment.tg_id)
+        except Exception:
+            pass
 
 async def check_crypto_payment(request: Request):
     client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For') or request.remote
