@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 import logging
+import asyncio
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, Message
@@ -57,10 +58,17 @@ class MessageCleanup:
             return False
         
         try:
-            await self.bot.delete_message(chat_id, message_id)
+            await asyncio.wait_for(
+                self.bot.delete_message(chat_id, message_id),
+                timeout=5.0
+            )
             if self.debug:
                 logging.info(f"Cleanup: deleted message {message_id} in chat {chat_id}")
             return True
+        except asyncio.TimeoutError:
+            if self.debug:
+                logging.warning(f"Cleanup: timeout deleting message {message_id} in chat {chat_id}")
+            return False
         except TelegramBadRequest as e:
             error_message = str(e).lower()
             if "message to delete not found" in error_message:
@@ -90,9 +98,8 @@ class MessageCleanup:
         if not message_ids:
             return
         
-        for msg_id in message_ids:
-            if msg_id:
-                await self._delete_message(chat_id, msg_id)
+        tasks = [self._delete_message(chat_id, msg_id) for msg_id in message_ids if msg_id]
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     async def register_message(self, chat_id: int, message_id: int, message_type: MessageType):
         if not message_id or not isinstance(message_id, int) or message_id <= 0:

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import logging
+import asyncio
 
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound
 from aiogram.types import Message
@@ -28,10 +29,14 @@ async def try_delete_message(message: Message, debug: bool = False) -> bool:
             return False
     
     try:
-        await message.delete()
+        await asyncio.wait_for(message.delete(), timeout=5.0)
         if debug:
             logging.info(f"try_delete_message: successfully deleted message {message.message_id} in chat {message.chat.id}")
         return True
+    except asyncio.TimeoutError:
+        if debug:
+            logging.warning(f"try_delete_message: timeout deleting message {message.message_id}")
+        return False
     except TelegramBadRequest as e:
         error_message = str(e).lower()
         if "message to delete not found" in error_message or "message can't be deleted" in error_message:
