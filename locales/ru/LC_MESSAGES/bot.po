@@ -271,7 +271,7 @@ msgid "message_enter_promo_discount"
 msgstr "Введите размер скидки (1-100%) ⬇️"
 
 msgid "message_enter_promo_expires_at"
-msgstr "Введите дату окончания промокода (ДД.ММ.ГГГГ) ⬇️"
+msgstr "Введите дату окончания (ДД.ММ.ГГГГ) ⬇️"
 
 msgid "message_invalid_promo_code"
 msgstr ""
@@ -290,7 +290,7 @@ msgstr ""
 
 msgid "message_promo_added"
 msgstr ""
-"Промокод {code} со скидкой {discount}% успешно добавлен ✅\n\n"
+"Промокод <code>{code}</code> со скидкой {discount}% успешно добавлен ✅\n\n"
 "Выберите действие ⬇️"
 
 msgid "message_no_active_promos"
@@ -301,11 +301,11 @@ msgstr "Выберите промокод для удаления ⬇️"
 
 msgid "message_promo_deleted"
 msgstr ""
-"Промокод {code} успешно удален ✅\n\n"
+"Промокод <code>{code}</code> успешно удален ✅\n\n"
 "Выберите действие ⬇️"
 
 msgid "message_promo_info"
-msgstr "Промокод: {code}, скидка: {discount}%, действует до: {expires_at}"
+msgstr "Промокод: <code>{code}</code>, скидка: {discount}%, действует до: {expires_at}"
 
 msgid "message_promo_already_exists"
 msgstr "Такой промокод уже существует ⛔️"

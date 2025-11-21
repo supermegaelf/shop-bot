@@ -261,7 +261,7 @@ async def callback_admin_active_promos(callback: CallbackQuery, state: FSMContex
     reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        text="\n".join(text_parts),
+        text="\n\n".join(text_parts),
         reply_markup=get_promo_back_keyboard(),
         reuse_message=reuse_message,
     )

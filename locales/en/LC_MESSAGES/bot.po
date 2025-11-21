@@ -271,7 +271,7 @@ msgid "message_enter_promo_discount"
 msgstr "Enter discount amount (1-100%) ⬇️"
 
 msgid "message_enter_promo_expires_at"
-msgstr "Enter promo code expiration date (DD.MM.YYYY) ⬇️"
+msgstr "Enter expiration date (DD.MM.YYYY) ⬇️"
 
 msgid "message_invalid_promo_code"
 msgstr ""
@@ -290,7 +290,7 @@ msgstr ""
 
 msgid "message_promo_added"
 msgstr ""
-"Promo code {code} with {discount}% discount successfully added ✅\n\n"
+"Promo code <code>{code}</code> with {discount}% discount successfully added ✅\n\n"
 "Select an action ⬇️"
 
 msgid "message_no_active_promos"
@@ -301,11 +301,11 @@ msgstr "Select promo code to delete ⬇️"
 
 msgid "message_promo_deleted"
 msgstr ""
-"Promo code {code} successfully deleted ✅\n\n"
+"Promo code <code>{code}</code> successfully deleted ✅\n\n"
 "Select an action ⬇️"
 
 msgid "message_promo_info"
-msgstr "Promo code: {code}, discount: {discount}%, valid until: {expires_at}"
+msgstr "Promo code: <code>{code}</code>, discount: {discount}%, valid until: {expires_at}"
 
 msgid "message_promo_already_exists"
-msgstr "Promo code with this code already exists ⛔️"
+msgstr "This promo code already exists ⛔️"
