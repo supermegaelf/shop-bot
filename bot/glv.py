@@ -3,6 +3,20 @@ import json
 
 from aiogram import Bot, Dispatcher
 
+def _parse_admins(admins_str: str) -> list:
+    if not admins_str:
+        return []
+    
+    admins_str = admins_str.strip()
+    
+    if admins_str.startswith('[') and admins_str.endswith(']'):
+        try:
+            return [int(admin_id) for admin_id in json.loads(admins_str)]
+        except (json.JSONDecodeError, ValueError):
+            pass
+    
+    return [int(admin_id.strip()) for admin_id in admins_str.split(',') if admin_id.strip()]
+
 config = {
     'BOT_TOKEN': os.environ.get('BOT_TOKEN'),
     'SHOP_NAME': os.environ.get('SHOP_NAME'),
@@ -30,7 +44,7 @@ config = {
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'UPDATE_GEO_LINK': os.environ.get('UPDATE_GEO_LINK'),
-    'ADMINS': json.loads(os.environ.get('ADMINS', '[]')),
+    'ADMINS': _parse_admins(os.environ.get('ADMINS', '')),
     'VPN_NOT_WORKING_LINK': os.environ.get('VPN_NOT_WORKING_LINK')
 }
 

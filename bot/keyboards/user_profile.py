@@ -4,6 +4,7 @@ from aiogram.utils.i18n import gettext as _
 
 from utils import get_i18n_string
 from db.methods import is_trial_available, has_confirmed_payments, get_user_promo_discount
+import glv
 
 async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
     trial_available = await is_trial_available(tg_id)
@@ -61,6 +62,14 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             callback_data="help_from_profile"
         )
     )
+
+    if tg_id in glv.config['ADMINS']:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_admin_management"),
+                callback_data="admin_management"
+            )
+        )
 
     return builder.as_markup()
 

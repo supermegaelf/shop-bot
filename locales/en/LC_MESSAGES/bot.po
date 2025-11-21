@@ -256,7 +256,17 @@ msgstr "Broadcast started ⏳"
 msgid "message_broadcast_completed"
 msgstr "Broadcast completed ✅\n\n"
 "Successfully sent: {success_count}\n"
-"Failed to send: {fail_count}"
+"Failed to send: {fail_count}\n\n"
+"Select an action ⬇️"
 
 msgid "button_dismiss"
-msgstr "⬅️ Back"
+msgstr "Hide ⬆️"
+
+msgid "button_admin_management"
+msgstr "Management ⚙️"
+
+msgid "message_admin_management"
+msgstr "Select an action ⬇️"
+
+msgid "button_broadcast"
+msgstr "Broadcast 📢"

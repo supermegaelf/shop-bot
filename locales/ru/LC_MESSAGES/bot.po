@@ -256,7 +256,17 @@ msgstr "Рассылка запущена ⏳"
 msgid "message_broadcast_completed"
 msgstr "Рассылка завершена ✅\n\n"
 "Успешно отправлено: {success_count}\n"
-"Не удалось отправить: {fail_count}"
+"Не удалось отправить: {fail_count}\n\n"
+"Выберите действие ⬇️"
 
 msgid "button_dismiss"
-msgstr "⬅️ Назад"
+msgstr "Скрыть ⬆️"
+
+msgid "button_admin_management"
+msgstr "Управление ⚙️"
+
+msgid "message_admin_management"
+msgstr "Выберите действие ⬇️"
+
+msgid "button_broadcast"
+msgstr "Рассылка 📢"
