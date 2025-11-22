@@ -11,11 +11,28 @@ def _parse_admins(admins_str: str) -> list:
     
     if admins_str.startswith('[') and admins_str.endswith(']'):
         try:
-            return [int(admin_id) for admin_id in json.loads(admins_str)]
-        except (json.JSONDecodeError, ValueError):
+            parsed = json.loads(admins_str)
+            if isinstance(parsed, list):
+                result = []
+                for admin_id in parsed:
+                    try:
+                        result.append(int(admin_id))
+                    except (ValueError, TypeError):
+                        continue
+                return result
+        except (json.JSONDecodeError, ValueError, TypeError):
             pass
     
-    return [int(admin_id.strip()) for admin_id in admins_str.split(',') if admin_id.strip()]
+    admins_list = []
+    for admin_id in admins_str.split(','):
+        admin_id = admin_id.strip()
+        if admin_id:
+            try:
+                admins_list.append(int(admin_id))
+            except ValueError:
+                continue
+    
+    return admins_list
 
 config = {
     'BOT_TOKEN': os.environ.get('BOT_TOKEN'),

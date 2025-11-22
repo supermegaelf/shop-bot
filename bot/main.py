@@ -15,6 +15,7 @@ from handlers.messages import register_messages
 from handlers.callbacks import register_callbacks
 from handlers.payments import register_payments
 from handlers.broadcast import register_broadcast
+from handlers.promo_management import register_promo_management
 from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 from tasks import register
@@ -37,6 +38,7 @@ def setup_routers():
     register_callbacks(glv.dp)
     register_payments(glv.dp)
     register_broadcast(glv.dp)
+    register_promo_management(glv.dp)
 
 def setup_middlewares():
     i18n = I18n(path=Path(__file__).parent / 'locales', default_locale='en', domain='bot')
