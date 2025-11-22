@@ -33,18 +33,20 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
                 web_app=WebAppInfo(url=subscription_url)
             )
         )
-        builder.row(
-            InlineKeyboardButton(
-                text=_("button_share"),
-                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
-            )
-        )
 
     if not trial_available:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_renew"),
                 callback_data="payment"
+            )
+        )
+
+    if subscription_url:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_share"),
+                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
             )
         )
 
