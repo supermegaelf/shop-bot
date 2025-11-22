@@ -66,17 +66,7 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
     )
 
     admins = glv.config.get('ADMINS', [])
-    if not admins:
-        return builder.as_markup()
-    
-    tg_id_int = int(tg_id) if not isinstance(tg_id, int) else tg_id
-    admins_int = [int(admin_id) for admin_id in admins]
-    
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Checking admin access for user {tg_id_int} (type: {type(tg_id_int)}), admins: {admins_int} (types: {[type(a) for a in admins_int]})")
-    
-    if tg_id_int in admins_int:
+    if admins and tg_id in admins:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_admin_management"),
