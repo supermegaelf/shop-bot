@@ -65,7 +65,8 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
         )
     )
 
-    if tg_id in glv.config['ADMINS']:
+    admins = glv.config.get('ADMINS', [])
+    if admins and tg_id in admins:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_admin_management"),
