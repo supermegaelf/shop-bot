@@ -1,11 +1,11 @@
 import hashlib
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete, exists
 
-from db.models import VPNUsers, Payments, PromoCode, UserPromoCode
+from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages
 import glv
 
 class PaymentPlatform(Enum):
@@ -33,6 +33,18 @@ async def get_vpn_user(tg_id: int) -> VPNUsers:
     return result
 
 async def get_marzban_profile_by_vpn_id(vpn_id: str):
+    async with engine.connect() as conn:
+        sql_query = select(VPNUsers).where(VPNUsers.vpn_id == vpn_id)
+        result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+    return result
+
+async def update_vpn_id(tg_id: int, vpn_id: str):
+    async with engine.connect() as conn:
+        sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(vpn_id=vpn_id)
+        await conn.execute(sql_q)
+        await conn.commit()
+
+async def get_vpn_user_by_vpn_id(vpn_id: str) -> VPNUsers:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.vpn_id == vpn_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
@@ -170,3 +182,86 @@ async def get_promo_code_by_id(promo_code_id: int) -> PromoCode:
         sql_query = select(PromoCode).where(PromoCode.id == promo_code_id)
         result: PromoCode = (await conn.execute(sql_query)).fetchone()
     return result
+
+async def save_user_message(tg_id: int, message_id: int, message_type: str):
+    async with engine.connect() as conn:
+        check_query = select(UserMessages).where(
+            UserMessages.tg_id == tg_id,
+            UserMessages.message_id == message_id,
+            UserMessages.message_type == message_type
+        )
+        existing = (await conn.execute(check_query)).fetchone()
+        
+        if not existing:
+            sql_query = insert(UserMessages).values(
+                tg_id=tg_id,
+                message_id=message_id,
+                message_type=message_type,
+                created_at=datetime.now()
+            )
+            await conn.execute(sql_query)
+            await conn.commit()
+
+async def get_user_messages(tg_id: int) -> dict:
+    async with engine.connect() as conn:
+        sql_query = select(UserMessages).where(
+            UserMessages.tg_id == tg_id
+        ).order_by(UserMessages.created_at.asc())
+        results = (await conn.execute(sql_query)).fetchall()
+    
+    messages = {
+        'navigation': [],
+        'profile': None,
+        'payment': None,
+        'notification': [],
+        'success': None,
+        'important': None
+    }
+    
+    seen_single = set()
+    
+    for row in results:
+        msg_type = row.message_type
+        msg_id = row.message_id
+        
+        if msg_type in ['navigation', 'notification']:
+            if msg_id not in messages[msg_type]:
+                messages[msg_type].append(msg_id)
+        else:
+            if msg_type not in seen_single:
+                messages[msg_type] = msg_id
+                seen_single.add(msg_type)
+    
+    return messages
+
+async def delete_user_message(tg_id: int, message_id: int, message_type: str):
+    async with engine.connect() as conn:
+        sql_query = delete(UserMessages).where(
+            UserMessages.tg_id == tg_id,
+            UserMessages.message_id == message_id,
+            UserMessages.message_type == message_type
+        )
+        await conn.execute(sql_query)
+        await conn.commit()
+
+async def clear_user_messages_by_type(tg_id: int, message_types: list):
+    async with engine.connect() as conn:
+        sql_query = delete(UserMessages).where(
+            UserMessages.tg_id == tg_id,
+            UserMessages.message_type.in_(message_types)
+        )
+        await conn.execute(sql_query)
+        await conn.commit()
+
+async def clear_user_messages(tg_id: int):
+    async with engine.connect() as conn:
+        sql_query = delete(UserMessages).where(UserMessages.tg_id == tg_id)
+        await conn.execute(sql_query)
+        await conn.commit()
+
+async def cleanup_old_messages(days: int = 7):
+    cutoff_date = datetime.now() - timedelta(days=days)
+    async with engine.connect() as conn:
+        sql_query = delete(UserMessages).where(UserMessages.created_at < cutoff_date)
+        await conn.execute(sql_query)
+        await conn.commit()
