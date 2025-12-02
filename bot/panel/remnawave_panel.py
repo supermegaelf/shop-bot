@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, UTC
 import httpx
+import logging
 from pydantic import ValidationError
 from .panel import Panel
 from .models import PanelProfile
-from db.methods import get_vpn_user
+from db.methods import get_vpn_user, get_marzban_profile_by_vpn_id
 import glv
 
 class RemnawavePanel(Panel):
@@ -182,6 +183,7 @@ class RemnawavePanel(Panel):
         else:
             try:
                 new_expire_at = datetime.now(UTC) + timedelta(days=months*30)
+                user_db = await get_marzban_profile_by_vpn_id(username)
                 create_payload = {
                     'username': username,
                     'expireAt': new_expire_at.isoformat().replace('+00:00', 'Z'),
@@ -189,6 +191,8 @@ class RemnawavePanel(Panel):
                     'trafficLimitStrategy': 'MONTH',
                     'activateAllInbounds': True
                 }
+                if user_db and user_db.tg_id:
+                    create_payload['telegramId'] = user_db.tg_id
                 create_response = await self.client.post(f"/users", json=create_payload)
                 create_response.raise_for_status()
                 created_data = create_response.json()
@@ -255,6 +259,7 @@ class RemnawavePanel(Panel):
             try:
                 new_expire_at = datetime.now(UTC) + timedelta(hours=glv.config['PERIOD_LIMIT'])
                 traffic_limit = glv.config.get('DEFAULT_TRAFFIC_LIMIT', 10737418240)
+                user_db = await get_marzban_profile_by_vpn_id(username)
                 create_payload = {
                     'username': username,
                     'expireAt': new_expire_at.isoformat().replace('+00:00', 'Z'),
@@ -262,6 +267,8 @@ class RemnawavePanel(Panel):
                     'trafficLimitStrategy': 'MONTH',
                     'activateAllInbounds': True
                 }
+                if user_db and user_db.tg_id:
+                    create_payload['telegramId'] = user_db.tg_id
                 create_response = await self.client.post(f"/users", json=create_payload)
                 create_response.raise_for_status()
                 created_data = create_response.json()
@@ -340,3 +347,22 @@ class RemnawavePanel(Panel):
             )
         except Exception as e:
             raise
+
+    async def update_user_telegram_id(self, username: str, tg_id: int) -> bool:
+        if not await self.check_if_user_exists(username):
+            return False
+        try:
+            user_data = await self._get_user_by_username(username)
+            if not user_data:
+                return False
+            user_uuid = user_data['uuid']
+            update_payload = {
+                'uuid': user_uuid,
+                'telegramId': tg_id
+            }
+            update_response = await self.client.patch(f"/users", json=update_payload)
+            update_response.raise_for_status()
+            return True
+        except Exception as e:
+            logging.error(f"Failed to update telegram_id for user {username}: {e}")
+            return False
