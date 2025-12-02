@@ -348,13 +348,31 @@ class RemnawavePanel(Panel):
         except Exception as e:
             raise
 
-    async def update_user_telegram_id(self, username: str, tg_id: int) -> bool:
-        if not await self.check_if_user_exists(username):
-            return False
+    async def _get_user_by_telegram_id(self, tg_id: int) -> dict | None:
         try:
-            user_data = await self._get_user_by_username(username)
+            response = await self.client.get(f"/users/by-telegram-id/{tg_id}")
+            response.raise_for_status()
+            data = response.json()
+            users = data.get('response', {}).get('root', [])
+            if users and len(users) > 0:
+                return users[0]
+            return None
+        except Exception:
+            return None
+
+    async def update_user_telegram_id(self, username: str, tg_id: int) -> bool:
+        try:
+            user_data = None
+            
+            user_data = await self._get_user_by_telegram_id(tg_id)
+            
+            if not user_data:
+                if await self.check_if_user_exists(username):
+                    user_data = await self._get_user_by_username(username)
+            
             if not user_data:
                 return False
+            
             user_uuid = user_data['uuid']
             update_payload = {
                 'uuid': user_uuid,
