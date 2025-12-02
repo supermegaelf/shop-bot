@@ -32,6 +32,25 @@ class RemnawavePanel(Panel):
         except Exception as e:
             raise Exception(f"Failed to fetch Default-Squad: {str(e)}")
 
+    async def _get_user_by_username(self, username: str) -> dict | None:
+        try:
+            response = await self.client.get(f"/users/by-username/{username}")
+            response.raise_for_status()
+            data = response.json()
+            return data.get('response')
+        except Exception:
+            try:
+                response = await self.client.get(f"/users?username={username}")
+                response.raise_for_status()
+                data = response.json()
+                users = data['response']['users']
+                for user in users:
+                    if user['username'] == username:
+                        return user
+                return None
+            except Exception:
+                return None
+
     async def _add_user_to_squad(self, user_uuid: str, squad_uuid: str, inbound_uuids: list[str]) -> bool:
         try:
             response = await self.client.get(f"/internal-squads/{squad_uuid}")
@@ -64,33 +83,31 @@ class RemnawavePanel(Panel):
 
     async def check_if_user_exists(self, username) -> bool:
         try:
-            response = await self.client.get(f"/users?username={username}")
+            response = await self.client.get(f"/users/by-username/{username}")
             response.raise_for_status()
-            data = response.json()
-            users = data['response']['users']
-            for user in users:
-                if user['username'] == username:
-                    return True
-            return False
+            return True
         except Exception as e:
-            return False
+            try:
+                response = await self.client.get(f"/users?username={username}")
+                response.raise_for_status()
+                data = response.json()
+                users = data['response']['users']
+                for user in users:
+                    if user['username'] == username:
+                        return True
+                return False
+            except Exception:
+                return False
 
     async def get_panel_user(self, tg_id: int) -> PanelProfile:
         result = await get_vpn_user(tg_id)
         if result is None:
             return None
-        res = await self.check_if_user_exists(result.vpn_id)
-        if not res:
-            return None
         try:
-            response = await self.client.get(f"/users?username={result.vpn_id}")
+            response = await self.client.get(f"/users/by-username/{result.vpn_id}")
             response.raise_for_status()
             data = response.json()
-            user_data = None
-            for user in data['response']['users']:
-                if user['username'] == result.vpn_id:
-                    user_data = user
-                    break
+            user_data = data.get('response')
             if not user_data:
                 return None
             return PanelProfile(
@@ -102,20 +119,33 @@ class RemnawavePanel(Panel):
                 expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
             )
         except Exception as e:
-            return None
+            try:
+                response = await self.client.get(f"/users?username={result.vpn_id}")
+                response.raise_for_status()
+                data = response.json()
+                user_data = None
+                for user in data['response']['users']:
+                    if user['username'] == result.vpn_id:
+                        user_data = user
+                        break
+                if not user_data:
+                    return None
+                return PanelProfile(
+                    username=user_data['username'],
+                    status=user_data['status'].lower(),
+                    subscription_url=user_data['subscriptionUrl'],
+                    used_traffic=user_data['usedTrafficBytes'],
+                    data_limit=user_data.get('trafficLimitBytes'),
+                    expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
+                )
+            except Exception:
+                return None
 
     async def generate_subscription(self, username: str, months: int, data_limit: int) -> PanelProfile:
         res = await self.check_if_user_exists(username)
         if res:
             try:
-                response = await self.client.get(f"/users?username={username}")
-                response.raise_for_status()
-                data = response.json()
-                user_data = None
-                for user in data['response']['users']:
-                    if user['username'] == username:
-                        user_data = user
-                        break
+                user_data = await self._get_user_by_username(username)
                 if not user_data:
                     raise Exception("User not found in response")
                 user_uuid = user_data['uuid']
@@ -188,14 +218,7 @@ class RemnawavePanel(Panel):
         res = await self.check_if_user_exists(username)
         if res:
             try:
-                response = await self.client.get(f"/users?username={username}")
-                response.raise_for_status()
-                data = response.json()
-                user_data = None
-                for user in data['response']['users']:
-                    if user['username'] == username:
-                        user_data = user
-                        break
+                user_data = await self._get_user_by_username(username)
                 if not user_data:
                     raise Exception("User not found in response")
                 user_uuid = user_data['uuid']
@@ -268,14 +291,7 @@ class RemnawavePanel(Panel):
         if not await self.check_if_user_exists(username):
             return None
         try:
-            response = await self.client.get(f"/users?username={username}")
-            response.raise_for_status()
-            data = response.json()
-            user_data = None
-            for user in data['response']['users']:
-                if user['username'] == username:
-                    user_data = user
-                    break
+            user_data = await self._get_user_by_username(username)
             if not user_data:
                 raise Exception("User not found in response")
             user_uuid = user_data['uuid']
@@ -306,14 +322,7 @@ class RemnawavePanel(Panel):
         if not await self.check_if_user_exists(username):
             return None
         try:
-            response = await self.client.get(f"/users?username={username}")
-            response.raise_for_status()
-            data = response.json()
-            user_data = None
-            for user in data['response']['users']:
-                if user['username'] == username:
-                    user_data = user
-                    break
+            user_data = await self._get_user_by_username(username)
             if not user_data:
                 raise Exception("User not found in response")
             user_uuid = user_data['uuid']

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime
+from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, Text
 from datetime import datetime
 
 from db.base import Base
@@ -42,4 +42,13 @@ class UserPromoCode(Base):
     promo_code_id = Column(BigInteger, nullable=False)
     activated_at = Column(DateTime, nullable=False)
     used = Column(Boolean, default=False)
+
+class UserMessages(Base):
+    __tablename__ = "user_messages"
+    
+    id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
+    tg_id = Column(BigInteger, nullable=False, index=True)
+    message_id = Column(BigInteger, nullable=False)
+    message_type = Column(String(50), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.now)
 
