@@ -13,8 +13,9 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards import get_main_menu_keyboard
 from .messages import profile, help
-from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
+from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code, create_vpn_user, get_vpn_user
 from utils import MessageCleanup, MessageType
+from panel import get_panel
 import glv
 
 router = Router(name="commands-router")
@@ -44,6 +45,17 @@ async def start(message: Message, state: FSMContext):
     await state.update_data(last_start_message_id=message.message_id)
     
     await cleanup.cleanup_all(tg_id)
+    
+    await create_vpn_user(tg_id)
+    
+    if glv.config.get('PANEL_TYPE') == 'REMNAWAVE':
+        try:
+            user = await get_vpn_user(tg_id)
+            if user:
+                panel = get_panel()
+                await panel.update_user_telegram_id(user.vpn_id, tg_id)
+        except Exception as e:
+            logging.debug(f"Failed to update telegram_id for user {tg_id} in Remnawave: {e}")
     
     args = message.text.split()
     
