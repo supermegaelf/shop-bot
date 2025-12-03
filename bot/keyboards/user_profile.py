@@ -4,6 +4,7 @@ from aiogram.utils.i18n import gettext as _
 
 from utils import get_i18n_string
 from db.methods import is_trial_available, has_confirmed_payments, get_user_promo_discount
+import glv
 
 async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, subscription_url:str) -> InlineKeyboardMarkup:
     trial_available = await is_trial_available(tg_id)
@@ -32,18 +33,20 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
                 web_app=WebAppInfo(url=subscription_url)
             )
         )
-        builder.row(
-            InlineKeyboardButton(
-                text=_("button_share"),
-                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
-            )
-        )
 
     if not trial_available:
         builder.row(
             InlineKeyboardButton(
                 text=_("button_renew"),
                 callback_data="payment"
+            )
+        )
+
+    if subscription_url:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_share"),
+                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
             )
         )
 
@@ -61,6 +64,15 @@ async def get_user_profile_keyboard(tg_id: int, show_buy_traffic_button: bool, s
             callback_data="help_from_profile"
         )
     )
+
+    admins = glv.config.get('ADMINS', [])
+    if admins and tg_id in admins:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_admin_management"),
+                callback_data="admin_management"
+            )
+        )
 
     return builder.as_markup()
 

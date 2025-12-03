@@ -7,6 +7,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, Message
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound
 
+from db.methods import (
+    save_user_message,
+    get_user_messages,
+    delete_user_message
+)
+
 
 class MessageType(Enum):
     NAVIGATION = "navigation"
@@ -31,22 +37,66 @@ class MessageCleanup:
         self.bot = bot
         self.state = state
         self.debug = debug
+        self._tg_id_cache = None
 
-    async def _get_messages_state(self) -> dict:
+    async def _get_messages_state(self, chat_id: Optional[int] = None) -> dict:
         data = await self.state.get_data()
-        return data.get('messages', {
-            'navigation': [],
-            'profile': None,
-            'payment': None,
-            'notification': [],
-            'success': None,
-            'important': None
-        })
+        messages = data.get('messages')
+        
+        if messages is None and chat_id is not None:
+            try:
+                tg_id = await self._get_tg_id(chat_id)
+                db_messages = await get_user_messages(tg_id)
+                if db_messages and any(db_messages.values()):
+                    messages = db_messages
+                    await self.state.update_data(messages=messages)
+                    if self.debug:
+                        msg_count = sum(1 for m in messages.values() if m)
+                        logging.info(f"Cleanup: loaded {msg_count} messages from DB for user {tg_id}")
+            except Exception as e:
+                if self.debug:
+                    logging.warning(f"Cleanup: failed to load messages from DB: {e}")
+        
+        if messages is None:
+            messages = {
+                'navigation': [],
+                'profile': None,
+                'payment': None,
+                'notification': [],
+                'success': None,
+                'important': None
+            }
+        
+        return messages
+
+    async def _get_tg_id(self, chat_id: int) -> int:
+        if self._tg_id_cache is None:
+            try:
+                state_data = await self.state.get_data()
+                self._tg_id_cache = state_data.get('tg_id') or chat_id
+            except Exception:
+                self._tg_id_cache = chat_id
+        return self._tg_id_cache
 
     async def _save_messages_state(self, messages: dict):
         await self.state.update_data(messages=messages)
 
-    async def _delete_message(self, chat_id: int, message_id: int) -> bool:
+    async def sync_from_db(self, chat_id: int):
+        try:
+            tg_id = await self._get_tg_id(chat_id)
+            db_messages = await get_user_messages(tg_id)
+            if db_messages and any(db_messages.values()):
+                await self.state.update_data(messages=db_messages)
+                if self.debug:
+                    msg_count = sum(1 for m in db_messages.values() if m)
+                    logging.info(f"Cleanup: synced {msg_count} messages from DB to state for user {tg_id}")
+                return True
+        except Exception as e:
+            if self.debug:
+                logging.warning(f"Cleanup: failed to sync from DB: {e}")
+        return False
+
+    async def _delete_message(self, chat_id: int, message_id: int, message_type: Optional[str] = None) -> bool:
         if not message_id:
             if self.debug:
                 logging.warning(f"Cleanup: message_id is empty for chat {chat_id}")
@@ -57,14 +107,15 @@ class MessageCleanup:
                 logging.warning(f"Cleanup: invalid message_id {message_id} for chat {chat_id}")
             return False
         
+        deleted_from_telegram = False
         try:
             await asyncio.wait_for(
                 self.bot.delete_message(chat_id, message_id),
                 timeout=5.0
             )
+            deleted_from_telegram = True
             if self.debug:
                 logging.info(f"Cleanup: deleted message {message_id} in chat {chat_id}")
-            return True
         except asyncio.TimeoutError:
             if self.debug:
                 logging.warning(f"Cleanup: timeout deleting message {message_id} in chat {chat_id}")
@@ -72,6 +123,7 @@ class MessageCleanup:
         except TelegramBadRequest as e:
             error_message = str(e).lower()
             if "message to delete not found" in error_message:
+                deleted_from_telegram = True
                 if self.debug:
                     logging.debug(f"Cleanup: message {message_id} in chat {chat_id} already deleted")
             elif "message can't be deleted" in error_message:
@@ -86,19 +138,31 @@ class MessageCleanup:
                 logging.warning(f"Cleanup: bot doesn't have permission to delete message {message_id} in chat {chat_id}: {e}")
             return False
         except TelegramNotFound as e:
+            deleted_from_telegram = True
             if self.debug:
                 logging.debug(f"Cleanup: message {message_id} in chat {chat_id} not found: {e}")
-            return False
         except Exception as e:
             if self.debug:
                 logging.error(f"Cleanup: unexpected error deleting message {message_id} in chat {chat_id}: {e}", exc_info=True)
             return False
+        
+        if deleted_from_telegram and message_type:
+            try:
+                tg_id = await self._get_tg_id(chat_id)
+                await delete_user_message(tg_id, message_id, message_type)
+                if self.debug:
+                    logging.info(f"Cleanup: deleted {message_type} message {message_id} from DB for user {tg_id}")
+            except Exception as e:
+                if self.debug:
+                    logging.warning(f"Cleanup: failed to delete message {message_id} from DB: {e}")
+        
+        return deleted_from_telegram
 
-    async def _delete_messages(self, chat_id: int, message_ids: List[int]):
+    async def _delete_messages(self, chat_id: int, message_ids: List[int], message_type: Optional[str] = None):
         if not message_ids:
             return
         
-        tasks = [self._delete_message(chat_id, msg_id) for msg_id in message_ids if msg_id]
+        tasks = [self._delete_message(chat_id, msg_id, message_type) for msg_id in message_ids if msg_id]
         await asyncio.gather(*tasks, return_exceptions=True)
 
     async def register_message(self, chat_id: int, message_id: int, message_type: MessageType):
@@ -107,7 +171,7 @@ class MessageCleanup:
                 logging.warning(f"Cleanup: trying to register invalid message_id {message_id} for type {message_type.value}")
             return
         
-        messages = await self._get_messages_state()
+        messages = await self._get_messages_state(chat_id)
         
         if message_type in [MessageType.NAVIGATION, MessageType.NOTIFICATION]:
             if message_type.value not in messages:
@@ -119,6 +183,15 @@ class MessageCleanup:
         
         await self._save_messages_state(messages)
         
+        try:
+            tg_id = await self._get_tg_id(chat_id)
+            await save_user_message(tg_id, message_id, message_type.value)
+            if self.debug:
+                logging.info(f"Cleanup: saved {message_type.value} message {message_id} to DB for user {tg_id}")
+        except Exception as e:
+            if self.debug:
+                logging.warning(f"Cleanup: failed to save message {message_id} to DB: {e}")
+        
         if self.debug:
             logging.info(f"Cleanup: registered {message_type.value} message {message_id} in chat {chat_id}")
 
@@ -128,7 +201,7 @@ class MessageCleanup:
                 logging.warning(f"Cleanup: unknown event '{event}'")
             return
         
-        messages = await self._get_messages_state()
+        messages = await self._get_messages_state(chat_id)
         if not messages:
             if self.debug:
                 logging.debug(f"Cleanup: no messages in state for event '{event}'")
@@ -148,11 +221,11 @@ class MessageCleanup:
             
             if isinstance(messages[type_key], list):
                 if messages[type_key]:
-                    await self._delete_messages(chat_id, messages[type_key])
+                    await self._delete_messages(chat_id, messages[type_key], type_key)
                     deleted_count += len(messages[type_key])
                     messages[type_key] = []
             elif messages[type_key] is not None:
-                if await self._delete_message(chat_id, messages[type_key]):
+                if await self._delete_message(chat_id, messages[type_key], type_key):
                     deleted_count += 1
                 messages[type_key] = None
         
@@ -162,7 +235,7 @@ class MessageCleanup:
             logging.info(f"Cleanup: event '{event}' - deleted {deleted_count} message(s)")
 
     async def cleanup_all(self, chat_id: int):
-        messages = await self._get_messages_state()
+        messages = await self._get_messages_state(chat_id)
         
         if self.debug:
             logging.info(f"Cleanup: cleanup_all called for chat {chat_id}, messages in state: {messages}")
@@ -182,13 +255,13 @@ class MessageCleanup:
                 if message_data:
                     if self.debug:
                         logging.info(f"Cleanup: deleting {len(message_data)} {type_key} message(s): {message_data}")
-                    await self._delete_messages(chat_id, message_data)
+                    await self._delete_messages(chat_id, message_data, type_key)
                     deleted_count += len(message_data)
                     messages[type_key] = []
             elif message_data is not None:
                 if self.debug:
                     logging.info(f"Cleanup: deleting {type_key} message: {message_data}")
-                if await self._delete_message(chat_id, message_data):
+                if await self._delete_message(chat_id, message_data, type_key):
                     deleted_count += 1
                 messages[type_key] = None
         
@@ -227,10 +300,10 @@ class MessageCleanup:
     async def send_profile(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
         await self.cleanup_by_event(chat_id, 'show_profile')
 
-        messages = await self._get_messages_state()
+        messages = await self._get_messages_state(chat_id)
         existing_profile = messages.get('profile')
         if existing_profile and (reuse_message is None or existing_profile != reuse_message.message_id):
-            await self._delete_message(chat_id, existing_profile)
+            await self._delete_message(chat_id, existing_profile, 'profile')
             messages['profile'] = None
             await self._save_messages_state(messages)
 
@@ -261,10 +334,10 @@ class MessageCleanup:
     async def send_payment(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
         await self.cleanup_by_event(chat_id, 'start_payment')
 
-        messages = await self._get_messages_state()
+        messages = await self._get_messages_state(chat_id)
         existing_payment = messages.get('payment')
         if existing_payment and (reuse_message is None or existing_payment != reuse_message.message_id):
-            await self._delete_message(chat_id, existing_payment)
+            await self._delete_message(chat_id, existing_payment, 'payment')
             messages['payment'] = None
             await self._save_messages_state(messages)
 
@@ -372,18 +445,18 @@ class MessageCleanup:
         return msg.message_id
 
     async def dismiss_current(self, chat_id: int, message_id: int):
-        await self._delete_message(chat_id, message_id)
+        await self._delete_message(chat_id, message_id, None)
 
     async def dismiss_notification_by_id(self, chat_id: int, message_id: int):
-        messages = await self._get_messages_state()
+        messages = await self._get_messages_state(chat_id)
         
         if message_id in messages.get('notification', []):
-            await self._delete_message(chat_id, message_id)
+            await self._delete_message(chat_id, message_id, 'notification')
             messages['notification'].remove(message_id)
             await self._save_messages_state(messages)
 
     async def back_to_profile(self, chat_id: int, current_message_id: int):
-        await self._delete_message(chat_id, current_message_id)
+        await self._delete_message(chat_id, current_message_id, None)
         await self.cleanup_by_event(chat_id, 'back_to_profile')
 
     async def edit_navigation(self, chat_id: int, message_id: int, text: str, reply_markup: InlineKeyboardMarkup):
@@ -397,7 +470,7 @@ class MessageCleanup:
             await self.register_message(chat_id, message_id, MessageType.NAVIGATION)
             return True
         except TelegramBadRequest:
-            await self._delete_message(chat_id, message_id)
+            await self._delete_message(chat_id, message_id, 'navigation')
             msg = await self.bot.send_message(
                 chat_id=chat_id,
                 text=text,

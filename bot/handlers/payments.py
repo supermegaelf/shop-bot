@@ -111,7 +111,7 @@ async def success_payment(message: Message, state: FSMContext):
         await cleanup.send_important(
             chat_id=message.from_user.id,
             text=_("message_error") + "\n\n" + _("Please contact support. Your payment has been registered."),
-            reply_markup=get_main_menu_keyboard()
+            reply_markup=get_main_menu_keyboard(user_id=message.from_user.id)
         )
         return
 

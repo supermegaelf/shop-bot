@@ -11,10 +11,7 @@ services:
         environment:
             BOT_TOKEN: ${BOT_TOKEN}
             SHOP_NAME: ${SHOP_NAME}
-            PROTOCOLS: ${PROTOCOLS}
-            TEST_PERIOD: ${TEST_PERIOD}
             PERIOD_LIMIT: ${PERIOD_LIMIT}
-            ABOUT: ${ABOUT}
             SUPPORT_LINK: ${SUPPORT_LINK}
             YOOKASSA_TOKEN: ${YOOKASSA_TOKEN}
             YOOKASSA_SHOPID: ${YOOKASSA_SHOPID}
@@ -27,10 +24,6 @@ services:
             DB_ADDRESS: ${DB_ADDRESS}
             DB_PORT: ${DB_PORT}
             PANEL_HOST: ${PANEL_HOST}
-            PANEL_GLOBAL: ${PANEL_GLOBAL}
-            PANEL_USER: ${PANEL_USER}
-            PANEL_PASS: ${PANEL_PASS}
-            PANEL_TYPE: ${PANEL_TYPE}
             WEBHOOK_URL: ${WEBHOOK_URL}
             WEBHOOK_PORT: ${WEBHOOK_PORT}
             WEBHOOK_SECRET: ${WEBHOOK_SECRET}
@@ -38,7 +31,6 @@ services:
             STARS_PAYMENT_ENABLED: ${STARS_PAYMENT_ENABLED}
             CRYPTO_PAYMENT_ENABLED: ${CRYPTO_PAYMENT_ENABLED}
             ADMINS: ${ADMINS}
-            UPDATE_GEO_LINK: ${UPDATE_GEO_LINK}
             VPN_NOT_WORKING_LINK: ${VPN_NOT_WORKING_LINK}
             REMNAWAVE_TOKEN: ${REMNAWAVE_TOKEN}
         volumes:
