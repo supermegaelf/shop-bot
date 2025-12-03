@@ -13,6 +13,7 @@ from aiogram.fsm.context import FSMContext
 
 from keyboards import get_main_menu_keyboard
 from .messages import profile, help
+from .callbacks import _build_and_send_profile
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code, create_vpn_user, get_vpn_user
 from utils import MessageCleanup, MessageType
 from panel import get_panel
@@ -89,8 +90,9 @@ async def start(message: Message, state: FSMContext):
             )
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
     else:
-        sent_message = await message.answer(_("message_welcome").format(name=message.from_user.first_name), reply_markup=get_main_menu_keyboard(user_id=tg_id))
-        await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
+        panel = get_panel()
+        panel_profile = await panel.get_panel_user(tg_id)
+        await _build_and_send_profile(cleanup, tg_id, panel_profile)
 
 def register_commands(dp: Dispatcher):
     dp.include_router(router)
