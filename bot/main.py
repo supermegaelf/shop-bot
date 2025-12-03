@@ -18,7 +18,6 @@ from handlers.broadcast import register_broadcast
 from handlers.promo_management import register_promo_management
 from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
-from tasks import register
 import glv
 
 glv.bot = Bot(glv.config['BOT_TOKEN'],  default=DefaultBotProperties(parse_mode=enums.ParseMode.HTML))
@@ -29,8 +28,6 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s 
 
 async def on_startup(bot: Bot):
     await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")
-    if glv.config['PANEL_TYPE'] == 'MARZBAN':
-        asyncio.create_task(register())
 
 def setup_routers():
     register_commands(glv.dp)

@@ -48,14 +48,13 @@ async def start(message: Message, state: FSMContext):
     
     await create_vpn_user(tg_id)
     
-    if glv.config.get('PANEL_TYPE') == 'REMNAWAVE':
-        try:
-            user = await get_vpn_user(tg_id)
-            if user:
-                panel = get_panel()
-                await panel.update_user_telegram_id(user.vpn_id, tg_id)
-        except Exception as e:
-            logging.debug(f"Failed to update telegram_id for user {tg_id} in Remnawave: {e}")
+    try:
+        user = await get_vpn_user(tg_id)
+        if user:
+            panel = get_panel()
+            await panel.update_user_telegram_id(user.vpn_id, tg_id)
+    except Exception as e:
+        logging.debug(f"Failed to update telegram_id for user {tg_id} in Remnawave: {e}")
     
     args = message.text.split()
     
