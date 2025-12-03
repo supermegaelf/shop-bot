@@ -23,16 +23,6 @@ msgstr "️К оплате – {amount} $ ⬇️"
 msgid "message_select_payment_method"
 msgstr "Выберите способ оплаты ⬇️"
 
-msgid "message_welcome"
-msgstr ""
-"Здравствуйте, {name} 👋🏻\n\n"
-"С нашим VPN вы можете:\n"
-"— Попробовать бесплатно 🆓\n"
-"— Использовать на 📱, 💻 и 📺\n"
-"— Оплатить 💳 или ⭐️\n\n"
-"Готовы? 🏄🏻‍♂️\n"
-"Нажмите на кнопку ниже ⬇️"
-
 msgid "message_select_traffic_amount"
 msgstr "Выберите подходящий объём трафика ⬇️"
 
