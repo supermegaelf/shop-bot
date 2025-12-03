@@ -35,44 +35,38 @@ docker compose up -d
 ```env
 # MAIN SETTINGS
 BOT_TOKEN=12345678910:AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQq
-ADMINS=[123456789, 987654321, 555666777]
-SHOP_NAME=My VPN Shop
-PROTOCOLS=vless
-TEST_PERIOD=true
+ADMINS=[1234567890, 09876543210]
+SHOP_NAME=Some VPN
 PERIOD_LIMIT=120
-EMAIL=support@example.com
-RENEW_NOTIFICATION_TIME="16:00"
+EMAIL=forever@queenvpn.com
+SUPPORT_LINK=https://t.me/example
 
 # PANEL CONFIGURATION
 PANEL_HOST=http://remnawave:3000
-PANEL_GLOBAL=
-REMNAWAVE_TOKEN=your_remnawave_api_token_here
-WEBHOOK_URL=https://your-bot-domain.com
+REMNAWAVE_TOKEN=your_api_token
+WEBHOOK_URL=https://bot.example.com
 WEBHOOK_PORT=8777
-WEBHOOK_SECRET="your_webhook_secret_key_32chars"
+WEBHOOK_SECRET=your_webhook_secret
 
 # DATABASE
 DB_NAME=shop
-DB_USER=shopuser
-DB_PASS=secure_db_password_here
-DB_ROOT_PASS=secure_root_password_here
+DB_USER=remnawave
+DB_PASS=some_password
+DB_ROOT_PASS=some_root_password
 DB_ADDRESS=db
 DB_PORT=3306
 
 # PAYMENT SERVICES
-YOOKASSA_TOKEN=test_your_yookassa_token_here
+YOOKASSA_TOKEN=test_K7mP9xR2vL8fT5nJ3wY6aE1cH4uQdZ9oB2gF5iNsWqX
 YOOKASSA_SHOPID=123456
-CRYPTO_TOKEN=your_cryptomus_api_token_here
-MERCHANT_UUID=12345678-1234-1234-1234-123456789abc
-
-# TELEGRAM SETTINGS
-TG_INFO_CHANEL=https://t.me/your_info_channel
-SUPPORT_LINK=https://t.me/your_support_bot
+CRYPTO_TOKEN=Gf5Kp9wZ2mNv4Qx8cT1rYh7uLjB6aE0dFs3iO9pR5tWqX2nJ8vC4yU6kM1zA7bH3eD9sL5oI8gF2rT6wY4xP0cV7nQ1mJ9uB5aK3hL8tR2fW6eZ4iO1nX7qP5vC9dY8uG3mA6bJ0kL4w
+MERCHANT_UUID=8f3c9a1b-2d74-4e6b-b8a5-c17e90f56a3d
 STARS_PAYMENT_ENABLED=true
 CRYPTO_PAYMENT_ENABLED=false
-ABOUT=https://t.me/your_info_channel/about
-UPDATE_GEO_LINK=https://t.me/your_info_channel/geo_update
-VPN_NOT_WORKING_LINK=https://t.me/your_info_channel/troubleshooting
+
+# TELEGRAM SETTINGS
+TG_INFO_CHANEL=https://t.me/example
+VPN_NOT_WORKING_LINK=https://t.me/example
 ```
 
 ### Products goods.json
