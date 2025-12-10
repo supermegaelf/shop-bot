@@ -20,6 +20,15 @@ class RemnawavePanel(Panel):
         client = httpx.AsyncClient(headers=headers, base_url=api_base_url, timeout=30.0)
         self.client = client
 
+    def _extract_used_traffic(self, user_data: dict) -> int:
+        if 'usedTrafficBytes' in user_data:
+            return user_data['usedTrafficBytes']
+        if 'used_traffic_bytes' in user_data:
+            return user_data['used_traffic_bytes']
+        if 'userTraffic' in user_data and isinstance(user_data['userTraffic'], dict):
+            return user_data['userTraffic'].get('usedTrafficBytes', 0)
+        return 0
+
     async def _get_default_squad(self) -> dict | None:
         try:
             response = await self.client.get("/internal-squads")
@@ -123,7 +132,7 @@ class RemnawavePanel(Panel):
                 username=user_data['username'],
                 status=user_data['status'].lower(),
                 subscription_url=subscription_url,
-                used_traffic=user_data.get('usedTrafficBytes') or user_data.get('used_traffic_bytes') or 0,
+                used_traffic=self._extract_used_traffic(user_data),
                 data_limit=user_data.get('trafficLimitBytes') or user_data.get('traffic_limit_bytes'),
                 expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
             )
@@ -152,7 +161,7 @@ class RemnawavePanel(Panel):
                     username=user_data['username'],
                     status=user_data['status'].lower(),
                     subscription_url=subscription_url,
-                    used_traffic=user_data.get('usedTrafficBytes') or user_data.get('used_traffic_bytes') or 0,
+                    used_traffic=self._extract_used_traffic(user_data),
                     data_limit=user_data.get('trafficLimitBytes') or user_data.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
                 )
@@ -195,7 +204,7 @@ class RemnawavePanel(Panel):
                     username=updated_user['username'],
                     status=updated_user['status'].lower(),
                     subscription_url=subscription_url,
-                    used_traffic=updated_user.get('usedTrafficBytes') or updated_user.get('used_traffic_bytes') or 0,
+                    used_traffic=self._extract_used_traffic(updated_user),
                     data_limit=updated_user.get('trafficLimitBytes') or updated_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(updated_user['expireAt'].replace('Z', '+00:00')) if updated_user.get('expireAt') else None
                 )
@@ -235,7 +244,7 @@ class RemnawavePanel(Panel):
                     username=created_user['username'],
                     status=created_user['status'].lower(),
                     subscription_url=subscription_url,
-                    used_traffic=created_user.get('usedTrafficBytes') or created_user.get('used_traffic_bytes') or 0,
+                    used_traffic=self._extract_used_traffic(created_user),
                     data_limit=created_user.get('trafficLimitBytes') or created_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(created_user['expireAt'].replace('Z', '+00:00')) if created_user.get('expireAt') else None
                 )
@@ -276,7 +285,7 @@ class RemnawavePanel(Panel):
                     username=updated_user['username'],
                     status=updated_user['status'].lower(),
                     subscription_url=subscription_url,
-                    used_traffic=updated_user.get('usedTrafficBytes') or updated_user.get('used_traffic_bytes') or 0,
+                    used_traffic=self._extract_used_traffic(updated_user),
                     data_limit=updated_user.get('trafficLimitBytes') or updated_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(updated_user['expireAt'].replace('Z', '+00:00')) if updated_user.get('expireAt') else None
                 )
@@ -317,7 +326,7 @@ class RemnawavePanel(Panel):
                     username=created_user['username'],
                     status=created_user['status'].lower(),
                     subscription_url=subscription_url,
-                    used_traffic=created_user.get('usedTrafficBytes') or created_user.get('used_traffic_bytes') or 0,
+                    used_traffic=self._extract_used_traffic(created_user),
                     data_limit=created_user.get('trafficLimitBytes') or created_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(created_user['expireAt'].replace('Z', '+00:00')) if created_user.get('expireAt') else None
                 )
@@ -374,7 +383,7 @@ class RemnawavePanel(Panel):
                 username=reset_user['username'],
                 status=reset_user['status'].lower(),
                 subscription_url=subscription_url,
-                used_traffic=reset_user.get('usedTrafficBytes') or reset_user.get('used_traffic_bytes') or 0,
+                used_traffic=self._extract_used_traffic(reset_user),
                 data_limit=reset_user.get('trafficLimitBytes') or reset_user.get('traffic_limit_bytes'),
                 expire=datetime.fromisoformat(reset_user['expireAt'].replace('Z', '+00:00')) if reset_user.get('expireAt') else None
             )
