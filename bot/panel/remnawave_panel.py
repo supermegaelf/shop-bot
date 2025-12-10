@@ -125,8 +125,6 @@ class RemnawavePanel(Panel):
             subscription_url = user_data.get('subscriptionUrl') or user_data.get('subscription_url') or ""
             if not subscription_url and user_data.get('uuid'):
                 subscription_url = await self._get_subscription_url(user_data['uuid'])
-            if not subscription_url:
-                logging.warning(f"User {result.vpn_id} has no subscriptionUrl in response: {list(user_data.keys())}")
             
             return PanelProfile(
                 username=user_data['username'],
@@ -154,8 +152,6 @@ class RemnawavePanel(Panel):
                 subscription_url = user_data.get('subscriptionUrl') or user_data.get('subscription_url') or ""
                 if not subscription_url and user_data.get('uuid'):
                     subscription_url = await self._get_subscription_url(user_data['uuid'])
-                if not subscription_url:
-                    logging.warning(f"User {result.vpn_id} has no subscriptionUrl in response: {list(user_data.keys())}")
                 
                 return PanelProfile(
                     username=user_data['username'],
