@@ -20,6 +20,15 @@ class RemnawavePanel(Panel):
         client = httpx.AsyncClient(headers=headers, base_url=api_base_url, timeout=30.0)
         self.client = client
 
+    def _extract_used_traffic(self, user_data: dict) -> int:
+        if 'usedTrafficBytes' in user_data:
+            return user_data['usedTrafficBytes']
+        if 'used_traffic_bytes' in user_data:
+            return user_data['used_traffic_bytes']
+        if 'userTraffic' in user_data and isinstance(user_data['userTraffic'], dict):
+            return user_data['userTraffic'].get('usedTrafficBytes', 0)
+        return 0
+
     async def _get_default_squad(self) -> dict | None:
         try:
             response = await self.client.get("/internal-squads")
@@ -110,16 +119,23 @@ class RemnawavePanel(Panel):
             data = response.json()
             user_data = data.get('response')
             if not user_data:
+                logging.warning(f"User {result.vpn_id} not found in API response")
                 return None
+            
+            subscription_url = user_data.get('subscriptionUrl') or user_data.get('subscription_url') or ""
+            if not subscription_url and user_data.get('uuid'):
+                subscription_url = await self._get_subscription_url(user_data['uuid'])
+            
             return PanelProfile(
                 username=user_data['username'],
                 status=user_data['status'].lower(),
-                subscription_url=user_data['subscriptionUrl'],
-                used_traffic=user_data['usedTrafficBytes'],
-                data_limit=user_data.get('trafficLimitBytes'),
+                subscription_url=subscription_url,
+                used_traffic=self._extract_used_traffic(user_data),
+                data_limit=user_data.get('trafficLimitBytes') or user_data.get('traffic_limit_bytes'),
                 expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
             )
         except Exception as e:
+            logging.error(f"Error getting user by username {result.vpn_id}: {e}")
             try:
                 response = await self.client.get(f"/users?username={result.vpn_id}")
                 response.raise_for_status()
@@ -130,16 +146,23 @@ class RemnawavePanel(Panel):
                         user_data = user
                         break
                 if not user_data:
+                    logging.warning(f"User {result.vpn_id} not found in users list")
                     return None
+                
+                subscription_url = user_data.get('subscriptionUrl') or user_data.get('subscription_url') or ""
+                if not subscription_url and user_data.get('uuid'):
+                    subscription_url = await self._get_subscription_url(user_data['uuid'])
+                
                 return PanelProfile(
                     username=user_data['username'],
                     status=user_data['status'].lower(),
-                    subscription_url=user_data['subscriptionUrl'],
-                    used_traffic=user_data['usedTrafficBytes'],
-                    data_limit=user_data.get('trafficLimitBytes'),
+                    subscription_url=subscription_url,
+                    used_traffic=self._extract_used_traffic(user_data),
+                    data_limit=user_data.get('trafficLimitBytes') or user_data.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
                 )
-            except Exception:
+            except Exception as e2:
+                logging.error(f"Error getting user from users list {result.vpn_id}: {e2}")
                 return None
 
     async def generate_subscription(self, username: str, months: int, data_limit: int) -> PanelProfile:
@@ -170,12 +193,15 @@ class RemnawavePanel(Panel):
                 updated_data = update_response.json()
 
                 updated_user = updated_data['response']
+                subscription_url = updated_user.get('subscriptionUrl') or updated_user.get('subscription_url') or ""
+                if not subscription_url and updated_user.get('uuid'):
+                    subscription_url = await self._get_subscription_url(updated_user['uuid'])
                 return PanelProfile(
                     username=updated_user['username'],
                     status=updated_user['status'].lower(),
-                    subscription_url=updated_user['subscriptionUrl'],
-                    used_traffic=updated_user['usedTrafficBytes'],
-                    data_limit=updated_user.get('trafficLimitBytes'),
+                    subscription_url=subscription_url,
+                    used_traffic=self._extract_used_traffic(updated_user),
+                    data_limit=updated_user.get('trafficLimitBytes') or updated_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(updated_user['expireAt'].replace('Z', '+00:00')) if updated_user.get('expireAt') else None
                 )
             except Exception as e:
@@ -207,12 +233,15 @@ class RemnawavePanel(Panel):
                         inbound_uuids=inbound_uuids
                     )
 
+                subscription_url = created_user.get('subscriptionUrl') or created_user.get('subscription_url') or ""
+                if not subscription_url and created_user.get('uuid'):
+                    subscription_url = await self._get_subscription_url(created_user['uuid'])
                 return PanelProfile(
                     username=created_user['username'],
                     status=created_user['status'].lower(),
-                    subscription_url=created_user['subscriptionUrl'],
-                    used_traffic=created_user['usedTrafficBytes'],
-                    data_limit=created_user.get('trafficLimitBytes'),
+                    subscription_url=subscription_url,
+                    used_traffic=self._extract_used_traffic(created_user),
+                    data_limit=created_user.get('trafficLimitBytes') or created_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(created_user['expireAt'].replace('Z', '+00:00')) if created_user.get('expireAt') else None
                 )
             except Exception as e:
@@ -245,12 +274,15 @@ class RemnawavePanel(Panel):
                 updated_data = update_response.json()
 
                 updated_user = updated_data['response']
+                subscription_url = updated_user.get('subscriptionUrl') or updated_user.get('subscription_url') or ""
+                if not subscription_url and updated_user.get('uuid'):
+                    subscription_url = await self._get_subscription_url(updated_user['uuid'])
                 return PanelProfile(
                     username=updated_user['username'],
                     status=updated_user['status'].lower(),
-                    subscription_url=updated_user['subscriptionUrl'],
-                    used_traffic=updated_user['usedTrafficBytes'],
-                    data_limit=updated_user.get('trafficLimitBytes'),
+                    subscription_url=subscription_url,
+                    used_traffic=self._extract_used_traffic(updated_user),
+                    data_limit=updated_user.get('trafficLimitBytes') or updated_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(updated_user['expireAt'].replace('Z', '+00:00')) if updated_user.get('expireAt') else None
                 )
             except Exception as e:
@@ -283,12 +315,15 @@ class RemnawavePanel(Panel):
                         inbound_uuids=inbound_uuids
                     )
 
+                subscription_url = created_user.get('subscriptionUrl') or created_user.get('subscription_url') or ""
+                if not subscription_url and created_user.get('uuid'):
+                    subscription_url = await self._get_subscription_url(created_user['uuid'])
                 return PanelProfile(
                     username=created_user['username'],
                     status=created_user['status'].lower(),
-                    subscription_url=created_user['subscriptionUrl'],
-                    used_traffic=created_user['usedTrafficBytes'],
-                    data_limit=created_user.get('trafficLimitBytes'),
+                    subscription_url=subscription_url,
+                    used_traffic=self._extract_used_traffic(created_user),
+                    data_limit=created_user.get('trafficLimitBytes') or created_user.get('traffic_limit_bytes'),
                     expire=datetime.fromisoformat(created_user['expireAt'].replace('Z', '+00:00')) if created_user.get('expireAt') else None
                 )
             except Exception as e:
@@ -337,12 +372,15 @@ class RemnawavePanel(Panel):
             reset_response.raise_for_status()
             reset_data = reset_response.json()
             reset_user = reset_data['response']
+            subscription_url = reset_user.get('subscriptionUrl') or reset_user.get('subscription_url') or ""
+            if not subscription_url and reset_user.get('uuid'):
+                subscription_url = await self._get_subscription_url(reset_user['uuid'])
             return PanelProfile(
                 username=reset_user['username'],
                 status=reset_user['status'].lower(),
-                subscription_url=reset_user['subscriptionUrl'],
-                used_traffic=reset_user['usedTrafficBytes'],
-                data_limit=reset_user.get('trafficLimitBytes'),
+                subscription_url=subscription_url,
+                used_traffic=self._extract_used_traffic(reset_user),
+                data_limit=reset_user.get('trafficLimitBytes') or reset_user.get('traffic_limit_bytes'),
                 expire=datetime.fromisoformat(reset_user['expireAt'].replace('Z', '+00:00')) if reset_user.get('expireAt') else None
             )
         except Exception as e:
@@ -359,6 +397,16 @@ class RemnawavePanel(Panel):
             return None
         except Exception:
             return None
+
+    async def _get_subscription_url(self, user_uuid: str) -> str:
+        try:
+            response = await self.client.get(f"/users/{user_uuid}/subscription")
+            response.raise_for_status()
+            data = response.json()
+            return data.get('response', {}).get('url') or data.get('response', {}).get('subscriptionUrl') or ""
+        except Exception as e:
+            logging.debug(f"Failed to get subscription URL for user {user_uuid}: {e}")
+            return ""
 
     async def update_user_telegram_id(self, username: str, tg_id: int) -> bool:
         try:
