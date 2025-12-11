@@ -146,7 +146,6 @@ class RemnawavePanel(Panel):
                         user_data = user
                         break
                 if not user_data:
-                    logging.warning(f"User {result.vpn_id} not found in users list")
                     return None
                 
                 subscription_url = user_data.get('subscriptionUrl') or user_data.get('subscription_url') or ""
