@@ -135,7 +135,8 @@ class RemnawavePanel(Panel):
                 expire=datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00')) if user_data.get('expireAt') else None
             )
         except Exception as e:
-            logging.error(f"Error getting user by username {result.vpn_id}: {e}")
+            if "404" not in str(e):
+                logging.error(f"Error getting user by username {result.vpn_id}: {e}")
             try:
                 response = await self.client.get(f"/users?username={result.vpn_id}")
                 response.raise_for_status()
