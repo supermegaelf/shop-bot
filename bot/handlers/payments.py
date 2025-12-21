@@ -15,6 +15,8 @@ from db.methods import (
     use_all_promo_codes,
     has_confirmed_payments,
     get_payment,
+    get_referrer_id,
+    add_referral_reward,
 )
 from keyboards import (
     get_install_subscription_keyboard,
@@ -125,6 +127,40 @@ async def success_payment(message: Message, state: FSMContext):
         from_notification=from_notification,
     )
     await use_all_promo_codes(message.from_user.id)
+    
+    confirmed_payment = await get_payment(
+        message.successful_payment.telegram_payment_charge_id, PaymentPlatform.TELEGRAM
+    )
+    if confirmed_payment and confirmed_payment.confirmed:
+        referrer_id = await get_referrer_id(message.from_user.id)
+        if referrer_id:
+            referral_reward_percent = glv.config.get('REFERRAL_REWARD_PERCENT', 10)
+            price_key = 'stars' if 'stars' in good.get('price', {}) else ('ru' if message.from_user.language_code == 'ru' else 'en')
+            base_price = good.get('price', {}).get(price_key, good.get('price', {}).get('en', 0))
+            if base_price and base_price > 0:
+                reward_amount = int(base_price * referral_reward_percent / 100)
+                if reward_amount > 0:
+                    try:
+                        await add_referral_reward(
+                            referrer_id=referrer_id,
+                            referred_id=message.from_user.id,
+                            payment_id=message.successful_payment.telegram_payment_charge_id,
+                            reward_amount=reward_amount,
+                            reward_type='bonus_days'
+                        )
+                    try:
+                        reward_message = _("message_referral_reward").format(
+                            amount=reward_amount,
+                            currency="⭐️" if price_key == 'stars' else ("₽" if price_key == 'ru' else "$")
+                        )
+                        await glv.bot.send_message(
+                            referrer_id,
+                            reward_message
+                        )
+                    except Exception as e:
+                        logging.debug(f"Failed to send referral reward notification to {referrer_id}: {e}")
+                except Exception as e:
+                    logging.error(f"Failed to add referral reward: {e}", exc_info=True)
 
 
 def register_payments(dp: Dispatcher):

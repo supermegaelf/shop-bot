@@ -28,6 +28,10 @@ from db.methods import (
     start_trial,
     get_vpn_user,
     get_user_promo_discount,
+    get_referral_count,
+    get_referrals_with_payments,
+    get_total_referral_rewards,
+    generate_referral_code,
 )
 from utils import goods, yookassa, cryptomus, MessageCleanup, try_delete_message
 from panel import get_panel
@@ -438,6 +442,41 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
         reply_markup=get_payment_keyboard(good),
     )
 
+
+@router.callback_query(F.data == "referrals")
+async def callback_referrals(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    tg_id = callback.from_user.id
+    referral_count = await get_referral_count(tg_id)
+    referrals_with_payments = await get_referrals_with_payments(tg_id)
+    total_rewards = await get_total_referral_rewards(tg_id)
+    referral_code = generate_referral_code(tg_id)
+    referral_link = f"https://t.me/{(await glv.bot.get_me()).username}?start={referral_code}"
+    
+    message_text = _("message_referral_stats").format(
+        total_referrals=referral_count,
+        active_referrals=referrals_with_payments,
+        total_rewards=total_rewards,
+        referral_link=referral_link
+    )
+    
+    from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=_("button_copy_link"), url=f"https://t.me/share/url?url={referral_link}")],
+        [InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]
+    ])
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    message_deleted = await try_delete_message(callback.message)
+    reuse_message = None if message_deleted else callback.message
+    
+    await cleanup.send_navigation(
+        chat_id=tg_id,
+        text=message_text,
+        reply_markup=keyboard,
+        reuse_message=reuse_message,
+    )
 
 @router.callback_query(F.data == "back_to_profile")
 async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):

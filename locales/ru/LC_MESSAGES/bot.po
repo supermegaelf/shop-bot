@@ -299,3 +299,26 @@ msgstr "Промокод: <code>{code}</code>, скидка: {discount}%, дей
 
 msgid "message_promo_already_exists"
 msgstr "Такой промокод уже существует ⛔️"
+
+msgid "button_referrals"
+msgstr "Реферальная программа 🎁"
+
+msgid "message_referral_stats"
+msgstr ""
+"📊 <b>Статистика рефералов</b>\n\n"
+"Всего приглашено: {total_referrals}\n"
+"С оплатами: {active_referrals}\n"
+"Заработано бонусов: {total_rewards} ₽\n\n"
+"🔗 <b>Ваша реферальная ссылка:</b>\n"
+"{referral_link}\n\n"
+"Приглашайте друзей и получайте бонусы за их покупки! 💰"
+
+msgid "button_copy_link"
+msgstr "📋 Поделиться ссылкой"
+
+msgid "message_referral_reward"
+msgstr ""
+"🎉 <b>Реферальный бонус!</b>\n\n"
+"Ваш реферал совершил покупку.\n"
+"Вам начислено: {amount} {currency} 🎁\n\n"
+"Продолжайте приглашать друзей!"

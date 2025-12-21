@@ -54,7 +54,8 @@ config = {
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'ADMINS': _parse_admins(os.environ.get('ADMINS', '')),
-    'VPN_NOT_WORKING_LINK': os.environ.get('VPN_NOT_WORKING_LINK')
+    'VPN_NOT_WORKING_LINK': os.environ.get('VPN_NOT_WORKING_LINK'),
+    'REFERRAL_REWARD_PERCENT': int(os.environ.get('REFERRAL_REWARD_PERCENT', 10))
 }
 
 bot: Bot = None

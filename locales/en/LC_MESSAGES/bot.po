@@ -299,3 +299,26 @@ msgstr "Promo code: <code>{code}</code>, discount: {discount}%, valid until: {ex
 
 msgid "message_promo_already_exists"
 msgstr "This promo code already exists ⛔️"
+
+msgid "button_referrals"
+msgstr "Referral Program 🎁"
+
+msgid "message_referral_stats"
+msgstr ""
+"📊 <b>Referral Statistics</b>\n\n"
+"Total referrals: {total_referrals}\n"
+"With payments: {active_referrals}\n"
+"Total rewards earned: {total_rewards} $\n\n"
+"🔗 <b>Your referral link:</b>\n"
+"{referral_link}\n\n"
+"Invite friends and earn bonuses for their purchases! 💰"
+
+msgid "button_copy_link"
+msgstr "📋 Share link"
+
+msgid "message_referral_reward"
+msgstr ""
+"🎉 <b>Referral Bonus!</b>\n\n"
+"Your referral made a purchase.\n"
+"You earned: {amount} {currency} 🎁\n\n"
+"Keep inviting friends!"

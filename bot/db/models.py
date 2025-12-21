@@ -52,3 +52,22 @@ class UserMessages(Base):
     message_type = Column(String(50), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now)
 
+class Referrals(Base):
+    __tablename__ = "referrals"
+    
+    id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
+    referrer_id = Column(BigInteger, nullable=False, index=True)
+    referred_id = Column(BigInteger, nullable=False, unique=True, index=True)
+    created_at = Column(DateTime, nullable=False, default=datetime.now)
+
+class ReferralRewards(Base):
+    __tablename__ = "referral_rewards"
+    
+    id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
+    referrer_id = Column(BigInteger, nullable=False, index=True)
+    referred_id = Column(BigInteger, nullable=False, index=True)
+    payment_id = Column(String(64), nullable=False, index=True)
+    reward_amount = Column(Integer, nullable=False)
+    reward_type = Column(String(50), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.now)
+

@@ -18,7 +18,9 @@ from db.methods import (
     disable_trial,
     is_test_subscription,
     use_all_promo_codes,
-    has_confirmed_payments
+    has_confirmed_payments,
+    get_referrer_id,
+    add_referral_reward
 )
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods
@@ -64,14 +66,17 @@ async def _process_payment_success(payment, good, user):
             except Exception as e:
                 logging.debug(f"Failed to delete payment message {payment.message_id}: {e}")
 
+        payment_confirmed = False
         if good['type'] == 'update':
             await glv.bot.send_message(
                 payment.tg_id,
                 get_i18n_string("message_payment_success", payment.lang),
                 reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
             )
+            payment_confirmed = payment.confirmed
         else:
             await confirm_payment(payment.payment_id)
+            payment_confirmed = True
             user_has_payments = await has_confirmed_payments(payment.tg_id)
             if user_has_payments:
                 await glv.bot.send_message(
@@ -88,6 +93,37 @@ async def _process_payment_success(payment, good, user):
                 )
         
         await use_all_promo_codes(payment.tg_id)
+        
+        if payment_confirmed:
+            referrer_id = await get_referrer_id(payment.tg_id)
+            if referrer_id:
+                referral_reward_percent = glv.config.get('REFERRAL_REWARD_PERCENT', 10)
+                price_key = 'ru' if payment.lang == 'ru' else 'en'
+                base_price = good.get('price', {}).get(price_key, good.get('price', {}).get('en', 0))
+                if base_price and base_price > 0:
+                    reward_amount = int(base_price * referral_reward_percent / 100)
+                    if reward_amount > 0:
+                        try:
+                            await add_referral_reward(
+                                referrer_id=referrer_id,
+                                referred_id=payment.tg_id,
+                                payment_id=payment.payment_id,
+                                reward_amount=reward_amount,
+                                reward_type='bonus_days'
+                            )
+                        try:
+                            reward_message = get_i18n_string("message_referral_reward", payment.lang).format(
+                                amount=reward_amount,
+                                currency="₽" if price_key == 'ru' else "$"
+                            )
+                            await glv.bot.send_message(
+                                referrer_id,
+                                reward_message
+                            )
+                        except Exception as e:
+                            logging.debug(f"Failed to send referral reward notification to {referrer_id}: {e}")
+                    except Exception as e:
+                        logging.error(f"Failed to add referral reward: {e}", exc_info=True)
     except Exception as e:
         logging.error(
             f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",

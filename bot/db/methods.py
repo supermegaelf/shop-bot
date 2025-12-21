@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete, exists
 
-from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages
+from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages, Referrals, ReferralRewards
 import glv
 
 class PaymentPlatform(Enum):
@@ -265,3 +265,104 @@ async def cleanup_old_messages(days: int = 7):
         sql_query = delete(UserMessages).where(UserMessages.created_at < cutoff_date)
         await conn.execute(sql_query)
         await conn.commit()
+
+async def create_referral(referrer_id: int, referred_id: int):
+    if referrer_id == referred_id:
+        return
+    async with engine.connect() as conn:
+        check_query = select(Referrals).where(Referrals.referred_id == referred_id)
+        existing = (await conn.execute(check_query)).fetchone()
+        if existing:
+            return
+        referrer_exists = select(VPNUsers).where(VPNUsers.tg_id == referrer_id)
+        referrer_check = (await conn.execute(referrer_exists)).fetchone()
+        if not referrer_check:
+            return
+        try:
+            sql_query = insert(Referrals).values(
+                referrer_id=referrer_id,
+                referred_id=referred_id,
+                created_at=datetime.now()
+            )
+            await conn.execute(sql_query)
+            await conn.commit()
+        except Exception:
+            await conn.rollback()
+            raise
+
+async def get_referrer_id(referred_id: int):
+    async with engine.connect() as conn:
+        sql_query = select(Referrals.referrer_id).where(Referrals.referred_id == referred_id)
+        result = (await conn.execute(sql_query)).fetchone()
+    return result[0] if result else None
+
+async def get_referral_count(referrer_id: int) -> int:
+    async with engine.connect() as conn:
+        sql_query = select(Referrals).where(Referrals.referrer_id == referrer_id)
+        results = (await conn.execute(sql_query)).fetchall()
+    return len(results)
+
+async def get_referrals_with_payments(referrer_id: int) -> int:
+    async with engine.connect() as conn:
+        sql_query = select(Referrals.referred_id).where(Referrals.referrer_id == referrer_id)
+        referral_ids = (await conn.execute(sql_query)).fetchall()
+        if not referral_ids:
+            return 0
+        referred_ids = [row[0] for row in referral_ids]
+        count_query = select(Payments.tg_id).where(
+            Payments.tg_id.in_(referred_ids),
+            Payments.confirmed == True
+        ).distinct()
+        results = (await conn.execute(count_query)).fetchall()
+    return len(results)
+
+async def get_total_referral_rewards(referrer_id: int) -> int:
+    async with engine.connect() as conn:
+        sql_query = select(ReferralRewards.reward_amount).where(ReferralRewards.referrer_id == referrer_id)
+        results = (await conn.execute(sql_query)).fetchall()
+    return sum(row[0] for row in results) if results else 0
+
+async def add_referral_reward(referrer_id: int, referred_id: int, payment_id: str, reward_amount: int, reward_type: str):
+    if not payment_id or not reward_amount or reward_amount <= 0:
+        return
+    async with engine.connect() as conn:
+        check_query = select(ReferralRewards).where(
+            ReferralRewards.referrer_id == referrer_id,
+            ReferralRewards.payment_id == payment_id
+        )
+        existing = (await conn.execute(check_query)).fetchone()
+        if existing:
+            return
+        try:
+            sql_query = insert(ReferralRewards).values(
+                referrer_id=referrer_id,
+                referred_id=referred_id,
+                payment_id=payment_id,
+                reward_amount=reward_amount,
+                reward_type=reward_type,
+                created_at=datetime.now()
+            )
+            await conn.execute(sql_query)
+            await conn.commit()
+        except Exception:
+            await conn.rollback()
+            raise
+
+def generate_referral_code(tg_id: int) -> str:
+    import base64
+    encoded = base64.urlsafe_b64encode(str(tg_id).encode()).decode().rstrip('=')
+    return f"ref_{encoded}"
+
+def decode_referral_code(code: str) -> int:
+    import base64
+    try:
+        if not code.startswith("ref_"):
+            return None
+        encoded = code.replace("ref_", "")
+        padding = 4 - (len(encoded) % 4)
+        if padding != 4:
+            encoded += '=' * padding
+        decoded = base64.urlsafe_b64decode(encoded).decode()
+        return int(decoded)
+    except Exception:
+        return None
