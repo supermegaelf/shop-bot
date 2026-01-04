@@ -423,11 +423,16 @@ async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.back_to_profile(callback.from_user.id, callback.message.message_id)
+    await cleanup.cleanup_by_event(callback.from_user.id, 'back_to_profile')
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
-    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
+    await _build_and_send_profile(
+        cleanup,
+        callback.from_user.id,
+        panel_profile,
+        reuse_message=callback.message,
+    )
 
 
 @router.callback_query(F.data.startswith("back_to_payment_"))
@@ -568,12 +573,17 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.back_to_profile(callback.from_user.id, callback.message.message_id)
+    await cleanup.cleanup_by_event(callback.from_user.id, 'back_to_profile')
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
-    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
+    await _build_and_send_profile(
+        cleanup,
+        callback.from_user.id,
+        panel_profile,
+        reuse_message=callback.message,
+    )
 
 
 @router.callback_query(F.data == "admin_management", IsAdminCallbackFilter(is_admin=True))
