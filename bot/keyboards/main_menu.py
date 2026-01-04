@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.i18n import gettext as _
 
 from utils import get_i18n_string
-from db.methods import get_user_promo_discount
+from db.methods import get_user_promo_discount, is_trial_available
 import glv
 
 async def get_main_menu_keyboard(user_id: int = None, lang=None) -> InlineKeyboardMarkup:
@@ -12,9 +12,18 @@ async def get_main_menu_keyboard(user_id: int = None, lang=None) -> InlineKeyboa
         InlineKeyboardButton(text=get_i18n_str("button_subscription", lang), callback_data="subscription_details")
     ])
     
-    kb.append([
-        InlineKeyboardButton(text=get_i18n_str("button_renew", lang), callback_data="payment")
-    ])
+    trial_available = False
+    if user_id:
+        trial_available = await is_trial_available(user_id)
+    
+    if trial_available:
+        kb.append([
+            InlineKeyboardButton(text=get_i18n_str("button_free_trial", lang), callback_data="trial")
+        ])
+    else:
+        kb.append([
+            InlineKeyboardButton(text=get_i18n_str("button_renew", lang), callback_data="payment")
+        ])
     
     discount = None
     if user_id:
