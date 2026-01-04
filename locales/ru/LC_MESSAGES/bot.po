@@ -91,7 +91,7 @@ msgid "message_select_payment_period"
 msgstr "Выберете период оплаты ⬇️"
 
 msgid "message_select_action"
-msgstr "Выберите вариант ⬇️"
+msgstr "Выберите пункт ⬇️"
 
 msgid "button_vpn_not_working"
 msgstr "Не работает VPN ⛔️"
