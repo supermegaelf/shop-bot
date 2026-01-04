@@ -29,7 +29,7 @@ from db.methods import (
     get_vpn_user,
     get_user_promo_discount,
 )
-from utils import goods, yookassa, cryptomus, MessageCleanup
+from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType
 from panel import get_panel
 from filters import IsAdminCallbackFilter
 import glv
@@ -423,7 +423,7 @@ async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.cleanup_by_event(callback.from_user.id, 'back_to_profile')
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)

@@ -448,6 +448,26 @@ class MessageCleanup:
     async def back_to_profile(self, chat_id: int, current_message_id: int):
         await self._delete_message(chat_id, current_message_id, None)
         await self.cleanup_by_event(chat_id, 'back_to_profile')
+    
+    async def cleanup_back_to_profile_except(self, chat_id: int, except_message_id: int):
+        messages = await self._get_messages_state(chat_id)
+        types_to_cleanup = [MessageType.NAVIGATION, MessageType.NOTIFICATION, MessageType.SUCCESS]
+        
+        for msg_type in types_to_cleanup:
+            type_key = msg_type.value
+            if type_key not in messages:
+                continue
+            
+            if isinstance(messages[type_key], list):
+                message_ids_to_delete = [msg_id for msg_id in messages[type_key] if msg_id != except_message_id]
+                if message_ids_to_delete:
+                    await self._delete_messages(chat_id, message_ids_to_delete, type_key)
+                messages[type_key] = [msg_id for msg_id in messages[type_key] if msg_id == except_message_id]
+            elif messages[type_key] is not None and messages[type_key] != except_message_id:
+                await self._delete_message(chat_id, messages[type_key], type_key)
+                messages[type_key] = None
+        
+        await self._save_messages_state(messages)
 
     async def edit_navigation(self, chat_id: int, message_id: int, text: str, reply_markup: InlineKeyboardMarkup):
         try:
