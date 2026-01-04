@@ -59,12 +59,6 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None) -> Inlin
                 web_app=WebAppInfo(url=subscription_url)
             )
         )
-        builder.row(
-            InlineKeyboardButton(
-                text=_("button_share"),
-                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
-            )
-        )
     
     builder.row(
         InlineKeyboardButton(
@@ -72,6 +66,14 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None) -> Inlin
             callback_data="payment"
         )
     )
+    
+    if subscription_url:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_share"),
+                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
+            )
+        )
     
     builder.row(
         InlineKeyboardButton(
