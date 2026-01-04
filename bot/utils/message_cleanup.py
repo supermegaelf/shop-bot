@@ -175,18 +175,28 @@ class MessageCleanup:
         
         messages = await self._get_messages_state(chat_id)
         
-        if message_type in [MessageType.NAVIGATION, MessageType.NOTIFICATION]:
-            if message_type.value not in messages:
-                messages[message_type.value] = []
-            if message_id not in messages[message_type.value]:
-                messages[message_type.value].append(message_id)
-        else:
-            messages[message_type.value] = message_id
-        
-        await self._save_messages_state(messages)
-        
         try:
             tg_id = await self._get_tg_id(chat_id)
+            
+            if message_type in [MessageType.NAVIGATION, MessageType.NOTIFICATION]:
+                if message_type.value not in messages:
+                    messages[message_type.value] = []
+                if message_id not in messages[message_type.value]:
+                    messages[message_type.value].append(message_id)
+            else:
+                old_message_id = messages.get(message_type.value)
+                if old_message_id and old_message_id != message_id:
+                    try:
+                        await delete_user_message(tg_id, old_message_id, message_type.value)
+                        if self.debug:
+                            logging.info(f"Cleanup: deleted old {message_type.value} message {old_message_id} from DB for user {tg_id}")
+                    except Exception as e:
+                        if self.debug:
+                            logging.warning(f"Cleanup: failed to delete old message {old_message_id} from DB: {e}")
+                messages[message_type.value] = message_id
+            
+            await self._save_messages_state(messages)
+            
             await save_user_message(tg_id, message_id, message_type.value)
             if self.debug:
                 logging.info(f"Cleanup: saved {message_type.value} message {message_id} to DB for user {tg_id}")
