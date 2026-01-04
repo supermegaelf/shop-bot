@@ -29,7 +29,7 @@ from db.methods import (
     get_vpn_user,
     get_user_promo_discount,
 )
-from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType
+from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message
 from panel import get_panel
 from filters import IsAdminCallbackFilter
 import glv
