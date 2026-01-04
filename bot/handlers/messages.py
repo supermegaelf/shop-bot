@@ -46,19 +46,13 @@ def _format_profile_data(panel_profile):
 
 
 async def _build_and_send_profile(cleanup, user_id: int, panel_profile):
-    profile_data = _format_profile_data(panel_profile)
+    from keyboards import get_main_menu_keyboard
     
-    keyboard = await get_user_profile_keyboard(
-        user_id, profile_data["show_buy_traffic_button"], profile_data["url"]
-    )
+    keyboard = await get_main_menu_keyboard(user_id=user_id)
     
     await cleanup.send_profile(
         chat_id=user_id,
-        text=_("subscription_data").format(
-            status=profile_data["status"],
-            expire_date=profile_data["expire_date"],
-            data_used=profile_data["data_used"],
-            data_limit=profile_data["data_limit"],
+        text=_("main_menu_news").format(
             link=glv.config['TG_INFO_CHANEL']
         ),
         reply_markup=keyboard,

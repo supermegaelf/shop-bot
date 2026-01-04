@@ -63,30 +63,30 @@ async def start(message: Message, state: FSMContext):
         promo_code = args[1].replace("promo_", "").upper()
         promo = await get_promo_code_by_code(promo_code)
         if not promo:
-            sent_message = await message.answer(text=_("message_promo_not_found"), reply_markup=get_main_menu_keyboard(user_id=tg_id))
+            sent_message = await message.answer(text=_("message_promo_not_found"), reply_markup=await get_main_menu_keyboard(user_id=tg_id))
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
             return
     
         if promo.expires_at and promo.expires_at < datetime.now():
-            sent_message = await message.answer(text=_("message_promo_expired"), reply_markup=get_main_menu_keyboard(user_id=tg_id))
+            sent_message = await message.answer(text=_("message_promo_expired"), reply_markup=await get_main_menu_keyboard(user_id=tg_id))
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
             return
     
         if await has_activated_promo_code(tg_id, promo.id):
-            sent_message = await message.answer(text=_("message_promo_already_activated"), reply_markup=get_main_menu_keyboard(user_id=tg_id))
+            sent_message = await message.answer(text=_("message_promo_already_activated"), reply_markup=await get_main_menu_keyboard(user_id=tg_id))
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
             return
     
         try:
             await activate_promo_code(tg_id, promo.id)
             sent_message = await message.answer(text=_("message_promo_activated").format(discount=promo.discount_percent), 
-                             reply_markup=get_main_menu_keyboard(user_id=tg_id))
+                             reply_markup=await get_main_menu_keyboard(user_id=tg_id))
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
         except Exception as e:
             logging.error(f"Failed to activate promo code {promo_code} for user {tg_id}: {e}", exc_info=True)
             sent_message = await message.answer(
                 text=_("message_error") + "\n\n" + _("Failed to activate promo code. Please try again or contact support."),
-                reply_markup=get_main_menu_keyboard(user_id=tg_id)
+                reply_markup=await get_main_menu_keyboard(user_id=tg_id)
             )
             await cleanup.register_message(tg_id, sent_message.message_id, MessageType.NAVIGATION)
     else:

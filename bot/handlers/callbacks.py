@@ -22,6 +22,7 @@ from keyboards import (
     get_broadcast_confirmation_keyboard,
     get_broadcast_start_keyboard,
     get_broadcast_dismiss_keyboard,
+    get_subscription_details_keyboard,
 )
 from db.methods import (
     is_trial_available,
@@ -78,19 +79,11 @@ async def _build_and_send_profile(
     panel_profile,
     reuse_message=None,
 ):
-    profile_data = _format_profile_data(panel_profile)
-    
-    keyboard = await get_user_profile_keyboard(
-        user_id, profile_data["show_buy_traffic_button"], profile_data["url"]
-    )
+    keyboard = await get_main_menu_keyboard(user_id=user_id)
     
     await cleanup.send_profile(
         chat_id=user_id,
-        text=_("subscription_data").format(
-            status=profile_data["status"],
-            expire_date=profile_data["expire_date"],
-            data_used=profile_data["data_used"],
-            data_limit=profile_data["data_limit"],
+        text=_("main_menu_news").format(
             link=glv.config["TG_INFO_CHANEL"],
         ),
         reply_markup=keyboard,
@@ -99,19 +92,28 @@ async def _build_and_send_profile(
     )
 
 
-@router.callback_query(F.data == "vpn_access")
-async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
+@router.callback_query(F.data == "subscription_details")
+async def callback_subscription_details(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
+    profile_data = _format_profile_data(panel_profile)
+    
+    keyboard = get_subscription_details_keyboard(profile_data["url"])
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await _build_and_send_profile(
-        cleanup,
-        callback.from_user.id,
-        panel_profile,
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("subscription_details").format(
+            status=profile_data["status"],
+            expire_date=profile_data["expire_date"],
+            data_used=profile_data["data_used"],
+            data_limit=profile_data["data_limit"],
+        ),
+        reply_markup=keyboard,
         reuse_message=callback.message,
+        disable_web_page_preview=True,
     )
 
 
@@ -420,6 +422,22 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
 
 @router.callback_query(F.data == "back_to_profile")
 async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
+
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    await _build_and_send_profile(
+        cleanup,
+        callback.from_user.id,
+        panel_profile,
+        reuse_message=callback.message,
+    )
+
+@router.callback_query(F.data == "back_to_main_menu")
+async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)

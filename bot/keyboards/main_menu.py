@@ -2,13 +2,39 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.i18n import gettext as _
 
 from utils import get_i18n_string
+from db.methods import get_user_promo_discount
+import glv
 
-def get_main_menu_keyboard(user_id: int = None, lang=None) -> InlineKeyboardMarkup:
-    kb = [
-        [
-            InlineKeyboardButton(text=get_i18n_str("button_vpn_access", lang), callback_data="vpn_access")
-        ]
-    ]
+async def get_main_menu_keyboard(user_id: int = None, lang=None) -> InlineKeyboardMarkup:
+    kb = []
+    
+    kb.append([
+        InlineKeyboardButton(text=get_i18n_str("button_subscription", lang), callback_data="subscription_details")
+    ])
+    
+    kb.append([
+        InlineKeyboardButton(text=get_i18n_str("button_renew", lang), callback_data="payment")
+    ])
+    
+    discount = None
+    if user_id:
+        discount = await get_user_promo_discount(user_id)
+    
+    if not discount:
+        kb.append([
+            InlineKeyboardButton(text=get_i18n_str("button_promo_code", lang), callback_data="enter_promo")
+        ])
+    
+    kb.append([
+        InlineKeyboardButton(text=get_i18n_str("button_help", lang), callback_data="help")
+    ])
+    
+    if user_id:
+        admins = glv.config.get('ADMINS', [])
+        if admins and user_id in admins:
+            kb.append([
+                InlineKeyboardButton(text=get_i18n_str("button_admin_management", lang), callback_data="admin_management")
+            ])
 
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
