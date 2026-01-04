@@ -197,7 +197,7 @@ class MessageCleanup:
         if self.debug:
             logging.info(f"Cleanup: registered {message_type.value} message {message_id} in chat {chat_id}")
 
-    async def cleanup_by_event(self, chat_id: int, event: str):
+    async def cleanup_by_event(self, chat_id: int, event: str, except_message_id: Optional[int] = None):
         if event not in self.CLEANUP_RULES:
             if self.debug:
                 logging.warning(f"Cleanup: unknown event '{event}'")
@@ -212,7 +212,7 @@ class MessageCleanup:
         types_to_delete = self.CLEANUP_RULES[event]
         
         if self.debug:
-            logging.info(f"Cleanup: event '{event}' - deleting types {[t.value for t in types_to_delete]}")
+            logging.info(f"Cleanup: event '{event}' - deleting types {[t.value for t in types_to_delete]}" + (f" (except {except_message_id})" if except_message_id else ""))
         
         deleted_count = 0
         for msg_type in types_to_delete:
@@ -223,13 +223,16 @@ class MessageCleanup:
             
             if isinstance(messages[type_key], list):
                 if messages[type_key]:
-                    await self._delete_messages(chat_id, messages[type_key], type_key)
-                    deleted_count += len(messages[type_key])
-                    messages[type_key] = []
+                    message_ids_to_delete = [msg_id for msg_id in messages[type_key] if msg_id != except_message_id] if except_message_id else messages[type_key]
+                    if message_ids_to_delete:
+                        await self._delete_messages(chat_id, message_ids_to_delete, type_key)
+                        deleted_count += len(message_ids_to_delete)
+                    messages[type_key] = [msg_id for msg_id in messages[type_key] if msg_id == except_message_id] if except_message_id else []
             elif messages[type_key] is not None:
-                if await self._delete_message(chat_id, messages[type_key], type_key):
-                    deleted_count += 1
-                messages[type_key] = None
+                if messages[type_key] != except_message_id:
+                    if await self._delete_message(chat_id, messages[type_key], type_key):
+                        deleted_count += 1
+                    messages[type_key] = None
         
         await self._save_messages_state(messages)
         
@@ -273,7 +276,8 @@ class MessageCleanup:
             logging.info(f"Cleanup: cleanup_all - deleted {deleted_count} message(s) from chat {chat_id}")
 
     async def send_navigation(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
-        await self.cleanup_by_event(chat_id, 'navigate')
+        except_message_id = reuse_message.message_id if reuse_message else None
+        await self.cleanup_by_event(chat_id, 'navigate', except_message_id=except_message_id)
 
         if reuse_message is not None:
             result_message = await safe_edit_or_send(
@@ -298,7 +302,8 @@ class MessageCleanup:
         return msg.message_id
 
     async def send_profile(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
-        await self.cleanup_by_event(chat_id, 'show_profile')
+        except_message_id = reuse_message.message_id if reuse_message else None
+        await self.cleanup_by_event(chat_id, 'show_profile', except_message_id=except_message_id)
 
         messages = await self._get_messages_state(chat_id)
         existing_profile = messages.get('profile')
@@ -330,7 +335,8 @@ class MessageCleanup:
         return msg.message_id
 
     async def send_payment(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
-        await self.cleanup_by_event(chat_id, 'start_payment')
+        except_message_id = reuse_message.message_id if reuse_message else None
+        await self.cleanup_by_event(chat_id, 'start_payment', except_message_id=except_message_id)
 
         messages = await self._get_messages_state(chat_id)
         existing_payment = messages.get('payment')
@@ -362,7 +368,8 @@ class MessageCleanup:
         return msg.message_id
 
     async def send_success(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
-        await self.cleanup_by_event(chat_id, 'payment_success')
+        except_message_id = reuse_message.message_id if reuse_message else None
+        await self.cleanup_by_event(chat_id, 'payment_success', except_message_id=except_message_id)
 
         if reuse_message is not None:
             result_message = await safe_edit_or_send(
@@ -410,7 +417,8 @@ class MessageCleanup:
         return msg.message_id
 
     async def send_important(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
-        await self.cleanup_by_event(chat_id, 'payment_success')
+        except_message_id = reuse_message.message_id if reuse_message else None
+        await self.cleanup_by_event(chat_id, 'payment_success', except_message_id=except_message_id)
 
         if reuse_message is not None:
             result_message = await safe_edit_or_send(
