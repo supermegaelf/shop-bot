@@ -224,7 +224,7 @@ msgid "button_dismiss"
 msgstr "Hide ⬆️"
 
 msgid "button_admin_management"
-msgstr "Management 🛠️"
+msgstr "Admin 🛠️"
 
 msgid "message_admin_management"
 msgstr "Select an action ⬇️"
