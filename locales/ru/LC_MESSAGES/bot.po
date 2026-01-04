@@ -209,7 +209,10 @@ msgid "button_subscription"
 msgstr "Подписка ⭐️"
 
 msgid "main_menu_news"
-msgstr "Последние новости <a href=\"{link}\">тут</a> 📣"
+msgstr ""
+"Добро пожаловать, {name} 🏄🏻‍♂️\n\n"
+"Последние новости <a href=\"{link}\">тут</a> 📣\n\n"
+"Выберите действие ⬇️"
 
 msgid "subscription_details"
 msgstr ""

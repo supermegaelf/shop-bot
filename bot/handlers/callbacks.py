@@ -78,12 +78,21 @@ async def _build_and_send_profile(
     user_id: int,
     panel_profile,
     reuse_message=None,
+    user_name: str = None,
 ):
+    if user_name is None:
+        try:
+            chat = await glv.bot.get_chat(user_id)
+            user_name = chat.first_name or chat.username or "пользователь"
+        except Exception:
+            user_name = "пользователь"
+    
     keyboard = await get_main_menu_keyboard(user_id=user_id)
     
     await cleanup.send_profile(
         chat_id=user_id,
         text=_("main_menu_news").format(
+            name=user_name,
             link=glv.config["TG_INFO_CHANEL"],
         ),
         reply_markup=keyboard,
@@ -434,6 +443,7 @@ async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
         callback.from_user.id,
         panel_profile,
         reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
 @router.callback_query(F.data == "back_to_main_menu")
@@ -450,6 +460,7 @@ async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext)
         callback.from_user.id,
         panel_profile,
         reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
 
@@ -529,6 +540,7 @@ async def callback_dismiss_notification(callback: CallbackQuery, state: FSMConte
         callback.from_user.id,
         panel_profile,
         reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
 
@@ -549,6 +561,7 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
         callback.from_user.id,
         panel_profile,
         reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
     logging.info(f"Profile sent to user {callback.from_user.id}")
@@ -575,6 +588,7 @@ async def callback_dismiss_payment_success_notification(
         callback.from_user.id,
         panel_profile,
         reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
     logging.info(f"Profile sent to user {callback.from_user.id}")
@@ -607,6 +621,7 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
         callback.from_user.id,
         panel_profile,
         reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
 

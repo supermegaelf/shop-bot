@@ -45,14 +45,22 @@ def _format_profile_data(panel_profile):
     }
 
 
-async def _build_and_send_profile(cleanup, user_id: int, panel_profile):
+async def _build_and_send_profile(cleanup, user_id: int, panel_profile, user_name: str = None):
     from keyboards import get_main_menu_keyboard
+    
+    if user_name is None:
+        try:
+            chat = await glv.bot.get_chat(user_id)
+            user_name = chat.first_name or chat.username or "пользователь"
+        except Exception:
+            user_name = "пользователь"
     
     keyboard = await get_main_menu_keyboard(user_id=user_id)
     
     await cleanup.send_profile(
         chat_id=user_id,
         text=_("main_menu_news").format(
+            name=user_name,
             link=glv.config['TG_INFO_CHANEL']
         ),
         reply_markup=keyboard,
@@ -69,7 +77,7 @@ async def profile(message: Message, state: FSMContext):
     panel_profile = await panel.get_panel_user(message.from_user.id)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await _build_and_send_profile(cleanup, message.from_user.id, panel_profile)
+    await _build_and_send_profile(cleanup, message.from_user.id, panel_profile, user_name=message.from_user.first_name)
 
 @router.message(F.text == __("button_help"))
 async def help(message: Message, state: FSMContext):

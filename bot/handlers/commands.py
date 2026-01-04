@@ -92,7 +92,7 @@ async def start(message: Message, state: FSMContext):
     else:
         panel = get_panel()
         panel_profile = await panel.get_panel_user(tg_id)
-        await _build_and_send_profile(cleanup, tg_id, panel_profile)
+        await _build_and_send_profile(cleanup, tg_id, panel_profile, user_name=message.from_user.first_name)
 
 def register_commands(dp: Dispatcher):
     dp.include_router(router)
