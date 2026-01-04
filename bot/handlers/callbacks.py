@@ -471,6 +471,30 @@ async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext)
         user_name=callback.from_user.first_name,
     )
 
+@router.callback_query(F.data == "back_to_subscription")
+async def callback_back_to_subscription(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    profile_data = _format_profile_data(panel_profile)
+    
+    keyboard = get_subscription_details_keyboard(profile_data["url"])
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("subscription_details").format(
+            status=profile_data["status"],
+            expire_date=profile_data["expire_date"],
+            data_used=profile_data["data_used"],
+            data_limit=profile_data["data_limit"],
+        ),
+        reply_markup=keyboard,
+        reuse_message=callback.message,
+        disable_web_page_preview=True,
+    )
+
 
 @router.callback_query(F.data.startswith("back_to_payment_"))
 async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
