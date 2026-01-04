@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound, TelegramServerError, TelegramRetryAfter
 from utils.lang import get_i18n_string
 
 class EphemeralNotification:
@@ -45,8 +45,21 @@ class EphemeralNotification:
             return msg.message_id
             
         except TelegramBadRequest as e:
-            logging.warning(f"Failed to send ephemeral notification to {chat_id}: {e}")
+            error_message = str(e).lower()
+            if "chat not found" in error_message or "user not found" in error_message:
+                logging.debug(f"Failed to send ephemeral notification to {chat_id}: {e}")
+            else:
+                logging.warning(f"Failed to send ephemeral notification to {chat_id}: {e}")
+            return None
+        except TelegramForbiddenError as e:
+            logging.warning(f"Bot doesn't have permission to send ephemeral notification to {chat_id}: {e}")
+            return None
+        except TelegramNotFound as e:
+            logging.debug(f"Chat {chat_id} not found for ephemeral notification: {e}")
+            return None
+        except (TelegramServerError, TelegramRetryAfter) as e:
+            logging.warning(f"Telegram server error sending ephemeral notification to {chat_id}: {e}")
             return None
         except Exception as e:
-            logging.error(f"Unexpected error sending ephemeral notification to {chat_id}: {e}")
+            logging.error(f"Unexpected error sending ephemeral notification to {chat_id}: {e}", exc_info=True)
             return None
