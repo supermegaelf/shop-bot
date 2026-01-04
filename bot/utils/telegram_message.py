@@ -97,15 +97,28 @@ async def safe_edit_or_send(
         return message
     except TelegramBadRequest as e:
         error_message = str(e).lower()
-        if debug:
-            if "message to edit not found" in error_message:
+        if "message to edit not found" in error_message:
+            if debug:
                 logging.debug(f"safe_edit_or_send: message {message.message_id} not found, will send new")
-            elif "message can't be edited" in error_message:
-                logging.debug(f"safe_edit_or_send: message {message.message_id} can't be edited (too old or no permission), will send new")
-            elif "message is not modified" in error_message:
+        elif "message can't be edited" in error_message:
+            if debug:
+                logging.debug(f"safe_edit_or_send: message {message.message_id} can't be edited (too old or no permission), will try to delete and send new")
+            try:
+                deleted = await try_delete_message(message, debug=debug)
+                if deleted:
+                    if debug:
+                        logging.info(f"safe_edit_or_send: deleted old message {message.message_id} before sending new")
+                elif debug:
+                    logging.debug(f"safe_edit_or_send: couldn't delete old message {message.message_id}, will send new anyway")
+            except Exception as delete_error:
+                if debug:
+                    logging.debug(f"safe_edit_or_send: error trying to delete old message {message.message_id}: {delete_error}")
+        elif "message is not modified" in error_message:
+            if debug:
                 logging.debug(f"safe_edit_or_send: message {message.message_id} not modified (same content)")
-                return message
-            else:
+            return message
+        else:
+            if debug:
                 logging.warning(f"safe_edit_or_send: TelegramBadRequest editing message {message.message_id}: {e}")
     except TelegramForbiddenError as e:
         if debug:
