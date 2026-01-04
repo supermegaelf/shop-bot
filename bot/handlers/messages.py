@@ -91,11 +91,11 @@ async def promo_start(callback: CallbackQuery, state: FSMContext):
     kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_enter_promo"),
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb),
+        reuse_message=callback.message,
     )
     
     await state.set_state(PromoStates.waiting_for_promo)

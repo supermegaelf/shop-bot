@@ -123,11 +123,11 @@ async def callback_month_amount_select(callback: CallbackQuery, state: FSMContex
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, "renew")
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_traffic_renewal_info"),
         reply_markup=keyboard,
+        reuse_message=callback.message,
     )
 
 
@@ -157,11 +157,11 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
         )
 
         cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-        await cleanup.edit_navigation(
+        await cleanup.send_navigation(
             chat_id=callback.from_user.id,
-            message_id=callback.message.message_id,
             text=_("message_select_traffic_amount"),
             reply_markup=keyboard,
+            reuse_message=callback.message,
         )
     else:
         await callback.answer(_("message_error"), show_alert=True)
@@ -353,11 +353,11 @@ async def callback_payment(callback: CallbackQuery, state: FSMContext):
     keyboard = await get_months_keyboard(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_select_payment_period"),
         reply_markup=keyboard,
+        reuse_message=callback.message,
     )
 
 
@@ -410,11 +410,11 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
     good = goods.get(callback.data)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_select_payment_method"),
         reply_markup=get_payment_keyboard(good),
+        reuse_message=callback.message,
     )
 
 
@@ -634,10 +634,12 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
     broadcast_message = data.get('broadcast_message')
     
     if not broadcast_message:
-        try:
-            await callback.message.edit_text(_("message_error"))
-        except Exception:
-            pass
+        from bot.utils.telegram_message import safe_edit_or_send
+        await safe_edit_or_send(
+            callback.message,
+            text=_("message_error"),
+            debug=glv.MESSAGE_CLEANUP_DEBUG,
+        )
         await state.clear()
         return
     

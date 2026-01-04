@@ -477,22 +477,3 @@ class MessageCleanup:
         
         await self._save_messages_state(messages)
 
-    async def edit_navigation(self, chat_id: int, message_id: int, text: str, reply_markup: InlineKeyboardMarkup):
-        try:
-            await self.bot.edit_message_text(
-                chat_id=chat_id,
-                message_id=message_id,
-                text=text,
-                reply_markup=reply_markup
-            )
-            await self.register_message(chat_id, message_id, MessageType.NAVIGATION)
-            return True
-        except TelegramBadRequest:
-            await self._delete_message(chat_id, message_id, 'navigation')
-            msg = await self.bot.send_message(
-                chat_id=chat_id,
-                text=text,
-                reply_markup=reply_markup
-            )
-            await self.register_message(chat_id, msg.message_id, MessageType.NAVIGATION)
-            return False

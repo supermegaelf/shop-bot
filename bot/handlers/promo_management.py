@@ -201,7 +201,12 @@ async def callback_delete_promo(callback: CallbackQuery, state: FSMContext):
     try:
         promo = await get_promo_code_by_id(promo_id)
         if not promo:
-            await callback.message.edit_text(_("message_error"))
+            from bot.utils.telegram_message import safe_edit_or_send
+            await safe_edit_or_send(
+                callback.message,
+                text=_("message_error"),
+                debug=glv.MESSAGE_CLEANUP_DEBUG,
+            )
             return
         
         await delete_promo_code(promo_id)
@@ -215,7 +220,12 @@ async def callback_delete_promo(callback: CallbackQuery, state: FSMContext):
         )
     except Exception as e:
         logging.error(f"Failed to delete promo code: {e}", exc_info=True)
-        await callback.message.edit_text(_("message_error"))
+        from bot.utils.telegram_message import safe_edit_or_send
+        await safe_edit_or_send(
+            callback.message,
+            text=_("message_error"),
+            debug=glv.MESSAGE_CLEANUP_DEBUG,
+        )
 
 
 @router.callback_query(F.data == "admin_active_promos", IsAdminCallbackFilter(is_admin=True))

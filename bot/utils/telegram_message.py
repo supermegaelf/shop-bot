@@ -80,11 +80,6 @@ async def safe_edit_or_send(
             logging.warning("safe_edit_or_send: message_id is missing")
         return None
     
-    if not hasattr(message, 'edit_text'):
-        if debug:
-            logging.warning("safe_edit_or_send: message does not support edit_text")
-        return None
-    
     edit_kwargs = {
         "text": text,
         "reply_markup": reply_markup,
