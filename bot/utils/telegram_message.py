@@ -70,25 +70,6 @@ async def safe_edit_or_send(
     debug: bool = False,
     **kwargs
 ) -> Optional[Message]:
-    """
-    Безопасно редактирует сообщение или отправляет новое при ошибке.
-    
-    Использует подход edit_text() с улучшенной обработкой ошибок.
-    Сначала пытается отредактировать существующее сообщение,
-    при ошибке отправляет новое сообщение.
-    
-    Args:
-        message: Сообщение для редактирования (может быть None)
-        text: Текст сообщения
-        reply_markup: Клавиатура (опционально)
-        parse_mode: Режим парсинга (опционально)
-        disable_web_page_preview: Отключить превью ссылок (опционально)
-        debug: Включить отладочное логирование
-        **kwargs: Дополнительные параметры для edit_text/answer
-    
-    Returns:
-        Message объект (отредактированное или новое сообщение), или None при ошибке
-    """
     if message is None:
         if debug:
             logging.warning("safe_edit_or_send: message is None, cannot edit")

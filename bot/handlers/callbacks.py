@@ -237,7 +237,6 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     prices = [LabeledPrice(label="XTR", amount=price)]
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    # Удаляем старые сообщения, но не текущее (которое будет удалено после отправки invoice)
     await cleanup.cleanup_by_event(callback.from_user.id, "start_payment", except_message_id=callback.message.message_id)
 
     sent_message = await glv.bot.send_invoice(
@@ -255,7 +254,6 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
         callback.from_user.id, sent_message.message_id, MessageType.PAYMENT
     )
 
-    # Удаляем старое сообщение с выбором метода оплаты после успешной отправки invoice
     await try_delete_message(callback.message)
 
     from db.methods import add_payment, PaymentPlatform
@@ -446,20 +444,29 @@ async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     
-    # Удаляем старое PAYMENT сообщение (invoice), если оно существует
     messages = await cleanup._get_messages_state(callback.from_user.id)
     existing_payment = messages.get('payment')
-    if existing_payment and existing_payment != callback.message.message_id:
+    is_invoice = hasattr(callback.message, 'invoice') and callback.message.invoice is not None
+    
+    if existing_payment:
         await cleanup._delete_message(callback.from_user.id, existing_payment, 'payment')
         messages['payment'] = None
         await cleanup._save_messages_state(messages)
     
-    await cleanup.send_navigation(
-        chat_id=callback.from_user.id,
-        text=_("message_select_payment_method"),
-        reply_markup=get_payment_keyboard(good),
-        reuse_message=callback.message,
-    )
+    if is_invoice:
+        await try_delete_message(callback.message)
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_select_payment_method"),
+            reply_markup=get_payment_keyboard(good),
+        )
+    else:
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_select_payment_method"),
+            reply_markup=get_payment_keyboard(good),
+            reuse_message=callback.message,
+        )
 
 
 @router.callback_query(F.data.startswith("back_to_traffic_"))
