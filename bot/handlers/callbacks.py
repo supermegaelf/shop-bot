@@ -504,11 +504,7 @@ async def callback_dismiss_notification(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-
-    try:
-        await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except Exception:
-        pass
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     await _build_and_send_profile(
         cleanup,
@@ -528,11 +524,7 @@ async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMCo
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-
-    try:
-        await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except Exception as e:
-        logging.warning(f"Cleanup failed: {e}")
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     await _build_and_send_profile(
         cleanup,
@@ -558,11 +550,7 @@ async def callback_dismiss_payment_success_notification(
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-
-    try:
-        await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except Exception as e:
-        logging.warning(f"Cleanup failed: {e}")
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     await _build_and_send_profile(
         cleanup,
@@ -591,7 +579,7 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.cleanup_by_event(callback.from_user.id, 'back_to_profile')
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -646,7 +634,10 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
     broadcast_message = data.get('broadcast_message')
     
     if not broadcast_message:
-        await callback.message.edit_text(_("message_error"))
+        try:
+            await callback.message.edit_text(_("message_error"))
+        except Exception:
+            pass
         await state.clear()
         return
     
