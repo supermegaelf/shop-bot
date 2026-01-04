@@ -7,6 +7,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, Message
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound
 
+from .telegram_message import safe_edit_or_send
+
 from db.methods import (
     save_user_message,
     get_user_messages,
@@ -274,18 +276,16 @@ class MessageCleanup:
         await self.cleanup_by_event(chat_id, 'navigate')
 
         if reuse_message is not None:
-            try:
-                await self.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=reuse_message.message_id,
-                    text=text,
-                    reply_markup=reply_markup,
-                    **kwargs
-                )
-                await self.register_message(chat_id, reuse_message.message_id, MessageType.NAVIGATION)
-                return reuse_message.message_id
-            except TelegramBadRequest:
-                reuse_message = None
+            result_message = await safe_edit_or_send(
+                reuse_message,
+                text=text,
+                reply_markup=reply_markup,
+                debug=self.debug,
+                **kwargs
+            )
+            if result_message:
+                await self.register_message(chat_id, result_message.message_id, MessageType.NAVIGATION)
+                return result_message.message_id
 
         msg = await self.bot.send_message(
             chat_id=chat_id,
@@ -308,18 +308,16 @@ class MessageCleanup:
             await self._save_messages_state(messages)
 
         if reuse_message is not None:
-            try:
-                await self.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=reuse_message.message_id,
-                    text=text,
-                    reply_markup=reply_markup,
-                    **kwargs
-                )
-                await self.register_message(chat_id, reuse_message.message_id, MessageType.PROFILE)
-                return reuse_message.message_id
-            except TelegramBadRequest:
-                reuse_message = None
+            result_message = await safe_edit_or_send(
+                reuse_message,
+                text=text,
+                reply_markup=reply_markup,
+                debug=self.debug,
+                **kwargs
+            )
+            if result_message:
+                await self.register_message(chat_id, result_message.message_id, MessageType.PROFILE)
+                return result_message.message_id
 
         msg = await self.bot.send_message(
             chat_id=chat_id,
@@ -342,18 +340,16 @@ class MessageCleanup:
             await self._save_messages_state(messages)
 
         if reuse_message is not None:
-            try:
-                await self.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=reuse_message.message_id,
-                    text=text,
-                    reply_markup=reply_markup,
-                    **kwargs
-                )
-                await self.register_message(chat_id, reuse_message.message_id, MessageType.PAYMENT)
-                return reuse_message.message_id
-            except TelegramBadRequest:
-                reuse_message = None
+            result_message = await safe_edit_or_send(
+                reuse_message,
+                text=text,
+                reply_markup=reply_markup,
+                debug=self.debug,
+                **kwargs
+            )
+            if result_message:
+                await self.register_message(chat_id, result_message.message_id, MessageType.PAYMENT)
+                return result_message.message_id
 
         msg = await self.bot.send_message(
             chat_id=chat_id,
@@ -369,18 +365,16 @@ class MessageCleanup:
         await self.cleanup_by_event(chat_id, 'payment_success')
 
         if reuse_message is not None:
-            try:
-                await self.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=reuse_message.message_id,
-                    text=text,
-                    reply_markup=reply_markup,
-                    **kwargs
-                )
-                await self.register_message(chat_id, reuse_message.message_id, MessageType.SUCCESS)
-                return reuse_message.message_id
-            except TelegramBadRequest:
-                reuse_message = None
+            result_message = await safe_edit_or_send(
+                reuse_message,
+                text=text,
+                reply_markup=reply_markup,
+                debug=self.debug,
+                **kwargs
+            )
+            if result_message:
+                await self.register_message(chat_id, result_message.message_id, MessageType.SUCCESS)
+                return result_message.message_id
 
         msg = await self.bot.send_message(
             chat_id=chat_id,
@@ -394,18 +388,16 @@ class MessageCleanup:
 
     async def send_notification(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
         if reuse_message is not None:
-            try:
-                await self.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=reuse_message.message_id,
-                    text=text,
-                    reply_markup=reply_markup,
-                    **kwargs
-                )
-                await self.register_message(chat_id, reuse_message.message_id, MessageType.NOTIFICATION)
-                return reuse_message.message_id
-            except TelegramBadRequest:
-                reuse_message = None
+            result_message = await safe_edit_or_send(
+                reuse_message,
+                text=text,
+                reply_markup=reply_markup,
+                debug=self.debug,
+                **kwargs
+            )
+            if result_message:
+                await self.register_message(chat_id, result_message.message_id, MessageType.NOTIFICATION)
+                return result_message.message_id
 
         msg = await self.bot.send_message(
             chat_id=chat_id,
@@ -421,18 +413,16 @@ class MessageCleanup:
         await self.cleanup_by_event(chat_id, 'payment_success')
 
         if reuse_message is not None:
-            try:
-                await self.bot.edit_message_text(
-                    chat_id=chat_id,
-                    message_id=reuse_message.message_id,
-                    text=text,
-                    reply_markup=reply_markup,
-                    **kwargs
-                )
-                await self.register_message(chat_id, reuse_message.message_id, MessageType.IMPORTANT)
-                return reuse_message.message_id
-            except TelegramBadRequest:
-                reuse_message = None
+            result_message = await safe_edit_or_send(
+                reuse_message,
+                text=text,
+                reply_markup=reply_markup,
+                debug=self.debug,
+                **kwargs
+            )
+            if result_message:
+                await self.register_message(chat_id, result_message.message_id, MessageType.IMPORTANT)
+                return result_message.message_id
 
         msg = await self.bot.send_message(
             chat_id=chat_id,
