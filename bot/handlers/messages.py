@@ -9,7 +9,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards import get_user_profile_keyboard, get_help_keyboard
+from keyboards import get_help_keyboard
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
 from panel import get_panel
 

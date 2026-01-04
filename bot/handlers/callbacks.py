@@ -17,7 +17,6 @@ from keyboards import (
     get_help_keyboard,
     get_months_keyboard,
     get_install_subscription_keyboard,
-    get_user_profile_keyboard,
     get_admin_management_keyboard,
     get_broadcast_confirmation_keyboard,
     get_broadcast_start_keyboard,
