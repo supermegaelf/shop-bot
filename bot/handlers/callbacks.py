@@ -36,14 +36,22 @@ import glv
 
 router = Router(name="callbacks-router")
 
+MONTHS_RU = {
+    1: "янв", 2: "фев", 3: "мар", 4: "апр",
+    5: "мая", 6: "июн", 7: "июл", 8: "авг",
+    9: "сен", 10: "окт", 11: "ноя", 12: "дек"
+}
+
+def _format_expire_date(date):
+    if not date:
+        return "∞"
+    return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
 
 def _format_profile_data(panel_profile):
     if panel_profile:
         url = panel_profile.subscription_url
         status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
+        expire_date = _format_expire_date(panel_profile.expire) if panel_profile.expire else "∞"
         data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
         data_limit = (
             f"{panel_profile.data_limit // 1073741824}"
