@@ -12,19 +12,15 @@ async def get_main_menu_keyboard(user_id: int = None, lang=None, has_subscriptio
         kb.append([
             InlineKeyboardButton(text=get_i18n_str("button_subscription", lang), callback_data="subscription_details")
         ])
-    
-    trial_available = False
-    if user_id:
-        trial_available = await is_trial_available(user_id)
-    
-    if trial_available:
-        kb.append([
-            InlineKeyboardButton(text=get_i18n_str("button_free_trial", lang), callback_data="trial")
-        ])
     else:
-        kb.append([
-            InlineKeyboardButton(text=get_i18n_str("button_renew", lang), callback_data="payment")
-        ])
+        trial_available = False
+        if user_id:
+            trial_available = await is_trial_available(user_id)
+        
+        if trial_available:
+            kb.append([
+                InlineKeyboardButton(text=get_i18n_str("button_free_trial", lang), callback_data="trial")
+            ])
     
     discount = None
     if user_id:

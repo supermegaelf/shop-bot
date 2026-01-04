@@ -68,6 +68,13 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None) -> Inlin
     
     builder.row(
         InlineKeyboardButton(
+            text=_("button_renew"),
+            callback_data="payment"
+        )
+    )
+    
+    builder.row(
+        InlineKeyboardButton(
             text=_("button_back"),
             callback_data="back_to_main_menu"
         )
