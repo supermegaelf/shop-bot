@@ -87,7 +87,8 @@ async def _build_and_send_profile(
         except Exception:
             user_name = "пользователь"
     
-    keyboard = await get_main_menu_keyboard(user_id=user_id)
+    has_subscription = panel_profile is not None and panel_profile.subscription_url and panel_profile.subscription_url.strip() != ""
+    keyboard = await get_main_menu_keyboard(user_id=user_id, has_subscription=has_subscription)
     
     await cleanup.send_profile(
         chat_id=user_id,

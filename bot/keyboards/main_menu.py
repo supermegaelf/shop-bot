@@ -5,12 +5,13 @@ from utils import get_i18n_string
 from db.methods import get_user_promo_discount, is_trial_available
 import glv
 
-async def get_main_menu_keyboard(user_id: int = None, lang=None) -> InlineKeyboardMarkup:
+async def get_main_menu_keyboard(user_id: int = None, lang=None, has_subscription: bool = False) -> InlineKeyboardMarkup:
     kb = []
     
-    kb.append([
-        InlineKeyboardButton(text=get_i18n_str("button_subscription", lang), callback_data="subscription_details")
-    ])
+    if has_subscription:
+        kb.append([
+            InlineKeyboardButton(text=get_i18n_str("button_subscription", lang), callback_data="subscription_details")
+        ])
     
     trial_available = False
     if user_id:
