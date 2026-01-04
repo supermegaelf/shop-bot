@@ -193,7 +193,7 @@ msgid "main_menu_news"
 msgstr ""
 "Welcome, {name} 👋🏻\n\n"
 "Latest news are <a href=\"{link}\">here</a> 📣\n\n"
-"Select an action ⬇️"
+"Select an option ⬇️"
 
 msgid "subscription_details"
 msgstr ""
@@ -227,7 +227,7 @@ msgid "button_admin_management"
 msgstr "Admin 🛠️"
 
 msgid "message_admin_management"
-msgstr "Select an action ⬇️"
+msgstr "Select an option ⬇️"
 
 msgid "button_broadcast"
 msgstr "Broadcast 📢"
