@@ -84,9 +84,6 @@ msgstr "Share 🔗"
 msgid "To be paid – {amount} ⭐️ ⬇️"
 msgstr ""
 
-msgid "button_pay"
-msgstr "Pay 💳"
-
 msgid "button_pay_action"
 msgstr "Pay"
 
@@ -95,15 +92,6 @@ msgstr "Select payment period ⬇️"
 
 msgid "message_select_action"
 msgstr "Select option ⬇️"
-
-msgid "message_issue_prompt"
-msgstr "Select option ⬇️"
-
-msgid "message_set_up_vpn"
-msgstr "1️⃣ Go to the <i>«Access to VPN 🏄🏻‍♂️»</i> section.\n\n"
-"2️⃣ Click <i>«Install ⚙️»</i>.\n\n"
-"3️⃣ Select the required platform.\n\n"
-"4️⃣ Review the installation instructions once again."
 
 msgid "button_vpn_not_working"
 msgstr "VPN doesn't work ⛔️"
@@ -120,13 +108,6 @@ msgstr "<b>1. What is a VPN?</b>\n\n"
 "No, the traffic is hidden and encrypted by the technologies we use. We do not track your activities — our task is to provide you with unlimited internet access.\n\n"
 "<b>4. How many devices can I connect?</b>\n\n"
 "You can connect any number of devices, the limitation only applies to the amount of traffic."
-
-msgid "subscription_data"
-msgstr ""
-"Subscription status: {status}\n\n"
-"Valid until: {expire_date} 📅\n\n"
-"Traffic: {data_used} GB / {data_limit} GB 🌍\n\n"
-"Latest news are <a href=\"{link}\">here</a> 📣"
 
 msgid "active"
 msgstr "active ✅"
@@ -205,15 +186,27 @@ msgstr "Enter the promo code ⬇️"
 msgid "button_promo_code"
 msgstr "Promo code 🎁"
 
+msgid "button_subscription"
+msgstr "Subscription ⭐️"
+
+msgid "main_menu_news"
+msgstr ""
+"Welcome, {name} 👋🏻\n\n"
+"Latest news are <a href=\"{link}\">here</a> 📣\n\n"
+"Select an action ⬇️"
+
+msgid "subscription_details"
+msgstr ""
+"Subscription status: {status}\n\n"
+"Valid until: {expire_date} 📅\n\n"
+"Traffic: {data_used} GB / {data_limit} GB 🌍"
+
 msgid "message_broadcast_start"
 msgstr "Enter the message for the broadcast ⬇️"
 
 msgid "message_confirm_broadcast"
 msgstr "You are about to send the following message ⬇️\n\n{text}\n\n"
 "Send?"
-
-msgid "message_invalid_confirmation"
-msgstr "Invalid input, please confirm or cancel the broadcast ❌"
 
 msgid "mesage_broadcast_cancelled"
 msgstr "Broadcast cancelled ⛔"
