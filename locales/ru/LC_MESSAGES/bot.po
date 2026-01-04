@@ -199,7 +199,7 @@ msgid "subscription_details"
 msgstr ""
 "Статус подписки: {status}\n\n"
 "Действует до: {expire_date} 📅\n\n"
-"Трафик: {data_used} GB / {data_limit} GB 🌍"
+"Трафик: {data_used} ГБ / {data_limit} ГБ 🌍"
 
 msgid "message_broadcast_start"
 msgstr "Введите сообщение для рассылки ⬇️"
