@@ -54,6 +54,8 @@ async def is_trial_available(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+    if result is None:
+        return True
     return result.test is None
 
 async def start_trial(tg_id):
@@ -72,6 +74,8 @@ async def is_test_subscription(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+    if result is None:
+        return False
     return result.test
 
 async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False, message_id: int = None, from_notification: bool = False) -> dict:
