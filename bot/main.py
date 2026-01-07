@@ -5,9 +5,10 @@ from pathlib import Path
 
 from aiogram import Bot, Dispatcher, enums
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.i18n import I18n, SimpleI18nMiddleware
-from aiohttp import web 
+from aiohttp import web, ClientTimeout
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 from handlers.commands import register_commands
@@ -20,7 +21,19 @@ from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 import glv
 
-glv.bot = Bot(glv.config['BOT_TOKEN'],  default=DefaultBotProperties(parse_mode=enums.ParseMode.HTML))
+timeout = ClientTimeout(
+    total=5.0,
+    connect=2.0,
+    sock_read=3.0,
+)
+
+session = AiohttpSession(timeout=timeout)
+
+glv.bot = Bot(
+    glv.config['BOT_TOKEN'],
+    session=session,
+    default=DefaultBotProperties(parse_mode=enums.ParseMode.HTML)
+)
 glv.storage = MemoryStorage()
 glv.dp = Dispatcher(storage=glv.storage)
 app = web.Application()

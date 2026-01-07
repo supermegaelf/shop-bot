@@ -578,9 +578,9 @@ async def callback_dismiss_notification(callback: CallbackQuery, state: FSMConte
 
 @router.callback_query(F.data == "dismiss_payment_success")
 async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMContext):
-    logging.info(f"dismiss_payment_success called by user {callback.from_user.id}")
-
     await callback.answer()
+    
+    logging.info(f"dismiss_payment_success called by user {callback.from_user.id}")
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
