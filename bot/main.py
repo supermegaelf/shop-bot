@@ -22,9 +22,9 @@ from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 import glv
 
 timeout = ClientTimeout(
-    total=5.0,
-    connect=2.0,
-    sock_read=3.0,
+    total=10.0,
+    connect=5.0,
+    sock_read=5.0,
 )
 
 session = AiohttpSession(timeout=timeout)
@@ -40,7 +40,11 @@ app = web.Application()
 logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
 
 async def on_startup(bot: Bot):
-    await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")
+    try:
+        await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")
+    except Exception as e:
+        logging.error(f"Failed to set webhook: {e}")
+        logging.warning("Bot will continue without webhook update")
 
 def setup_routers():
     register_commands(glv.dp)
