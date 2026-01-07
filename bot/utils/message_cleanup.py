@@ -14,6 +14,7 @@ from db.methods import (
     get_user_messages,
     delete_user_message
 )
+from sqlalchemy.exc import OperationalError
 
 
 class MessageType(Enum):
@@ -46,18 +47,27 @@ class MessageCleanup:
         messages = data.get('messages')
         
         if messages is None and chat_id is not None:
-            try:
-                tg_id = await self._get_tg_id(chat_id)
-                db_messages = await get_user_messages(tg_id)
-                if db_messages and any(db_messages.values()):
-                    messages = db_messages
-                    await self.state.update_data(messages=messages)
+            for attempt in range(3):
+                try:
+                    tg_id = await self._get_tg_id(chat_id)
+                    db_messages = await get_user_messages(tg_id)
+                    if db_messages and any(db_messages.values()):
+                        messages = db_messages
+                        await self.state.update_data(messages=messages)
+                        if self.debug:
+                            msg_count = sum(1 for m in messages.values() if m)
+                            logging.info(f"Cleanup: loaded {msg_count} messages from DB for user {tg_id}")
+                    break
+                except OperationalError:
+                    if attempt == 2:
+                        if self.debug:
+                            logging.warning(f"Cleanup: failed to load messages from DB after 3 attempts")
+                        break
+                    await asyncio.sleep(0.5 * (attempt + 1))
+                except Exception as e:
                     if self.debug:
-                        msg_count = sum(1 for m in messages.values() if m)
-                        logging.info(f"Cleanup: loaded {msg_count} messages from DB for user {tg_id}")
-            except Exception as e:
-                if self.debug:
-                    logging.warning(f"Cleanup: failed to load messages from DB: {e}")
+                        logging.warning(f"Cleanup: failed to load messages from DB: {e}")
+                    break
         
         if messages is None:
             messages = {
@@ -149,14 +159,23 @@ class MessageCleanup:
             return False
         
         if deleted_from_telegram and message_type:
-            try:
-                tg_id = await self._get_tg_id(chat_id)
-                await delete_user_message(tg_id, message_id, message_type)
-                if self.debug:
-                    logging.info(f"Cleanup: deleted {message_type} message {message_id} from DB for user {tg_id}")
-            except Exception as e:
-                if self.debug:
-                    logging.warning(f"Cleanup: failed to delete message {message_id} from DB: {e}")
+            tg_id = await self._get_tg_id(chat_id)
+            for attempt in range(3):
+                try:
+                    await delete_user_message(tg_id, message_id, message_type)
+                    if self.debug:
+                        logging.info(f"Cleanup: deleted {message_type} message {message_id} from DB for user {tg_id}")
+                    break
+                except OperationalError:
+                    if attempt == 2:
+                        if self.debug:
+                            logging.warning(f"Cleanup: failed to delete message {message_id} from DB after 3 attempts")
+                        break
+                    await asyncio.sleep(0.5 * (attempt + 1))
+                except Exception as e:
+                    if self.debug:
+                        logging.warning(f"Cleanup: failed to delete message {message_id} from DB: {e}")
+                    break
         
         return deleted_from_telegram
 
@@ -186,23 +205,45 @@ class MessageCleanup:
             else:
                 old_message_id = messages.get(message_type.value)
                 if old_message_id and old_message_id != message_id:
-                    try:
-                        await delete_user_message(tg_id, old_message_id, message_type.value)
-                        if self.debug:
-                            logging.info(f"Cleanup: deleted old {message_type.value} message {old_message_id} from DB for user {tg_id}")
-                    except Exception as e:
-                        if self.debug:
-                            logging.warning(f"Cleanup: failed to delete old message {old_message_id} from DB: {e}")
+                    for attempt in range(3):
+                        try:
+                            await delete_user_message(tg_id, old_message_id, message_type.value)
+                            if self.debug:
+                                logging.info(f"Cleanup: deleted old {message_type.value} message {old_message_id} from DB for user {tg_id}")
+                            break
+                        except OperationalError:
+                            if attempt == 2:
+                                if self.debug:
+                                    logging.warning(f"Cleanup: failed to delete old message {old_message_id} from DB after 3 attempts")
+                                break
+                            await asyncio.sleep(0.5 * (attempt + 1))
+                        except Exception as e:
+                            if self.debug:
+                                logging.warning(f"Cleanup: failed to delete old message {old_message_id} from DB: {e}")
+                            break
                 messages[message_type.value] = message_id
             
             await self._save_messages_state(messages)
             
-            await save_user_message(tg_id, message_id, message_type.value)
-            if self.debug:
-                logging.info(f"Cleanup: saved {message_type.value} message {message_id} to DB for user {tg_id}")
+            for attempt in range(3):
+                try:
+                    await save_user_message(tg_id, message_id, message_type.value)
+                    if self.debug:
+                        logging.info(f"Cleanup: saved {message_type.value} message {message_id} to DB for user {tg_id}")
+                    break
+                except OperationalError:
+                    if attempt == 2:
+                        if self.debug:
+                            logging.warning(f"Cleanup: failed to save message {message_id} to DB after 3 attempts")
+                        break
+                    await asyncio.sleep(0.5 * (attempt + 1))
+                except Exception as e:
+                    if self.debug:
+                        logging.warning(f"Cleanup: failed to save message {message_id} to DB: {e}")
+                    break
         except Exception as e:
             if self.debug:
-                logging.warning(f"Cleanup: failed to save message {message_id} to DB: {e}")
+                logging.warning(f"Cleanup: failed to register message {message_id}: {e}")
         
         if self.debug:
             logging.info(f"Cleanup: registered {message_type.value} message {message_id} in chat {chat_id}")
