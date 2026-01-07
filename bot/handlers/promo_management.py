@@ -20,7 +20,7 @@ from keyboards import (
     get_promo_back_keyboard,
     get_admin_management_keyboard
 )
-from utils import MessageCleanup
+from utils import MessageCleanup, safe_answer, try_delete_message
 import glv
 
 router = Router(name="promo-management-router")
@@ -34,7 +34,7 @@ class PromoManagementStates(StatesGroup):
 
 @router.callback_query(F.data == "admin_promo_codes", IsAdminCallbackFilter(is_admin=True))
 async def callback_admin_promo_codes(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     await state.clear()
     
@@ -49,7 +49,7 @@ async def callback_admin_promo_codes(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == "admin_add_promo", IsAdminCallbackFilter(is_admin=True))
 async def callback_admin_add_promo(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -170,7 +170,7 @@ async def process_promo_expires_at(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "admin_delete_promo", IsAdminCallbackFilter(is_admin=True))
 async def callback_admin_delete_promo(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     promo_codes = await get_active_promo_codes()
     
@@ -194,7 +194,7 @@ async def callback_admin_delete_promo(callback: CallbackQuery, state: FSMContext
 
 @router.callback_query(F.data.startswith("delete_promo_"), IsAdminCallbackFilter(is_admin=True))
 async def callback_delete_promo(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     promo_id = int(callback.data.replace("delete_promo_", ""))
     
@@ -230,7 +230,7 @@ async def callback_delete_promo(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "admin_active_promos", IsAdminCallbackFilter(is_admin=True))
 async def callback_admin_active_promos(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     promo_codes = await get_active_promo_codes()
     

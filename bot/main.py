@@ -3,7 +3,7 @@ import logging
 import sys
 from pathlib import Path
 
-from aiogram import Bot, Dispatcher, enums
+from aiogram import Bot, Dispatcher, enums, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -47,6 +47,9 @@ async def on_startup(bot: Bot):
         logging.warning("Bot will continue without webhook update")
 
 def setup_routers():
+    glv.dp.message.filter(F.chat.type == "private")
+    glv.dp.callback_query.filter(F.message.chat.type == "private")
+    
     register_commands(glv.dp)
     register_messages(glv.dp)
     register_callbacks(glv.dp)
@@ -58,7 +61,10 @@ def setup_middlewares():
     i18n = I18n(path=Path(__file__).parent / 'locales', default_locale='en', domain='bot')
     i18n_middleware = SimpleI18nMiddleware(i18n=i18n)
     i18n_middleware.setup(glv.dp)
-    glv.dp.message.middleware(DBCheck())
+    
+    db_check = DBCheck()
+    glv.dp.message.middleware(db_check)
+    glv.dp.callback_query.middleware(db_check)
 
 async def main():
     setup_routers()
