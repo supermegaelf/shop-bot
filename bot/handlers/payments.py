@@ -29,12 +29,16 @@ router = Router(name="payment-router")
 
 @router.pre_checkout_query()
 async def pre_checkout_handler(query: PreCheckoutQuery):
-    if goods.get(query.invoice_payload) is None:
-        return await query.answer(
-            _("Error: Invalid product type.\nPlease contact the support team."),
-            ok=False,
-        )
-    await query.answer(ok=True)
+    try:
+        if goods.get(query.invoice_payload) is None:
+            await query.answer(
+                _("Error: Invalid product type.\nPlease contact the support team."),
+                ok=False,
+            )
+            return
+        await query.answer(ok=True)
+    except Exception as e:
+        logging.warning(f"Failed to answer pre_checkout_query {query.id}: {e}")
 
 
 @router.message(F.successful_payment)
@@ -111,7 +115,7 @@ async def success_payment(message: Message, state: FSMContext):
         await cleanup.send_important(
             chat_id=message.from_user.id,
             text=_("message_error") + "\n\n" + _("Please contact support. Your payment has been registered."),
-            reply_markup=get_main_menu_keyboard(user_id=message.from_user.id)
+            reply_markup=await get_main_menu_keyboard(user_id=message.from_user.id)
         )
         return
 

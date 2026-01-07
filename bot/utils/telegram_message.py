@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 import logging
 import asyncio
+from typing import Optional
 
-from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound
-from aiogram.types import Message
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound, TelegramServerError, TelegramRetryAfter
+from aiogram.types import Message, InlineKeyboardMarkup
 
 
 async def try_delete_message(message: Message, debug: bool = False) -> bool:
@@ -58,4 +59,97 @@ async def try_delete_message(message: Message, debug: bool = False) -> bool:
         if debug:
             logging.error(f"try_delete_message: unexpected error deleting message {message.message_id}: {e}", exc_info=True)
         return False
+
+
+async def safe_edit_or_send(
+    message: Optional[Message],
+    text: str,
+    reply_markup: Optional[InlineKeyboardMarkup] = None,
+    parse_mode: Optional[str] = None,
+    disable_web_page_preview: Optional[bool] = None,
+    debug: bool = False,
+    **kwargs
+) -> Optional[Message]:
+    if message is None:
+        if debug:
+            logging.warning("safe_edit_or_send: message is None, cannot edit")
+        return None
+    
+    if not hasattr(message, 'message_id') or message.message_id is None:
+        if debug:
+            logging.warning("safe_edit_or_send: message_id is missing")
+        return None
+    
+    edit_kwargs = {
+        "text": text,
+        "reply_markup": reply_markup,
+        **kwargs
+    }
+    if parse_mode is not None:
+        edit_kwargs["parse_mode"] = parse_mode
+    if disable_web_page_preview is not None:
+        edit_kwargs["disable_web_page_preview"] = disable_web_page_preview
+    
+    try:
+        await message.edit_text(**edit_kwargs)
+        if debug:
+            logging.info(f"safe_edit_or_send: successfully edited message {message.message_id} in chat {message.chat.id}")
+        return message
+    except TelegramBadRequest as e:
+        error_message = str(e).lower()
+        if "message to edit not found" in error_message:
+            if debug:
+                logging.debug(f"safe_edit_or_send: message {message.message_id} not found, will send new")
+        elif "message can't be edited" in error_message:
+            if debug:
+                logging.debug(f"safe_edit_or_send: message {message.message_id} can't be edited (too old or no permission), will try to delete and send new")
+            try:
+                deleted = await try_delete_message(message, debug=debug)
+                if deleted:
+                    if debug:
+                        logging.info(f"safe_edit_or_send: deleted old message {message.message_id} before sending new")
+                elif debug:
+                    logging.debug(f"safe_edit_or_send: couldn't delete old message {message.message_id}, will send new anyway")
+            except Exception as delete_error:
+                if debug:
+                    logging.debug(f"safe_edit_or_send: error trying to delete old message {message.message_id}: {delete_error}")
+        elif "message is not modified" in error_message:
+            if debug:
+                logging.debug(f"safe_edit_or_send: message {message.message_id} not modified (same content)")
+            return message
+        else:
+            if debug:
+                logging.warning(f"safe_edit_or_send: TelegramBadRequest editing message {message.message_id}: {e}")
+    except TelegramForbiddenError as e:
+        if debug:
+            logging.warning(f"safe_edit_or_send: bot doesn't have permission to edit message {message.message_id}: {e}")
+    except TelegramNotFound as e:
+        if debug:
+            logging.debug(f"safe_edit_or_send: message {message.message_id} not found: {e}")
+    except (TelegramServerError, TelegramRetryAfter) as e:
+        if debug:
+            logging.warning(f"safe_edit_or_send: Telegram server error editing message {message.message_id}: {e}")
+    except Exception as e:
+        if debug:
+            logging.error(f"safe_edit_or_send: unexpected error editing message {message.message_id}: {e}", exc_info=True)
+    
+    try:
+        answer_kwargs = {
+            "text": text,
+            "reply_markup": reply_markup,
+            **kwargs
+        }
+        if parse_mode is not None:
+            answer_kwargs["parse_mode"] = parse_mode
+        if disable_web_page_preview is not None:
+            answer_kwargs["disable_web_page_preview"] = disable_web_page_preview
+        
+        new_message = await message.answer(**answer_kwargs)
+        if debug:
+            logging.info(f"safe_edit_or_send: sent new message {new_message.message_id} instead of editing {message.message_id}")
+        return new_message
+    except Exception as e:
+        if debug:
+            logging.error(f"safe_edit_or_send: failed to send new message after edit failed: {e}", exc_info=True)
+        return None
 

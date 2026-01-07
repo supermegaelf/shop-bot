@@ -20,7 +20,7 @@ from keyboards import (
     get_promo_back_keyboard,
     get_admin_management_keyboard
 )
-from utils import MessageCleanup, try_delete_message
+from utils import MessageCleanup
 import glv
 
 router = Router(name="promo-management-router")
@@ -38,15 +38,12 @@ async def callback_admin_promo_codes(callback: CallbackQuery, state: FSMContext)
     
     await state.clear()
     
-    message_deleted = await try_delete_message(callback.message)
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_promo_management"),
         reply_markup=get_promo_codes_management_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 
@@ -54,15 +51,12 @@ async def callback_admin_promo_codes(callback: CallbackQuery, state: FSMContext)
 async def callback_admin_add_promo(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
-    message_deleted = await try_delete_message(callback.message)
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_enter_promo_code"),
         reply_markup=get_promo_back_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
     
     await state.set_state(PromoManagementStates.waiting_for_code)
@@ -180,26 +174,21 @@ async def callback_admin_delete_promo(callback: CallbackQuery, state: FSMContext
     
     promo_codes = await get_active_promo_codes()
     
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     if not promo_codes:
-        message_deleted = await try_delete_message(callback.message)
-        cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-        reuse_message = None if message_deleted else callback.message
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
             text=_("message_no_active_promos"),
             reply_markup=get_promo_back_keyboard(),
-            reuse_message=reuse_message,
+            reuse_message=callback.message,
         )
         return
     
-    message_deleted = await try_delete_message(callback.message)
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_select_promo_to_delete"),
         reply_markup=get_promo_delete_keyboard(promo_codes),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 
@@ -212,23 +201,31 @@ async def callback_delete_promo(callback: CallbackQuery, state: FSMContext):
     try:
         promo = await get_promo_code_by_id(promo_id)
         if not promo:
-            await callback.message.edit_text(_("message_error"))
+            from bot.utils.telegram_message import safe_edit_or_send
+            await safe_edit_or_send(
+                callback.message,
+                text=_("message_error"),
+                debug=glv.MESSAGE_CLEANUP_DEBUG,
+            )
             return
         
         await delete_promo_code(promo_id)
         
-        message_deleted = await try_delete_message(callback.message)
         cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-        reuse_message = None if message_deleted else callback.message
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
             text=_("message_promo_deleted").format(code=promo.code),
             reply_markup=get_promo_codes_management_keyboard(),
-            reuse_message=reuse_message,
+            reuse_message=callback.message,
         )
     except Exception as e:
         logging.error(f"Failed to delete promo code: {e}", exc_info=True)
-        await callback.message.edit_text(_("message_error"))
+        from bot.utils.telegram_message import safe_edit_or_send
+        await safe_edit_or_send(
+            callback.message,
+            text=_("message_error"),
+            debug=glv.MESSAGE_CLEANUP_DEBUG,
+        )
 
 
 @router.callback_query(F.data == "admin_active_promos", IsAdminCallbackFilter(is_admin=True))
@@ -237,15 +234,13 @@ async def callback_admin_active_promos(callback: CallbackQuery, state: FSMContex
     
     promo_codes = await get_active_promo_codes()
     
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     if not promo_codes:
-        message_deleted = await try_delete_message(callback.message)
-        cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-        reuse_message = None if message_deleted else callback.message
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
             text=_("message_no_active_promos"),
             reply_markup=get_promo_back_keyboard(),
-            reuse_message=reuse_message,
+            reuse_message=callback.message,
         )
         return
     
@@ -256,14 +251,11 @@ async def callback_admin_active_promos(callback: CallbackQuery, state: FSMContex
             f"{i}. {_('message_promo_info').format(code=promo.code, discount=promo.discount_percent, expires_at=expires_text)}"
         )
     
-    message_deleted = await try_delete_message(callback.message)
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text="\n\n".join(text_parts),
         reply_markup=get_promo_back_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 

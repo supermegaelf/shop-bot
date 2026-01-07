@@ -4,4 +4,4 @@ from . import yookassa
 from .lang import get_i18n_string
 from .ephemeral import EphemeralNotification
 from .message_cleanup import MessageCleanup, MessageType
-from .telegram_message import try_delete_message
+from .telegram_message import try_delete_message, safe_edit_or_send

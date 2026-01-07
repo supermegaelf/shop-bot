@@ -1,9 +1,11 @@
 import hashlib
 from enum import Enum
 from datetime import datetime, timedelta
+import asyncio
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete, exists
+from sqlalchemy.exc import OperationalError
 
 from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages
 import glv
@@ -13,7 +15,22 @@ class PaymentPlatform(Enum):
     CRYPTOMUS = 1
     TELEGRAM = 2
 
-engine = create_async_engine(glv.config['DB_URL'])
+engine = create_async_engine(
+    glv.config['DB_URL'],
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    pool_size=10,
+    max_overflow=20
+)
+
+async def _retry_on_connection_error(func, max_retries=3, delay=0.5):
+    for attempt in range(max_retries):
+        try:
+            return await func()
+        except OperationalError:
+            if attempt == max_retries - 1:
+                raise
+            await asyncio.sleep(delay * (attempt + 1))
 
 async def create_vpn_user(tg_id: int):
     async with engine.connect() as conn:
@@ -21,16 +38,19 @@ async def create_vpn_user(tg_id: int):
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
         if result is not None:
             return
+    async with engine.begin() as conn:
         hash = hashlib.md5(str(tg_id).encode()).hexdigest()
         sql_query = insert(VPNUsers).values(tg_id=tg_id, vpn_id=hash, test=None)
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def get_vpn_user(tg_id: int) -> VPNUsers:
-    async with engine.connect() as conn:
-        sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
-        result: VPNUsers = (await conn.execute(sql_query)).fetchone()
-    return result
+    async def _execute():
+        async with engine.connect() as conn:
+            sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
+            result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+        return result
+    
+    return await _retry_on_connection_error(_execute)
 
 async def get_marzban_profile_by_vpn_id(vpn_id: str):
     async with engine.connect() as conn:
@@ -39,10 +59,9 @@ async def get_marzban_profile_by_vpn_id(vpn_id: str):
     return result
 
 async def update_vpn_id(tg_id: int, vpn_id: str):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(vpn_id=vpn_id)
         await conn.execute(sql_q)
-        await conn.commit()
 
 async def get_vpn_user_by_vpn_id(vpn_id: str) -> VPNUsers:
     async with engine.connect() as conn:
@@ -54,31 +73,32 @@ async def is_trial_available(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+    if result is None:
+        return True
     return result.test is None
 
 async def start_trial(tg_id):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(test=True)
         await conn.execute(sql_q)
-        await conn.commit()
 
 async def disable_trial(tg_id):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_q = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(test=False)
         await conn.execute(sql_q)
-        await conn.commit()
 
 async def is_test_subscription(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
         result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+    if result is None:
+        return False
     return result.test
 
 async def add_payment(tg_id: int, callback: str, lang_code: str, payment_id:str, platform:PaymentPlatform, confirmed: bool = False, message_id: int = None, from_notification: bool = False) -> dict:
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_q = insert(Payments).values(tg_id=tg_id, payment_id=payment_id, callback=callback, lang=lang_code, type=platform.value, confirmed=confirmed, created_at=datetime.now(), message_id=message_id, from_notification=from_notification)
         await conn.execute(sql_q)
-        await conn.commit()
 
 async def get_payment(payment_id, platform:PaymentPlatform) -> Payments:
     async with engine.connect() as conn:
@@ -90,16 +110,14 @@ async def get_payment(payment_id, platform:PaymentPlatform) -> Payments:
     return payment
 
 async def confirm_payment(payment_id):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_q = update(Payments).where(Payments.payment_id == payment_id).values(confirmed=True)
         await conn.execute(sql_q)
-        await conn.commit()
 
 async def delete_payment(payment_id):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_q = delete(Payments).where(Payments.payment_id == payment_id)
         await conn.execute(sql_q)
-        await conn.commit()
 
 async def get_promo_code_by_code(code: str) -> PromoCode:
     async with engine.connect() as conn:
@@ -114,10 +132,9 @@ async def has_activated_promo_code(tg_id: int, promo_code_id: int) -> bool:
     return result is not None
 
 async def activate_promo_code(tg_id: int, promo_code_id: int):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = insert(UserPromoCode).values(tg_id=tg_id, promo_code_id=promo_code_id, activated_at=datetime.now())
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def get_user_promo_discount(tg_id: int) -> float:
     async with engine.connect() as conn:
@@ -141,10 +158,9 @@ async def has_confirmed_payments(tg_id: int) -> bool:
     return result
 
 async def use_all_promo_codes(tg_id: int):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = update(UserPromoCode).where(UserPromoCode.tg_id == tg_id).values(used=True)
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def get_vpn_users():
     async with engine.connect() as conn:
@@ -161,7 +177,7 @@ async def get_active_promo_codes():
     return result
 
 async def add_promo_code(code: str, discount_percent: int, expires_at: datetime = None):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = insert(PromoCode).values(
             code=code.upper(),
             discount_percent=discount_percent,
@@ -169,13 +185,11 @@ async def add_promo_code(code: str, discount_percent: int, expires_at: datetime 
             created_at=datetime.now()
         )
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def delete_promo_code(promo_code_id: int):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = delete(PromoCode).where(PromoCode.id == promo_code_id)
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def get_promo_code_by_id(promo_code_id: int) -> PromoCode:
     async with engine.connect() as conn:
@@ -191,8 +205,9 @@ async def save_user_message(tg_id: int, message_id: int, message_type: str):
             UserMessages.message_type == message_type
         )
         existing = (await conn.execute(check_query)).fetchone()
-        
-        if not existing:
+    
+    if not existing:
+        async with engine.begin() as conn:
             sql_query = insert(UserMessages).values(
                 tg_id=tg_id,
                 message_id=message_id,
@@ -200,7 +215,6 @@ async def save_user_message(tg_id: int, message_id: int, message_type: str):
                 created_at=datetime.now()
             )
             await conn.execute(sql_query)
-            await conn.commit()
 
 async def get_user_messages(tg_id: int) -> dict:
     async with engine.connect() as conn:
@@ -235,33 +249,29 @@ async def get_user_messages(tg_id: int) -> dict:
     return messages
 
 async def delete_user_message(tg_id: int, message_id: int, message_type: str):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = delete(UserMessages).where(
             UserMessages.tg_id == tg_id,
             UserMessages.message_id == message_id,
             UserMessages.message_type == message_type
         )
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def clear_user_messages_by_type(tg_id: int, message_types: list):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = delete(UserMessages).where(
             UserMessages.tg_id == tg_id,
             UserMessages.message_type.in_(message_types)
         )
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def clear_user_messages(tg_id: int):
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = delete(UserMessages).where(UserMessages.tg_id == tg_id)
         await conn.execute(sql_query)
-        await conn.commit()
 
 async def cleanup_old_messages(days: int = 7):
     cutoff_date = datetime.now() - timedelta(days=days)
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         sql_query = delete(UserMessages).where(UserMessages.created_at < cutoff_date)
         await conn.execute(sql_query)
-        await conn.commit()

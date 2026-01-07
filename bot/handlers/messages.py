@@ -9,7 +9,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards import get_user_profile_keyboard, get_help_keyboard
+from keyboards import get_help_keyboard
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code
 from panel import get_panel
 
@@ -18,12 +18,22 @@ from utils import MessageCleanup, try_delete_message
 
 router = Router(name="messages-router")
 
+MONTHS_RU = {
+    1: "янв", 2: "фев", 3: "мар", 4: "апр",
+    5: "мая", 6: "июн", 7: "июл", 8: "авг",
+    9: "сен", 10: "окт", 11: "ноя", 12: "дек"
+}
+
+def _format_expire_date(date):
+    if not date:
+        return "∞"
+    return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
 
 def _format_profile_data(panel_profile):
     if panel_profile:
         url = panel_profile.subscription_url
         status = _(panel_profile.status)
-        expire_date = panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
+        expire_date = _format_expire_date(panel_profile.expire) if panel_profile.expire else "∞"
         data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
         data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
         show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
@@ -45,20 +55,23 @@ def _format_profile_data(panel_profile):
     }
 
 
-async def _build_and_send_profile(cleanup, user_id: int, panel_profile):
-    profile_data = _format_profile_data(panel_profile)
+async def _build_and_send_profile(cleanup, user_id: int, panel_profile, user_name: str = None):
+    from keyboards import get_main_menu_keyboard
     
-    keyboard = await get_user_profile_keyboard(
-        user_id, profile_data["show_buy_traffic_button"], profile_data["url"]
-    )
+    if user_name is None:
+        try:
+            chat = await glv.bot.get_chat(user_id)
+            user_name = chat.first_name or chat.username or "пользователь"
+        except Exception:
+            user_name = "пользователь"
+    
+    has_subscription = panel_profile is not None and panel_profile.subscription_url and panel_profile.subscription_url.strip() != ""
+    keyboard = await get_main_menu_keyboard(user_id=user_id, has_subscription=has_subscription)
     
     await cleanup.send_profile(
         chat_id=user_id,
-        text=_("subscription_data").format(
-            status=profile_data["status"],
-            expire_date=profile_data["expire_date"],
-            data_used=profile_data["data_used"],
-            data_limit=profile_data["data_limit"],
+        text=_("main_menu_news").format(
+            name=user_name,
             link=glv.config['TG_INFO_CHANEL']
         ),
         reply_markup=keyboard,
@@ -75,7 +88,7 @@ async def profile(message: Message, state: FSMContext):
     panel_profile = await panel.get_panel_user(message.from_user.id)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await _build_and_send_profile(cleanup, message.from_user.id, panel_profile)
+    await _build_and_send_profile(cleanup, message.from_user.id, panel_profile, user_name=message.from_user.first_name)
 
 @router.message(F.text == __("button_help"))
 async def help(message: Message, state: FSMContext):
@@ -91,11 +104,11 @@ async def promo_start(callback: CallbackQuery, state: FSMContext):
     kb = [[InlineKeyboardButton(text=_("button_back"), callback_data="back_to_profile")]]
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_enter_promo"),
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb),
+        reuse_message=callback.message,
     )
     
     await state.set_state(PromoStates.waiting_for_promo)

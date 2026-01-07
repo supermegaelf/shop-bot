@@ -36,6 +36,9 @@ services:
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
+        dns:
+            - 8.8.8.8
+            - 1.1.1.1
         depends_on:
             db:
                 condition: service_healthy

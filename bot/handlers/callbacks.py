@@ -17,11 +17,11 @@ from keyboards import (
     get_help_keyboard,
     get_months_keyboard,
     get_install_subscription_keyboard,
-    get_user_profile_keyboard,
     get_admin_management_keyboard,
     get_broadcast_confirmation_keyboard,
     get_broadcast_start_keyboard,
     get_broadcast_dismiss_keyboard,
+    get_subscription_details_keyboard,
 )
 from db.methods import (
     is_trial_available,
@@ -29,21 +29,29 @@ from db.methods import (
     get_vpn_user,
     get_user_promo_discount,
 )
-from utils import goods, yookassa, cryptomus, MessageCleanup, try_delete_message
+from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message
 from panel import get_panel
 from filters import IsAdminCallbackFilter
 import glv
 
 router = Router(name="callbacks-router")
 
+MONTHS_RU = {
+    1: "янв", 2: "фев", 3: "мар", 4: "апр",
+    5: "мая", 6: "июн", 7: "июл", 8: "авг",
+    9: "сен", 10: "окт", 11: "ноя", 12: "дек"
+}
+
+def _format_expire_date(date):
+    if not date:
+        return "∞"
+    return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
 
 def _format_profile_data(panel_profile):
     if panel_profile:
         url = panel_profile.subscription_url
         status = _(panel_profile.status)
-        expire_date = (
-            panel_profile.expire.strftime("%d.%m.%Y") if panel_profile.expire else "∞"
-        )
+        expire_date = _format_expire_date(panel_profile.expire) if panel_profile.expire else "∞"
         data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
         data_limit = (
             f"{panel_profile.data_limit // 1073741824}"
@@ -77,20 +85,22 @@ async def _build_and_send_profile(
     user_id: int,
     panel_profile,
     reuse_message=None,
+    user_name: str = None,
 ):
-    profile_data = _format_profile_data(panel_profile)
+    if user_name is None:
+        try:
+            chat = await glv.bot.get_chat(user_id)
+            user_name = chat.first_name or chat.username or "пользователь"
+        except Exception:
+            user_name = "пользователь"
     
-    keyboard = await get_user_profile_keyboard(
-        user_id, profile_data["show_buy_traffic_button"], profile_data["url"]
-    )
+    has_subscription = panel_profile is not None and panel_profile.subscription_url and panel_profile.subscription_url.strip() != ""
+    keyboard = await get_main_menu_keyboard(user_id=user_id, has_subscription=has_subscription)
     
     await cleanup.send_profile(
         chat_id=user_id,
-        text=_("subscription_data").format(
-            status=profile_data["status"],
-            expire_date=profile_data["expire_date"],
-            data_used=profile_data["data_used"],
-            data_limit=profile_data["data_limit"],
+        text=_("main_menu_news").format(
+            name=user_name,
             link=glv.config["TG_INFO_CHANEL"],
         ),
         reply_markup=keyboard,
@@ -99,22 +109,28 @@ async def _build_and_send_profile(
     )
 
 
-@router.callback_query(F.data == "vpn_access")
-async def callback_vpn_access(callback: CallbackQuery, state: FSMContext):
+@router.callback_query(F.data == "subscription_details")
+async def callback_subscription_details(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    
-    message_deleted = await try_delete_message(callback.message)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
+    profile_data = _format_profile_data(panel_profile)
+    
+    keyboard = get_subscription_details_keyboard(profile_data["url"])
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
-    await _build_and_send_profile(
-        cleanup,
-        callback.from_user.id,
-        panel_profile,
-        reuse_message=reuse_message,
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("subscription_details").format(
+            status=profile_data["status"],
+            expire_date=profile_data["expire_date"],
+            data_used=profile_data["data_used"],
+            data_limit=profile_data["data_limit"],
+        ),
+        reply_markup=keyboard,
+        reuse_message=callback.message,
+        disable_web_page_preview=True,
     )
 
 
@@ -126,11 +142,11 @@ async def callback_month_amount_select(callback: CallbackQuery, state: FSMContex
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, "renew")
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_traffic_renewal_info"),
         reply_markup=keyboard,
+        reuse_message=callback.message,
     )
 
 
@@ -160,11 +176,11 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
         )
 
         cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-        await cleanup.edit_navigation(
+        await cleanup.send_navigation(
             chat_id=callback.from_user.id,
-            message_id=callback.message.message_id,
             text=_("message_select_traffic_amount"),
             reply_markup=keyboard,
+            reuse_message=callback.message,
         )
     else:
         await callback.answer(_("message_error"), show_alert=True)
@@ -189,8 +205,6 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
         return
 
     await callback.answer()
-
-    message_deleted = await try_delete_message(callback.message)
     
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
@@ -202,12 +216,11 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
     )
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     sent_message_id = await cleanup.send_payment(
         chat_id=callback.from_user.id,
         text=_("To be paid – {amount} ₽ ⬇️").format(amount=int(result["amount"])),
         reply_markup=get_pay_keyboard(result["url"], data),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
     from db.methods import add_payment, PaymentPlatform
@@ -231,8 +244,6 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
         return
 
     await callback.answer()
-
-    await try_delete_message(callback.message)
     
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
@@ -245,7 +256,7 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     prices = [LabeledPrice(label="XTR", amount=price)]
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.cleanup_by_event(callback.from_user.id, "start_payment")
+    await cleanup.cleanup_by_event(callback.from_user.id, "start_payment", except_message_id=callback.message.message_id)
 
     sent_message = await glv.bot.send_invoice(
         chat_id=callback.from_user.id,
@@ -261,6 +272,8 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     await cleanup.register_message(
         callback.from_user.id, sent_message.message_id, MessageType.PAYMENT
     )
+
+    await try_delete_message(callback.message)
 
     from db.methods import add_payment, PaymentPlatform
 
@@ -283,8 +296,6 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
         return
 
     await callback.answer()
-
-    message_deleted = await try_delete_message(callback.message)
     
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
@@ -298,14 +309,13 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
     expire_date = (now + timedelta(minutes=60)).strftime("%d/%m/%Y, %H:%M")
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     sent_message_id = await cleanup.send_payment(
         chat_id=callback.from_user.id,
         text=_("To be paid – {amount} $ ⬇️").format(
             amount=result["amount"], date=expire_date
         ),
         reply_markup=get_pay_keyboard(result["url"], data),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
     from db.methods import add_payment, PaymentPlatform
@@ -344,17 +354,14 @@ async def callback_trial(callback: CallbackQuery, state: FSMContext):
     await start_trial(callback.from_user.id)
     subscription_url = panel_profile.subscription_url
 
-    message_deleted = await try_delete_message(callback.message)
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_important(
         chat_id=callback.from_user.id,
         text=_("message_new_subscription_created"),
         reply_markup=get_install_subscription_keyboard(
             subscription_url, callback.from_user.language_code
         ),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 
@@ -365,11 +372,11 @@ async def callback_payment(callback: CallbackQuery, state: FSMContext):
     keyboard = await get_months_keyboard(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_select_payment_period"),
         reply_markup=keyboard,
+        reuse_message=callback.message,
     )
 
 
@@ -380,15 +387,12 @@ async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext
     data = await state.get_data()
     from_profile = "profile_message_id" in data
 
-    message_deleted = await try_delete_message(callback.message)
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_frequent_questions").format(shop_name=glv.config["SHOP_NAME"]),
         reply_markup=get_back_to_help_keyboard(from_profile=from_profile),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 
@@ -396,31 +400,25 @@ async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext
 async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
-    message_deleted = await try_delete_message(callback.message)
-
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_select_action"),
         reply_markup=get_help_keyboard(from_profile=True),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    
-    message_deleted = await try_delete_message(callback.message)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_select_action"),
         reply_markup=get_help_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 
@@ -431,11 +429,11 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
     good = goods.get(callback.data)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.edit_navigation(
+    await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
         text=_("message_select_payment_method"),
         reply_markup=get_payment_keyboard(good),
+        reuse_message=callback.message,
     )
 
 
@@ -444,36 +442,98 @@ async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.back_to_profile(callback.from_user.id, callback.message.message_id)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
-    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
+    await _build_and_send_profile(
+        cleanup,
+        callback.from_user.id,
+        panel_profile,
+        reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
+    )
+
+@router.callback_query(F.data == "back_to_main_menu")
+async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
+
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    await _build_and_send_profile(
+        cleanup,
+        callback.from_user.id,
+        panel_profile,
+        reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
+    )
+
+@router.callback_query(F.data == "back_to_subscription")
+async def callback_back_to_subscription(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    profile_data = _format_profile_data(panel_profile)
+    
+    keyboard = get_subscription_details_keyboard(profile_data["url"])
+    
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("subscription_details").format(
+            status=profile_data["status"],
+            expire_date=profile_data["expire_date"],
+            data_used=profile_data["data_used"],
+            data_limit=profile_data["data_limit"],
+        ),
+        reply_markup=keyboard,
+        reuse_message=callback.message,
+        disable_web_page_preview=True,
+    )
 
 
 @router.callback_query(F.data.startswith("back_to_payment_"))
 async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
-    message_deleted = await try_delete_message(callback.message)
     good_callback = callback.data.replace("back_to_payment_", "")
     good = goods.get(good_callback)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
-    await cleanup.send_navigation(
-        chat_id=callback.from_user.id,
-        text=_("message_select_payment_method"),
-        reply_markup=get_payment_keyboard(good),
-        reuse_message=reuse_message,
-    )
+    
+    messages = await cleanup._get_messages_state(callback.from_user.id)
+    existing_payment = messages.get('payment')
+    is_invoice = hasattr(callback.message, 'invoice') and callback.message.invoice is not None
+    
+    if existing_payment:
+        await cleanup._delete_message(callback.from_user.id, existing_payment, 'payment')
+        messages['payment'] = None
+        await cleanup._save_messages_state(messages)
+    
+    if is_invoice:
+        await try_delete_message(callback.message)
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_select_payment_method"),
+            reply_markup=get_payment_keyboard(good),
+        )
+    else:
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_select_payment_method"),
+            reply_markup=get_payment_keyboard(good),
+            reuse_message=callback.message,
+        )
 
 
 @router.callback_query(F.data.startswith("back_to_traffic_"))
 async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
 
-    message_deleted = await try_delete_message(callback.message)
     parts = callback.data.replace("back_to_traffic_", "").split("_")
     purchase_type = parts[0]
     months = int(parts[1])
@@ -481,13 +541,12 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, purchase_type)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     if purchase_type == "renew":
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
             text=_("message_traffic_renewal_info"),
             reply_markup=keyboard,
-            reuse_message=reuse_message,
+            reuse_message=callback.message,
         )
     else:
         await cleanup.send_navigation(
@@ -502,55 +561,39 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
 async def callback_dismiss_notification(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
-    message_deleted = await try_delete_message(callback.message)
-
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
-    try:
-        await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except Exception:
-        pass
-
-    reuse_message = None if message_deleted else callback.message
     await _build_and_send_profile(
         cleanup,
         callback.from_user.id,
         panel_profile,
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
 
 @router.callback_query(F.data == "dismiss_payment_success")
 async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMContext):
-    logging.info(f"dismiss_payment_success called by user {callback.from_user.id}")
-
     await callback.answer()
-
-    deleted = await try_delete_message(callback.message)
-    if deleted:
-        logging.info(f"Message {callback.message.message_id} deleted")
-    else:
-        logging.warning(f"Message {callback.message.message_id} deletion skipped")
+    
+    logging.info(f"dismiss_payment_success called by user {callback.from_user.id}")
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
-    try:
-        await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except Exception as e:
-        logging.warning(f"Cleanup failed: {e}")
-
-    reuse_message = None if deleted else callback.message
     await _build_and_send_profile(
         cleanup,
         callback.from_user.id,
         panel_profile,
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
     logging.info(f"Profile sent to user {callback.from_user.id}")
@@ -566,28 +609,18 @@ async def callback_dismiss_payment_success_notification(
 
     await callback.answer()
 
-    deleted = await try_delete_message(callback.message)
-    if deleted:
-        logging.info(f"Message {callback.message.message_id} deleted")
-    else:
-        logging.warning(f"Message {callback.message.message_id} deletion skipped")
-
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
-    try:
-        await cleanup.cleanup_by_event(callback.from_user.id, "back_to_profile")
-    except Exception as e:
-        logging.warning(f"Cleanup failed: {e}")
-
-    reuse_message = None if deleted else callback.message
     await _build_and_send_profile(
         cleanup,
         callback.from_user.id,
         panel_profile,
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
     )
 
     logging.info(f"Profile sent to user {callback.from_user.id}")
@@ -610,12 +643,18 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
     await callback.answer()
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.back_to_profile(callback.from_user.id, callback.message.message_id)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
 
-    await _build_and_send_profile(cleanup, callback.from_user.id, panel_profile)
+    await _build_and_send_profile(
+        cleanup,
+        callback.from_user.id,
+        panel_profile,
+        reuse_message=callback.message,
+        user_name=callback.from_user.first_name,
+    )
 
 
 @router.callback_query(F.data == "admin_management", IsAdminCallbackFilter(is_admin=True))
@@ -628,15 +667,12 @@ async def callback_admin_management(callback: CallbackQuery, state: FSMContext):
     if current_state in [BroadcastStates.waiting_for_message, BroadcastStates.waiting_for_confirmation]:
         await state.clear()
     
-    message_deleted = await try_delete_message(callback.message)
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_admin_management"),
         reply_markup=get_admin_management_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
 
 @router.callback_query(F.data == "admin_broadcast", IsAdminCallbackFilter(is_admin=True))
@@ -645,15 +681,12 @@ async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
     
     await callback.answer()
     
-    message_deleted = await try_delete_message(callback.message)
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_broadcast_start"),
         reply_markup=get_broadcast_start_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
     
     await state.set_state(BroadcastStates.waiting_for_message)
@@ -666,19 +699,21 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
     broadcast_message = data.get('broadcast_message')
     
     if not broadcast_message:
-        await callback.message.edit_text(_("message_error"))
+        from bot.utils.telegram_message import safe_edit_or_send
+        await safe_edit_or_send(
+            callback.message,
+            text=_("message_error"),
+            debug=glv.MESSAGE_CLEANUP_DEBUG,
+        )
         await state.clear()
         return
     
-    message_deleted = await try_delete_message(callback.message)
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_broadcast_started"),
         reply_markup=None,
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
     
     success_count = 0
@@ -717,15 +752,12 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
 async def callback_broadcast_confirm_no(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     
-    message_deleted = await try_delete_message(callback.message)
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    reuse_message = None if message_deleted else callback.message
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("mesage_broadcast_cancelled"),
         reply_markup=get_admin_management_keyboard(),
-        reuse_message=reuse_message,
+        reuse_message=callback.message,
     )
     
     await state.clear()
