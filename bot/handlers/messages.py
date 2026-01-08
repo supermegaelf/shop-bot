@@ -14,7 +14,7 @@ from db.methods import get_promo_code_by_code, has_activated_promo_code, activat
 from panel import get_panel
 
 import glv
-from utils import MessageCleanup, try_delete_message
+from utils import MessageCleanup, try_delete_message, safe_answer
 
 router = Router(name="messages-router")
 
@@ -112,7 +112,7 @@ async def promo_start(callback: CallbackQuery, state: FSMContext):
     )
     
     await state.set_state(PromoStates.waiting_for_promo)
-    await callback.answer()
+    await safe_answer(callback)
 
 @router.message(PromoStates.waiting_for_promo)
 async def process_promo(message: Message, state: FSMContext):

@@ -4,7 +4,7 @@ import asyncio
 from typing import Optional
 
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramNotFound, TelegramServerError, TelegramRetryAfter
-from aiogram.types import Message, InlineKeyboardMarkup
+from aiogram.types import Message, InlineKeyboardMarkup, CallbackQuery
 
 
 async def try_delete_message(message: Message, debug: bool = False) -> bool:
@@ -152,4 +152,38 @@ async def safe_edit_or_send(
         if debug:
             logging.error(f"safe_edit_or_send: failed to send new message after edit failed: {e}", exc_info=True)
         return None
+
+
+async def safe_answer(
+    callback: CallbackQuery,
+    text: Optional[str] = None,
+    show_alert: bool = False,
+    debug: bool = False,
+) -> bool:
+    if callback is None:
+        if debug:
+            logging.warning("safe_answer: callback is None")
+        return False
+    
+    try:
+        await callback.answer(text=text, show_alert=show_alert)
+        if debug:
+            logging.debug(f"safe_answer: successfully answered callback {callback.id}")
+        return True
+    except TelegramBadRequest as e:
+        if "query is too old" in str(e).lower():
+            if debug:
+                logging.debug(f"safe_answer: callback {callback.id} is too old: {e}")
+        else:
+            if debug:
+                logging.warning(f"safe_answer: TelegramBadRequest for callback {callback.id}: {e}")
+        return False
+    except (TelegramServerError, TelegramRetryAfter) as e:
+        if debug:
+            logging.warning(f"safe_answer: Telegram server error for callback {callback.id}: {e}")
+        return False
+    except Exception as e:
+        if debug:
+            logging.error(f"safe_answer: unexpected error for callback {callback.id}: {e}", exc_info=True)
+        return False
 

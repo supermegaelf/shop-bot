@@ -3,12 +3,11 @@ import logging
 import sys
 from pathlib import Path
 
-from aiogram import Bot, Dispatcher, enums
+from aiogram import Bot, Dispatcher, enums, F
 from aiogram.client.default import DefaultBotProperties
-from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.i18n import I18n, SimpleI18nMiddleware
-from aiohttp import web, ClientTimeout
+from aiohttp import web
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 from handlers.commands import register_commands
@@ -21,17 +20,8 @@ from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 import glv
 
-timeout = ClientTimeout(
-    total=10.0,
-    connect=5.0,
-    sock_read=5.0,
-)
-
-session = AiohttpSession(timeout=timeout)
-
 glv.bot = Bot(
     glv.config['BOT_TOKEN'],
-    session=session,
     default=DefaultBotProperties(parse_mode=enums.ParseMode.HTML)
 )
 glv.storage = MemoryStorage()
@@ -47,6 +37,9 @@ async def on_startup(bot: Bot):
         logging.warning("Bot will continue without webhook update")
 
 def setup_routers():
+    glv.dp.message.filter(F.chat.type == "private")
+    glv.dp.callback_query.filter(F.message.chat.type == "private")
+    
     register_commands(glv.dp)
     register_messages(glv.dp)
     register_callbacks(glv.dp)
@@ -58,7 +51,9 @@ def setup_middlewares():
     i18n = I18n(path=Path(__file__).parent / 'locales', default_locale='en', domain='bot')
     i18n_middleware = SimpleI18nMiddleware(i18n=i18n)
     i18n_middleware.setup(glv.dp)
-    glv.dp.message.middleware(DBCheck())
+    
+    db_check = DBCheck()
+    glv.dp.update.outer_middleware(db_check)
 
 async def main():
     setup_routers()

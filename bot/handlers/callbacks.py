@@ -29,7 +29,7 @@ from db.methods import (
     get_vpn_user,
     get_user_promo_discount,
 )
-from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message
+from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message, safe_answer
 from panel import get_panel
 from filters import IsAdminCallbackFilter
 import glv
@@ -111,7 +111,7 @@ async def _build_and_send_profile(
 
 @router.callback_query(F.data == "subscription_details")
 async def callback_subscription_details(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -136,7 +136,7 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
 
 @router.callback_query(F.data.startswith("months_"))
 async def callback_month_amount_select(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     months = int(callback.data.replace("months_", ""))
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, "renew")
@@ -155,10 +155,10 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     if not panel_profile or not panel_profile.data_limit or not panel_profile.expire:
-        await callback.answer(_("message_error"), show_alert=True)
+        await safe_answer(callback, _("message_error"), show_alert=True)
         return
 
-    await callback.answer()
+    await safe_answer(callback)
 
     subscription_months_left = (
         panel_profile.expire.timestamp() - datetime.now().timestamp()
@@ -190,7 +190,7 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
 async def callback_extend_data_limit_notification(
     callback: CallbackQuery, state: FSMContext
 ):
-    await callback.answer()
+    await safe_answer(callback)
     
     await state.update_data(payment_from_notification=True)
 
@@ -201,10 +201,10 @@ async def callback_extend_data_limit_notification(
 async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
     data = callback.data.replace("pay_kassa_", "")
     if data not in goods.get_callbacks():
-        await callback.answer()
+        await safe_answer(callback)
         return
 
-    await callback.answer()
+    await safe_answer(callback)
     
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
@@ -240,10 +240,10 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
 async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     data = callback.data.replace("pay_stars_", "")
     if data not in goods.get_callbacks():
-        await callback.answer()
+        await safe_answer(callback)
         return
 
-    await callback.answer()
+    await safe_answer(callback)
     
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
@@ -292,10 +292,10 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
 async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
     data = callback.data.replace("pay_crypto_", "")
     if data not in goods.get_callbacks():
-        await callback.answer()
+        await safe_answer(callback)
         return
 
-    await callback.answer()
+    await safe_answer(callback)
     
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
@@ -335,10 +335,10 @@ async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
 async def callback_trial(callback: CallbackQuery, state: FSMContext):
     result = await is_trial_available(callback.from_user.id)
     if not result:
-        await callback.answer(_("message_subscription_access"), show_alert=True)
+        await safe_answer(callback, _("message_subscription_access"), show_alert=True)
         return
     
-    await callback.answer()
+    await safe_answer(callback)
     
     result = await get_vpn_user(callback.from_user.id)
     panel = get_panel()
@@ -367,7 +367,7 @@ async def callback_trial(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "payment")
 async def callback_payment(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     keyboard = await get_months_keyboard(callback.from_user.id)
 
@@ -382,7 +382,7 @@ async def callback_payment(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "faq")
 async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     data = await state.get_data()
     from_profile = "profile_message_id" in data
@@ -398,7 +398,7 @@ async def callback_frequent_questions(callback: CallbackQuery, state: FSMContext
 
 @router.callback_query(F.data == "help_from_profile")
 async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -411,7 +411,7 @@ async def callback_help_from_profile(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == "help")
 async def callback_help(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -424,7 +424,7 @@ async def callback_help(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(lambda c: c.data in goods.get_callbacks())
 async def callback_payment_method_select(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     good = goods.get(callback.data)
 
@@ -439,7 +439,7 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
 
 @router.callback_query(F.data == "back_to_profile")
 async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
@@ -456,7 +456,7 @@ async def callback_back_to_profile(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_main_menu")
 async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
@@ -473,7 +473,7 @@ async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == "back_to_subscription")
 async def callback_back_to_subscription(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -498,7 +498,7 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
 
 @router.callback_query(F.data.startswith("back_to_payment_"))
 async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     good_callback = callback.data.replace("back_to_payment_", "")
     good = goods.get(good_callback)
@@ -532,7 +532,7 @@ async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data.startswith("back_to_traffic_"))
 async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
 
     parts = callback.data.replace("back_to_traffic_", "").split("_")
     purchase_type = parts[0]
@@ -559,7 +559,7 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "dismiss_notification")
 async def callback_dismiss_notification(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -578,7 +578,7 @@ async def callback_dismiss_notification(callback: CallbackQuery, state: FSMConte
 
 @router.callback_query(F.data == "dismiss_payment_success")
 async def callback_dismiss_payment_success(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     logging.info(f"dismiss_payment_success called by user {callback.from_user.id}")
 
@@ -607,7 +607,7 @@ async def callback_dismiss_payment_success_notification(
         f"dismiss_payment_success_notification called by user {callback.from_user.id}"
     )
 
-    await callback.answer()
+    await safe_answer(callback)
 
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -628,7 +628,7 @@ async def callback_dismiss_payment_success_notification(
 
 @router.callback_query(F.data == "dismiss_broadcast")
 async def callback_dismiss_broadcast(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     if not callback.message:
         return
@@ -640,7 +640,7 @@ async def callback_dismiss_broadcast(callback: CallbackQuery, state: FSMContext)
 
 @router.callback_query(F.data == "dismiss_after_install")
 async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
@@ -661,7 +661,7 @@ async def callback_dismiss_after_install(callback: CallbackQuery, state: FSMCont
 async def callback_admin_management(callback: CallbackQuery, state: FSMContext):
     from handlers.broadcast import BroadcastStates
     
-    await callback.answer()
+    await safe_answer(callback)
     
     current_state = await state.get_state()
     if current_state in [BroadcastStates.waiting_for_message, BroadcastStates.waiting_for_confirmation]:
@@ -679,7 +679,7 @@ async def callback_admin_management(callback: CallbackQuery, state: FSMContext):
 async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
     from handlers.broadcast import BroadcastStates
     
-    await callback.answer()
+    await safe_answer(callback)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -693,7 +693,7 @@ async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "broadcast_confirm_yes", IsAdminCallbackFilter(is_admin=True))
 async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     data = await state.get_data()
     broadcast_message = data.get('broadcast_message')
@@ -750,7 +750,7 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
 
 @router.callback_query(F.data == "broadcast_confirm_no", IsAdminCallbackFilter(is_admin=True))
 async def callback_broadcast_confirm_no(callback: CallbackQuery, state: FSMContext):
-    await callback.answer()
+    await safe_answer(callback)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
