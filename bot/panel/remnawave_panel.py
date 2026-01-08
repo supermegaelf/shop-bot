@@ -262,7 +262,7 @@ class RemnawavePanel(Panel):
                 else:
                     new_expire_at = user_expire_at + timedelta(hours=glv.config['PERIOD_LIMIT'])
 
-                traffic_limit = glv.config.get('DEFAULT_TRAFFIC_LIMIT', 10737418240)
+                traffic_limit = glv.config['DEFAULT_TRAFFIC_LIMIT']
                 update_payload = {
                     'uuid': user_uuid,
                     'status': 'ACTIVE',
@@ -290,7 +290,7 @@ class RemnawavePanel(Panel):
         else:
             try:
                 new_expire_at = datetime.now(UTC) + timedelta(hours=glv.config['PERIOD_LIMIT'])
-                traffic_limit = glv.config.get('DEFAULT_TRAFFIC_LIMIT', 10737418240)
+                traffic_limit = glv.config['DEFAULT_TRAFFIC_LIMIT']
                 user_db = await get_marzban_profile_by_vpn_id(username)
                 create_payload = {
                     'username': username,
