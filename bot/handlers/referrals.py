@@ -36,8 +36,7 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     bot_username = bot_info.username
     referral_link = f"https://t.me/{bot_username}?start=ref_{code}"
     
-    text = f"{get_i18n_string('referral_menu_title', lang)}\n\n"
-    text += f"{get_i18n_string('referral_invited_count', lang).format(count=stats['invited_count'])}\n"
+    text = f"{get_i18n_string('referral_invited_count', lang).format(count=stats['invited_count'])}\n"
     text += f"{get_i18n_string('referral_earned_days', lang).format(days=stats['earned_days'])}\n\n"
     text += f"{get_i18n_string('referral_bonuses_title', lang)}\n"
     text += f"{get_i18n_string('referral_bonus_you', lang).format(percent=inviter_percent)}\n"

@@ -336,7 +336,7 @@ msgid "button_referral_search"
 msgstr "Search 🔎"
 
 msgid "admin_referral_stats"
-msgstr "Referral statistics\n\nTotal referrers: {referrers_count}\nTotal referrals: {referrals_count}\n\nActive referrers: {active_referrers}\n(have at least 1 referral)\n\nConversion to purchase: {conversion}%\n({purchased} out of {total} purchased)\n\nTotal bonuses issued: {total_bonus} days\n\nAverage referrer income: {avg_bonus} days\n\nTop referrer: {top_referrer}\n({top_count} referrals, {top_days} days)"
+msgstr "Total referrers: {referrers_count}\nTotal referrals: {referrals_count}\n\nActive referrers: {active_referrers}\n(have at least 1 referral)\n\nConversion to purchase: {conversion}%\n({purchased} out of {total} purchased)\n\nTotal bonuses issued: {total_bonus} days\n\nAverage referrer income: {avg_bonus} days\n\nTop referrer: {top_referrer}\n({top_count} referrals, {top_days} days)"
 
 msgid "admin_referral_list_title"
 msgstr "List of referrers"
