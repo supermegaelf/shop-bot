@@ -37,11 +37,9 @@ def get_admin_referral_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 def get_admin_referral_stats_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
-    list_text = get_i18n_string("button_referral_list", lang)
     back_text = get_i18n_string("button_back", lang)
     
     keyboard = [
-        [InlineKeyboardButton(text=list_text, callback_data="admin_referral_list")],
         [InlineKeyboardButton(text=back_text, callback_data="admin_referrals")]
     ]
     
