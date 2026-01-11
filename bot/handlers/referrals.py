@@ -31,6 +31,11 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     
     stats = await referrals.get_referral_stats(tg_id)
     
+    code = await referrals.ensure_referral_code(tg_id)
+    bot_info = await glv.bot.get_me()
+    bot_username = bot_info.username
+    referral_link = f"https://t.me/{bot_username}?start=ref_{code}"
+    
     text = f"{get_i18n_string('referral_menu_title', lang)}\n\n"
     text += f"{get_i18n_string('referral_invited_count', lang).format(count=stats['invited_count'])}\n"
     text += f"{get_i18n_string('referral_earned_days', lang).format(days=stats['earned_days'])}\n\n"
@@ -39,7 +44,7 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     text += f"{get_i18n_string('referral_bonus_friend', lang).format(percent=referee_percent)}\n\n"
     text += get_i18n_string('referral_how_it_works', lang)
     
-    keyboard = get_referral_menu_keyboard(lang)
+    keyboard = get_referral_menu_keyboard(lang, referral_link)
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
