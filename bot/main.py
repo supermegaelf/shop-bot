@@ -16,6 +16,8 @@ from handlers.callbacks import register_callbacks
 from handlers.payments import register_payments
 from handlers.broadcast import register_broadcast
 from handlers.promo_management import register_promo_management
+from handlers.referrals import register_referrals
+from handlers.admin_referrals import register_admin_referrals
 from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 import glv
@@ -46,6 +48,8 @@ def setup_routers():
     register_payments(glv.dp)
     register_broadcast(glv.dp)
     register_promo_management(glv.dp)
+    register_referrals(glv.dp)
+    register_admin_referrals(glv.dp)
 
 def setup_middlewares():
     i18n = I18n(path=Path(__file__).parent / 'locales', default_locale='en', domain='bot')

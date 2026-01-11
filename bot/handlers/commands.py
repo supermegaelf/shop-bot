@@ -15,7 +15,7 @@ from keyboards import get_main_menu_keyboard
 from .messages import profile, help
 from .callbacks import _build_and_send_profile
 from db.methods import get_promo_code_by_code, has_activated_promo_code, activate_promo_code, create_vpn_user, get_vpn_user
-from utils import MessageCleanup, MessageType
+from utils import MessageCleanup, MessageType, referrals
 from panel import get_panel
 import glv
 
@@ -47,7 +47,12 @@ async def start(message: Message, state: FSMContext):
     
     await cleanup.cleanup_all(tg_id)
     
+    user = await get_vpn_user(tg_id)
+    is_new_user = user is None
+    
     await create_vpn_user(tg_id)
+    
+    await referrals.ensure_referral_code(tg_id)
     
     try:
         user = await get_vpn_user(tg_id)
@@ -58,6 +63,14 @@ async def start(message: Message, state: FSMContext):
         logging.debug(f"Failed to update telegram_id for user {tg_id} in Remnawave: {e}")
     
     args = message.text.split()
+    
+    if is_new_user and len(args) > 1 and args[1].startswith("ref_"):
+        ref_code = args[1].replace("ref_", "").upper()
+        referrer = await referrals.get_user_by_referral_code(ref_code)
+        
+        if referrer and referrer.tg_id != tg_id:
+            await referrals.set_referrer(tg_id, referrer.tg_id)
+            logging.info(f"User {tg_id} registered via referral from {referrer.tg_id}")
     
     if len(args) > 1 and args[1].startswith("promo_"):
         promo_code = args[1].replace("promo_", "").upper()

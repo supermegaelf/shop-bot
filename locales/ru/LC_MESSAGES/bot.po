@@ -292,3 +292,69 @@ msgstr "Промокод: <code>{code}</code>, скидка: {discount}%, дей
 
 msgid "message_promo_already_exists"
 msgstr "Такой промокод уже существует ⛔️"
+
+msgid "main_menu_referral"
+msgstr "Рефералы 👥"
+
+msgid "referral_menu_title"
+msgstr "🎁 Реферальная программа"
+
+msgid "referral_invited_count"
+msgstr "Приглашено друзей: {count}"
+
+msgid "referral_earned_days"
+msgstr "Всего заработано дней: {days}"
+
+msgid "referral_bonuses_title"
+msgstr "Бонусы от покупки:"
+
+msgid "referral_bonus_you"
+msgstr "• Вы получаете: {percent}%"
+
+msgid "referral_bonus_friend"
+msgstr "• Друг получает: {percent}%"
+
+msgid "referral_how_it_works"
+msgstr "Как это работает:\n1. Нажмите на кнопку «Поделиться 🔗»\n2. Выберите друга, которого хотите пригласить\n3. После оплаты подписки вы оба получаете бонусные дни 🎁"
+
+msgid "referral_share_button"
+msgstr "Поделиться 🔗"
+
+msgid "referral_inline_message"
+msgstr "Перейдите по ссылке ниже, установите VPN и получите бонусные дни после оплаты ⬇️\n\n{referral_link}"
+
+msgid "referral_notification_inviter"
+msgstr "Ваш друг приобрёл подписку.\n\nВам начислено: {days} дней 🎁\n\nВсего заработано: {total_days} дней"
+
+msgid "button_referral_stats"
+msgstr "Статистика 📊"
+
+msgid "button_referral_list"
+msgstr "Рефереры 💰"
+
+msgid "button_referral_search"
+msgstr "Поиск 🔎"
+
+msgid "admin_referral_stats"
+msgstr "Реферальная статистика\n\nВсего рефереров: {referrers_count}\nВсего рефералов: {referrals_count}\n\nАктивных рефереров: {active_referrers}\n(имеют хотя бы 1 реферала)\n\nКонверсия в покупку: {conversion}%\n({purchased} из {total} купили)\n\nВсего выдано бонусов: {total_bonus} дн\n\nСредний доход реферера: {avg_bonus} дн\n\nТоп реферер: {top_referrer}\n({top_count} реферала, {top_days} дней)"
+
+msgid "admin_referral_list_title"
+msgstr "Список рефереров"
+
+msgid "admin_referral_list_item"
+msgstr "{index}. {username}\n👥 {count} реферала | 💰 {days} дней"
+
+msgid "admin_referral_search_prompt"
+msgstr "Поиск реферера\n\nВведите Telegram ID пользователя:"
+
+msgid "admin_referral_user_not_found"
+msgstr "Пользователь не найден ⛔️"
+
+msgid "admin_referral_user_info"
+msgstr "Реферер: {username} (ID: {user_id})\n\n👥 Приглашено: {invited_count} человек\n💰 Заработано: {earned_days} дней\n\nСписок рефералов:"
+
+msgid "admin_referral_referee_item"
+msgstr "{index}. {username} (ID: {user_id})\nЗарегистрирован: {date}\nПокупок: {purchases} | Принёс: {days} дней"
+
+msgid "admin_referral_no_referrals"
+msgstr "У пользователя пока нет рефералов"

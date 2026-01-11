@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete, exists
 from sqlalchemy.exc import OperationalError
 
-from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages
+from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages, ReferralBonus
 import glv
 
 class PaymentPlatform(Enum):

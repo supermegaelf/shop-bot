@@ -292,3 +292,69 @@ msgstr "Promo code: <code>{code}</code>, discount: {discount}%, valid until: {ex
 
 msgid "message_promo_already_exists"
 msgstr "This promo code already exists ⛔️"
+
+msgid "main_menu_referral"
+msgstr "Referrals 👥"
+
+msgid "referral_menu_title"
+msgstr "🎁 Referral Program"
+
+msgid "referral_invited_count"
+msgstr "Friends invited: {count}"
+
+msgid "referral_earned_days"
+msgstr "Total days earned: {days}"
+
+msgid "referral_bonuses_title"
+msgstr "Purchase bonuses:"
+
+msgid "referral_bonus_you"
+msgstr "• You get: {percent}%"
+
+msgid "referral_bonus_friend"
+msgstr "• Friend gets: {percent}%"
+
+msgid "referral_how_it_works"
+msgstr "How it works:\n1. Click the "Share 🔗" button\n2. Select a friend to invite\n3. After payment, you both receive bonus days 🎁"
+
+msgid "referral_share_button"
+msgstr "Share 🔗"
+
+msgid "referral_inline_message"
+msgstr "Follow the link below, install VPN and get bonus days after payment ⬇️\n\n{referral_link}"
+
+msgid "referral_notification_inviter"
+msgstr "Your friend purchased a subscription.\n\nYou earned: {days} days 🎁\n\nTotal earned: {total_days} days"
+
+msgid "button_referral_stats"
+msgstr "Statistics 📊"
+
+msgid "button_referral_list"
+msgstr "Referrers 💰"
+
+msgid "button_referral_search"
+msgstr "Search 🔎"
+
+msgid "admin_referral_stats"
+msgstr "Referral statistics\n\nTotal referrers: {referrers_count}\nTotal referrals: {referrals_count}\n\nActive referrers: {active_referrers}\n(have at least 1 referral)\n\nConversion to purchase: {conversion}%\n({purchased} out of {total} purchased)\n\nTotal bonuses issued: {total_bonus} days\n\nAverage referrer income: {avg_bonus} days\n\nTop referrer: {top_referrer}\n({top_count} referrals, {top_days} days)"
+
+msgid "admin_referral_list_title"
+msgstr "List of referrers"
+
+msgid "admin_referral_list_item"
+msgstr "{index}. {username}\n👥 {count} referrals | 💰 {days} days"
+
+msgid "admin_referral_search_prompt"
+msgstr "Search for referrer\n\nEnter Telegram ID:"
+
+msgid "admin_referral_user_not_found"
+msgstr "User not found ⛔️"
+
+msgid "admin_referral_user_info"
+msgstr "Referrer: {username} (ID: {user_id})\n\n👥 Invited: {invited_count} people\n💰 Earned: {earned_days} days\n\nReferrals list:"
+
+msgid "admin_referral_referee_item"
+msgstr "{index}. {username} (ID: {user_id})\nRegistered: {date}\nPurchases: {purchases} | Earned: {days} days"
+
+msgid "admin_referral_no_referrals"
+msgstr "User has no referrals yet"

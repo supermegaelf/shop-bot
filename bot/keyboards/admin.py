@@ -12,6 +12,9 @@ def get_admin_management_keyboard(lang=None) -> InlineKeyboardMarkup:
             InlineKeyboardButton(text=get_i18n_str("button_promo_codes", lang), callback_data="admin_promo_codes")
         ],
         [
+            InlineKeyboardButton(text=get_i18n_str("main_menu_referral", lang), callback_data="admin_referrals")
+        ],
+        [
             InlineKeyboardButton(text=get_i18n_str("button_back", lang), callback_data="back_to_profile")
         ]
     ]

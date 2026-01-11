@@ -1,4 +1,5 @@
-from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, Text
+from sqlalchemy import Column, BigInteger, String, Boolean, Integer, DateTime, Text, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from db.base import Base
@@ -9,7 +10,11 @@ class VPNUsers(Base):
     id = Column(BigInteger, primary_key=True, unique=True, autoincrement=True)
     tg_id = Column(BigInteger)
     vpn_id = Column(String(64), default="")
-    test = Column(Boolean, nullable=True, default=None) # null - trial available, true - test subscription, false - trial expired
+    test = Column(Boolean, nullable=True, default=None)
+    referral_code = Column(String(16), unique=True, index=True, nullable=True)
+    referred_by_id = Column(BigInteger, ForeignKey("vpnusers.tg_id"), nullable=True)
+    
+    referrer = relationship("VPNUsers", remote_side=[tg_id], backref="referrals", foreign_keys=[referred_by_id])
 
 class Payments(Base):
     __tablename__ = "payments"
@@ -50,5 +55,17 @@ class UserMessages(Base):
     tg_id = Column(BigInteger, nullable=False, index=True)
     message_id = Column(BigInteger, nullable=False)
     message_type = Column(String(50), nullable=False)
+    created_at = Column(DateTime, nullable=False, default=datetime.now)
+
+class ReferralBonus(Base):
+    __tablename__ = "referral_bonuses"
+    
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    inviter_id = Column(BigInteger, nullable=False)
+    referee_id = Column(BigInteger, nullable=False)
+    payment_id = Column(BigInteger, nullable=True)
+    bonus_days_inviter = Column(Integer, nullable=False)
+    bonus_days_referee = Column(Integer, nullable=False)
+    purchase_days = Column(Integer, nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now)
 

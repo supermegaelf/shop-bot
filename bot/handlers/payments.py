@@ -5,7 +5,7 @@ from aiogram.types import Message, PreCheckoutQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
-from utils import goods, MessageCleanup, try_delete_message
+from utils import goods, MessageCleanup, try_delete_message, referrals
 from db.methods import (
     get_vpn_user,
     add_payment,
@@ -129,6 +129,16 @@ async def success_payment(message: Message, state: FSMContext):
         from_notification=from_notification,
     )
     await use_all_promo_codes(message.from_user.id)
+    
+    try:
+        purchase_days = good["months"] * 30
+        await referrals.apply_referral_bonuses(
+            referee_id=message.from_user.id,
+            purchase_days=purchase_days,
+            lang=message.from_user.language_code or 'ru'
+        )
+    except Exception as e:
+        logging.error(f"Failed to apply referral bonuses for user {message.from_user.id}: {e}")
 
 
 def register_payments(dp: Dispatcher):
