@@ -37,29 +37,12 @@ async def callback_admin_referral_stats(callback: CallbackQuery, state: FSMConte
     
     stats = await referrals.get_admin_referral_stats()
     
-    top_referrer_name = "—"
-    if stats['top_referrer_id']:
-        try:
-            chat = await glv.bot.get_chat(stats['top_referrer_id'])
-            if chat.username:
-                top_referrer_name = f"@{chat.username}"
-            elif chat.first_name:
-                top_referrer_name = chat.first_name
-        except:
-            top_referrer_name = f"ID: {stats['top_referrer_id']}"
-    
     text = get_i18n_string("admin_referral_stats", lang).format(
-        referrers_count=stats['referrers_count'],
         referrals_count=stats['referrals_count'],
-        active_referrers=stats['active_referrers'],
         conversion=stats['conversion'],
         purchased=stats['purchased'],
         total=stats['total'],
-        total_bonus=stats['total_bonus'],
-        avg_bonus=stats['avg_bonus'],
-        top_referrer=top_referrer_name,
-        top_count=stats['top_referrer_count'],
-        top_days=stats['top_referrer_days']
+        total_bonus=stats['total_bonus']
     )
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
