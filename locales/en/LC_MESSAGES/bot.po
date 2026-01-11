@@ -300,7 +300,7 @@ msgid "referral_menu_title"
 msgstr "🎁 Referral Program"
 
 msgid "referral_stats_title"
-msgstr "<b>Statistics</b>"
+msgstr "Statistics 📊"
 
 msgid "referral_invited_count"
 msgstr "Friends invited: {count}"
@@ -309,10 +309,10 @@ msgid "referral_earned_days"
 msgstr "Bonus days received: {days}"
 
 msgid "referral_how_title"
-msgstr "<b>How to get bonus?</b>"
+msgstr "How to get bonus?"
 
 msgid "referral_how_it_works"
-msgstr "1️⃣ Click <i>«Share 🔗»</i> ⬇️\n2️⃣ Choose a friend you want to invite.\n3️⃣ After their payment, you both get bonus days 🎁"
+msgstr "1. Click <i>«Share 🔗»</i> ⬇️\n2. Choose a friend you want to invite.\n3. After their payment, you both get bonus days 🎁"
 
 msgid "referral_share_button"
 msgstr "Share 🔗"
