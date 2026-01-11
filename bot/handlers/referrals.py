@@ -50,14 +50,12 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
 
 @router.inline_query()
 async def referral_inline_handler(inline_query: InlineQuery):
-    if not inline_query.query or inline_query.query.lower() not in ['ref', 'referral', 'реф', 'рефералка']:
-        return
-    
     user_id = inline_query.from_user.id
     lang = inline_query.from_user.language_code or 'ru'
     
     code = await referrals.ensure_referral_code(user_id)
     if not code:
+        await inline_query.answer([], cache_time=1)
         return
     
     bot_info = await inline_query.bot.get_me()
