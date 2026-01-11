@@ -69,6 +69,8 @@ async def start(message: Message, state: FSMContext):
     user = await get_vpn_user(tg_id)
     can_set_referrer = user is None or user.referred_by_id is None
     
+    logging.info(f"Referral check: user={user}, referred_by_id={user.referred_by_id if user else None}, can_set_referrer={can_set_referrer}, len(args)={len(args)}")
+    
     if can_set_referrer and len(args) > 1 and args[1].startswith("ref_"):
         ref_code = args[1].replace("ref_", "").upper()
         logging.info(f"Processing referral code: {ref_code} for user {tg_id}")
