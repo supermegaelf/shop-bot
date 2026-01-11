@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
-from keyboards import get_admin_referral_keyboard, get_admin_referral_stats_keyboard, get_admin_referral_list_keyboard, get_admin_referral_user_keyboard
+from keyboards import get_admin_referral_keyboard, get_admin_referral_stats_keyboard, get_admin_referral_list_keyboard, get_admin_referral_user_keyboard, get_admin_referral_search_keyboard
 from filters import IsAdminCallbackFilter
 from utils import MessageCleanup, safe_answer, get_i18n_string, referrals
 from db.methods import get_vpn_user
@@ -119,13 +119,11 @@ async def callback_admin_referral_search(callback: CallbackQuery, state: FSMCont
     
     lang = callback.from_user.language_code or 'ru'
     
-    from keyboards.admin import get_promo_back_keyboard
-    
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=get_i18n_string("admin_referral_search_prompt", lang),
-        reply_markup=get_admin_referral_keyboard(lang),
+        reply_markup=get_admin_referral_search_keyboard(lang),
         reuse_message=callback.message
     )
     

@@ -342,7 +342,7 @@ msgid "admin_referral_list_item"
 msgstr "{index}. {username}\n👥 {count} referrals | 💰 {days} days"
 
 msgid "admin_referral_search_prompt"
-msgstr "Search for referrer\n\nEnter Telegram ID:"
+msgstr "Enter Telegram ID ⬇️"
 
 msgid "admin_referral_user_not_found"
 msgstr "User not found ⛔️"

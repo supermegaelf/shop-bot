@@ -86,3 +86,12 @@ def get_admin_referral_user_keyboard(user_id: int, page: int, total_pages: int, 
     keyboard.append([InlineKeyboardButton(text=back_text, callback_data="admin_referral_list")])
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+def get_admin_referral_search_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
+    back_text = get_i18n_string("button_back", lang)
+    
+    keyboard = [
+        [InlineKeyboardButton(text=back_text, callback_data="admin_referral_list")]
+    ]
+    
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
