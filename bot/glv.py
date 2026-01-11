@@ -38,6 +38,7 @@ config = {
     'BOT_TOKEN': os.environ.get('BOT_TOKEN'),
     'SHOP_NAME': os.environ.get('SHOP_NAME'),
     'PERIOD_LIMIT': int(os.environ.get('PERIOD_LIMIT', 72)),
+    'TRIAL_TRAFFIC_LIMIT': int(os.environ.get('TRIAL_TRAFFIC_LIMIT', 20)) * 1024 * 1024 * 1024,
     'SUPPORT_LINK': os.environ.get('SUPPORT_LINK'),
     'DB_URL': f"mysql+asyncmy://{os.environ.get('DB_USER')}:{os.environ.get('DB_PASS')}@{os.environ.get('DB_ADDRESS')}:{os.environ.get('DB_PORT')}/{os.environ.get('DB_NAME')}",
     'YOOKASSA_TOKEN': os.environ.get('YOOKASSA_TOKEN'),
