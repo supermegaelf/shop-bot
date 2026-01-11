@@ -321,7 +321,7 @@ msgid "referral_inline_message"
 msgstr "\n\nПерейдите по ссылке ниже, установите VPN и получите бонусные дни после оплаты ⬇️\n\n{referral_link}"
 
 msgid "referral_notification_inviter"
-msgstr "Ваш друг приобрёл подписку.\n\nВам начислено: {days} дней 🎁\n\nВсего заработано: {total_days} дней"
+msgstr "Друг оформил подписку 🎉\n\nНачислено дней: {days} 🎁"
 
 msgid "button_referral_stats"
 msgstr "Статистика 📊"
@@ -336,7 +336,7 @@ msgid "admin_referral_stats"
 msgstr "👥 Всего рефералов: {referrals_count}\n\n📈 Конверсия в покупку: {conversion}%\nКупили: {purchased} из {total}\n\n🎁 Начислено бонусов: {total_bonus} дней"
 
 msgid "admin_referral_list_item"
-msgstr "{index}. {username}\n👥 {count} реферала | 💰 {days} дней"
+msgstr "{index}. {username}\nрефералы - {count} 👥 | дни: {days} 💰"
 
 msgid "admin_referral_search_prompt"
 msgstr "Введите Telegram ID пользователя ⬇️"

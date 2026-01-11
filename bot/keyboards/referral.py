@@ -16,11 +16,9 @@ def get_referral_menu_keyboard(lang: str = 'ru', referral_link: str = '') -> Inl
 
 def get_referral_notification_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     referral_text = get_i18n_string("main_menu_referral", lang)
-    dismiss_text = get_i18n_string("button_dismiss", lang)
     
     keyboard = [
-        [InlineKeyboardButton(text=referral_text, callback_data="referral_menu")],
-        [InlineKeyboardButton(text=dismiss_text, callback_data="dismiss_notification")]
+        [InlineKeyboardButton(text=referral_text, callback_data="referral_menu")]
     ]
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard)

@@ -124,12 +124,10 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
                         }
                         await panel.client.patch(f"/users", json=update_payload)
                         
-                        stats = await get_referral_stats(inviter_id)
                         inviter_lang = 'ru'
                         
                         text = get_i18n_string("referral_notification_inviter", inviter_lang).format(
-                            days=bonus_days_inviter,
-                            total_days=stats['earned_days']
+                            days=bonus_days_inviter
                         )
                         
                         keyboard = get_referral_notification_keyboard(inviter_lang)
