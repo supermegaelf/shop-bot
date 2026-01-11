@@ -69,7 +69,9 @@ async def callback_admin_referral_list_page(callback: CallbackQuery, state: FSMC
     
     data = await referrals.get_referrers_list(page=page, per_page=5)
     
-    if not data['referrers']:
+    has_referrers = bool(data['referrers'])
+    
+    if not has_referrers:
         text = get_i18n_string("admin_referral_no_referrals", lang)
     else:
         text = ""
@@ -92,7 +94,7 @@ async def callback_admin_referral_list_page(callback: CallbackQuery, state: FSMC
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=text,
-        reply_markup=get_admin_referral_list_keyboard(page, data['total_pages'], lang),
+        reply_markup=get_admin_referral_list_keyboard(page, data['total_pages'], lang, has_referrers),
         reuse_message=callback.message
     )
 

@@ -47,7 +47,7 @@ def get_admin_referral_stats_keyboard(lang: str = 'ru') -> InlineKeyboardMarkup:
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-def get_admin_referral_list_keyboard(page: int, total_pages: int, lang: str = 'ru') -> InlineKeyboardMarkup:
+def get_admin_referral_list_keyboard(page: int, total_pages: int, lang: str = 'ru', has_referrers: bool = True) -> InlineKeyboardMarkup:
     search_text = get_i18n_string("button_referral_search", lang)
     back_text = get_i18n_string("button_back", lang)
     
@@ -63,7 +63,9 @@ def get_admin_referral_list_keyboard(page: int, total_pages: int, lang: str = 'r
         if nav_row:
             keyboard.append(nav_row)
     
-    keyboard.append([InlineKeyboardButton(text=search_text, callback_data="admin_referral_search")])
+    if has_referrers:
+        keyboard.append([InlineKeyboardButton(text=search_text, callback_data="admin_referral_search")])
+    
     keyboard.append([InlineKeyboardButton(text=back_text, callback_data="admin_referrals")])
     
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
