@@ -299,23 +299,20 @@ msgstr "Referrals 👥"
 msgid "referral_menu_title"
 msgstr "🎁 Referral Program"
 
+msgid "referral_stats_title"
+msgstr "<b>Statistics</b>"
+
 msgid "referral_invited_count"
 msgstr "Friends invited: {count}"
 
 msgid "referral_earned_days"
-msgstr "Total days earned: {days}"
+msgstr "Bonus days received: {days}"
 
-msgid "referral_bonuses_title"
-msgstr "Purchase bonuses:"
-
-msgid "referral_bonus_you"
-msgstr "• You get: {percent}%"
-
-msgid "referral_bonus_friend"
-msgstr "• Friend gets: {percent}%"
+msgid "referral_how_title"
+msgstr "<b>How to get bonus?</b>"
 
 msgid "referral_how_it_works"
-msgstr "How it works:\n1. Click the "Share 🔗" button\n2. Select a friend to invite\n3. After payment, you both receive bonus days 🎁"
+msgstr "1️⃣ Click <i>«Share 🔗»</i> ⬇️\n2️⃣ Choose a friend you want to invite.\n3️⃣ After their payment, you both get bonus days 🎁"
 
 msgid "referral_share_button"
 msgstr "Share 🔗"

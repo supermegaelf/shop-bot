@@ -26,9 +26,6 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     tg_id = callback.from_user.id
     lang = callback.from_user.language_code or 'ru'
     
-    inviter_percent = glv.config.get('REFERRAL_BONUS_PERCENT_INVITER', 10)
-    referee_percent = glv.config.get('REFERRAL_BONUS_PERCENT_REFEREE', 5)
-    
     stats = await referrals.get_referral_stats(tg_id)
     
     code = await referrals.ensure_referral_code(tg_id)
@@ -36,11 +33,10 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     bot_username = bot_info.username
     referral_link = f"https://t.me/{bot_username}?start=ref_{code}"
     
-    text = f"{get_i18n_string('referral_invited_count', lang).format(count=stats['invited_count'])}\n"
+    text = f"{get_i18n_string('referral_stats_title', lang)}\n\n"
+    text += f"{get_i18n_string('referral_invited_count', lang).format(count=stats['invited_count'])}\n"
     text += f"{get_i18n_string('referral_earned_days', lang).format(days=stats['earned_days'])}\n\n"
-    text += f"{get_i18n_string('referral_bonuses_title', lang)}\n"
-    text += f"{get_i18n_string('referral_bonus_you', lang).format(percent=inviter_percent)}\n"
-    text += f"{get_i18n_string('referral_bonus_friend', lang).format(percent=referee_percent)}\n\n"
+    text += f"{get_i18n_string('referral_how_title', lang)}\n\n"
     text += get_i18n_string('referral_how_it_works', lang)
     
     keyboard = get_referral_menu_keyboard(lang, referral_link)
@@ -49,7 +45,8 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     await cleanup.send_navigation(
         chat_id=tg_id,
         text=text,
-        reply_markup=keyboard
+        reply_markup=keyboard,
+        parse_mode="HTML"
     )
 
 @router.inline_query()
