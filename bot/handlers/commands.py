@@ -64,13 +64,22 @@ async def start(message: Message, state: FSMContext):
     
     args = message.text.split()
     
+    logging.info(f"Start command from user {tg_id}, is_new_user={is_new_user}, args={args}")
+    
     if is_new_user and len(args) > 1 and args[1].startswith("ref_"):
         ref_code = args[1].replace("ref_", "").upper()
+        logging.info(f"Processing referral code: {ref_code} for user {tg_id}")
         referrer = await referrals.get_user_by_referral_code(ref_code)
         
-        if referrer and referrer.tg_id != tg_id:
-            await referrals.set_referrer(tg_id, referrer.tg_id)
-            logging.info(f"User {tg_id} registered via referral from {referrer.tg_id}")
+        if referrer:
+            logging.info(f"Found referrer: {referrer.tg_id} for code {ref_code}")
+            if referrer.tg_id != tg_id:
+                await referrals.set_referrer(tg_id, referrer.tg_id)
+                logging.info(f"User {tg_id} registered via referral from {referrer.tg_id}")
+            else:
+                logging.warning(f"User {tg_id} tried to use their own referral code")
+        else:
+            logging.warning(f"Referral code {ref_code} not found for user {tg_id}")
     
     if len(args) > 1 and args[1].startswith("promo_"):
         promo_code = args[1].replace("promo_", "").upper()
