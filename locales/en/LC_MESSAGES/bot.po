@@ -321,7 +321,7 @@ msgid "referral_share_button"
 msgstr "Share 🔗"
 
 msgid "referral_inline_message"
-msgstr "Follow the link below, install VPN and get bonus days after payment ⬇️\n\n{referral_link}"
+msgstr "\n\nFollow the link below, install VPN and get bonus days after payment ⬇️\n\n{referral_link}"
 
 msgid "referral_notification_inviter"
 msgstr "Your friend purchased a subscription.\n\nYou earned: {days} days 🎁\n\nTotal earned: {total_days} days"
