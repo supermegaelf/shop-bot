@@ -19,6 +19,7 @@ def upgrade() -> None:
     op.add_column('vpnusers', sa.Column('referral_code', sa.String(length=16), nullable=True))
     op.add_column('vpnusers', sa.Column('referred_by_id', sa.BigInteger(), nullable=True))
     
+    op.create_index('ix_vpnusers_tg_id', 'vpnusers', ['tg_id'], unique=True)
     op.create_index('ix_vpnusers_referral_code', 'vpnusers', ['referral_code'], unique=True)
     op.create_foreign_key('fk_vpnusers_referred_by', 'vpnusers', 'vpnusers', ['referred_by_id'], ['tg_id'])
     
@@ -39,5 +40,6 @@ def downgrade() -> None:
     op.drop_table('referral_bonuses')
     op.drop_constraint('fk_vpnusers_referred_by', 'vpnusers', type_='foreignkey')
     op.drop_index('ix_vpnusers_referral_code', table_name='vpnusers')
+    op.drop_index('ix_vpnusers_tg_id', table_name='vpnusers')
     op.drop_column('vpnusers', 'referred_by_id')
     op.drop_column('vpnusers', 'referral_code')
