@@ -53,15 +53,15 @@ def get_admin_referral_list_keyboard(page: int, total_pages: int, lang: str = 'r
     
     keyboard = []
     
-    nav_row = []
-    if page > 1:
-        nav_row.append(InlineKeyboardButton(text="◀", callback_data=f"admin_referral_page_{page-1}"))
-    nav_row.append(InlineKeyboardButton(text=f"{page}/{total_pages}", callback_data="noop"))
-    if page < total_pages:
-        nav_row.append(InlineKeyboardButton(text="▶", callback_data=f"admin_referral_page_{page+1}"))
-    
-    if nav_row:
-        keyboard.append(nav_row)
+    if total_pages > 1:
+        nav_row = []
+        if page > 1:
+            nav_row.append(InlineKeyboardButton(text="⏪", callback_data=f"admin_referral_page_{page-1}"))
+        if page < total_pages:
+            nav_row.append(InlineKeyboardButton(text="⏩", callback_data=f"admin_referral_page_{page+1}"))
+        
+        if nav_row:
+            keyboard.append(nav_row)
     
     keyboard.append([InlineKeyboardButton(text=search_text, callback_data="admin_referral_search")])
     keyboard.append([InlineKeyboardButton(text=back_text, callback_data="admin_referrals")])

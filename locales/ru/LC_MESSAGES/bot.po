@@ -338,9 +338,6 @@ msgstr "Поиск 🔎"
 msgid "admin_referral_stats"
 msgstr "Всего рефереров: {referrers_count}\nВсего рефералов: {referrals_count}\n\nАктивных рефереров: {active_referrers}\n(имеют хотя бы 1 реферала)\n\nКонверсия в покупку: {conversion}%\n({purchased} из {total} купили)\n\nВсего выдано бонусов: {total_bonus} дн\n\nСредний доход реферера: {avg_bonus} дн\n\nТоп реферер: {top_referrer}\n({top_count} реферала, {top_days} дней)"
 
-msgid "admin_referral_list_title"
-msgstr "Список рефереров"
-
 msgid "admin_referral_list_item"
 msgstr "{index}. {username}\n👥 {count} реферала | 💰 {days} дней"
 
@@ -357,4 +354,4 @@ msgid "admin_referral_referee_item"
 msgstr "{index}. {username} (ID: {user_id})\nЗарегистрирован: {date}\nПокупок: {purchases} | Принёс: {days} дней"
 
 msgid "admin_referral_no_referrals"
-msgstr "У пользователя пока нет рефералов"
+msgstr "Активных рефералов нет 🥲"

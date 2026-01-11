@@ -86,25 +86,24 @@ async def callback_admin_referral_list_page(callback: CallbackQuery, state: FSMC
     
     data = await referrals.get_referrers_list(page=page, per_page=5)
     
-    text = get_i18n_string("admin_referral_list_title", lang) + "\n\n"
-    
-    for i, ref in enumerate(data['referrers'], start=1):
-        try:
-            chat = await glv.bot.get_chat(ref['referrer_id'])
-            username = f"@{chat.username}" if chat.username else (chat.first_name or f"ID: {ref['referrer_id']}")
-        except:
-            username = f"ID: {ref['referrer_id']}"
-        
-        index = (page - 1) * 5 + i
-        text += get_i18n_string("admin_referral_list_item", lang).format(
-            index=index,
-            username=username,
-            count=ref['referrals_count'],
-            days=ref['earned_days']
-        ) + "\n\n"
-    
     if not data['referrers']:
-        text += get_i18n_string("admin_referral_no_referrals", lang)
+        text = get_i18n_string("admin_referral_no_referrals", lang)
+    else:
+        text = ""
+        for i, ref in enumerate(data['referrers'], start=1):
+            try:
+                chat = await glv.bot.get_chat(ref['referrer_id'])
+                username = f"@{chat.username}" if chat.username else (chat.first_name or f"ID: {ref['referrer_id']}")
+            except:
+                username = f"ID: {ref['referrer_id']}"
+            
+            index = (page - 1) * 5 + i
+            text += get_i18n_string("admin_referral_list_item", lang).format(
+                index=index,
+                username=username,
+                count=ref['referrals_count'],
+                days=ref['earned_days']
+            ) + "\n\n"
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
