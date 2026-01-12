@@ -45,28 +45,10 @@ async def start(message: Message, state: FSMContext):
     
     await state.update_data(last_start_message_id=message.message_id)
     
+    await cleanup.cleanup_all(tg_id)
+    
     user = await get_vpn_user(tg_id)
     is_new_user = user is None
-    
-    args = message.text.split()
-    
-    is_referral_link = len(args) > 1 and args[1].startswith("ref_")
-    is_existing_user_with_referral = not is_new_user and is_referral_link
-    
-    if is_existing_user_with_referral:
-        user = await get_vpn_user(tg_id)
-        can_set_referrer = user.referred_by_id is None
-        
-        if can_set_referrer:
-            ref_code = args[1].replace("ref_", "").upper()
-            referrer = await referrals.get_user_by_referral_code(ref_code)
-            
-            if referrer and referrer.tg_id != tg_id:
-                await referrals.set_referrer(tg_id, referrer.tg_id)
-                logging.info(f"User {tg_id} registered via referral from {referrer.tg_id}")
-        return
-    
-    await cleanup.cleanup_all(tg_id)
     
     await create_vpn_user(tg_id)
     
@@ -80,10 +62,12 @@ async def start(message: Message, state: FSMContext):
     except Exception as e:
         logging.debug(f"Failed to update telegram_id for user {tg_id} in Remnawave: {e}")
     
+    args = message.text.split()
+    
     user = await get_vpn_user(tg_id)
     can_set_referrer = user is None or user.referred_by_id is None
     
-    if can_set_referrer and is_referral_link:
+    if can_set_referrer and len(args) > 1 and args[1].startswith("ref_"):
         ref_code = args[1].replace("ref_", "").upper()
         referrer = await referrals.get_user_by_referral_code(ref_code)
         
