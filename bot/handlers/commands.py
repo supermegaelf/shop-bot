@@ -67,6 +67,7 @@ async def start(message: Message, state: FSMContext):
     user = await get_vpn_user(tg_id)
     can_set_referrer = user is None or user.referred_by_id is None
     
+    referral_processed = False
     if can_set_referrer and len(args) > 1 and args[1].startswith("ref_"):
         ref_code = args[1].replace("ref_", "").upper()
         referrer = await referrals.get_user_by_referral_code(ref_code)
@@ -74,6 +75,9 @@ async def start(message: Message, state: FSMContext):
         if referrer and referrer.tg_id != tg_id:
             await referrals.set_referrer(tg_id, referrer.tg_id)
             logging.info(f"User {tg_id} registered via referral from {referrer.tg_id}")
+            referral_processed = True
+            if not is_new_user:
+                return
     
     if len(args) > 1 and args[1].startswith("promo_"):
         promo_code = args[1].replace("promo_", "").upper()
