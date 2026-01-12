@@ -18,11 +18,6 @@ class ReferralSearchStates(StatesGroup):
 async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
     await safe_answer(callback)
     
-    try:
-        await try_delete_message(callback.message)
-    except:
-        pass
-    
     tg_id = callback.from_user.id
     lang = callback.from_user.language_code or 'ru'
     
@@ -46,7 +41,8 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
         chat_id=tg_id,
         text=text,
         reply_markup=keyboard,
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reuse_message=callback.message
     )
 
 @router.inline_query()
