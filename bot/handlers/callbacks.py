@@ -561,19 +561,10 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
 async def callback_dismiss_notification(callback: CallbackQuery, state: FSMContext):
     await safe_answer(callback)
     
-    panel = get_panel()
-    panel_profile = await panel.get_panel_user(callback.from_user.id)
-
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
-
-    await _build_and_send_profile(
-        cleanup,
-        callback.from_user.id,
-        panel_profile,
-        reuse_message=callback.message,
-        user_name=callback.from_user.first_name,
-    )
+    try:
+        await callback.message.delete()
+    except:
+        pass
 
 
 @router.callback_query(F.data == "dismiss_payment_success")
