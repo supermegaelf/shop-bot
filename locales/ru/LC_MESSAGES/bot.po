@@ -345,10 +345,10 @@ msgid "admin_referral_user_not_found"
 msgstr "Пользователь не найден ⛔️"
 
 msgid "admin_referral_user_info"
-msgstr "Реферер: {username} (ID: {user_id})\n\n👥 Приглашено: {invited_count} человек\n💰 Заработано: {earned_days} дней\n\nСписок рефералов:"
+msgstr "Реферер: {username}\n\n🆔 ID: {user_id}\n👥 Приглашено человек: {invited_count}\n💰 Заработано дней: {earned_days}\n\nРефералы:"
 
 msgid "admin_referral_referee_item"
-msgstr "{index}. {username} (ID: {user_id})\nЗарегистрирован: {date}\nПокупок: {purchases} | Принёс: {days} дней"
+msgstr "{index}. {username} (ID: {user_id})\nпокупки: {purchases} 💳 | принёс дней: {days} 🎁"
 
 msgid "admin_referral_no_referrals"
 msgstr "Активных рефералов нет 🥲"

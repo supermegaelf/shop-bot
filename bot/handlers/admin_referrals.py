@@ -114,6 +114,14 @@ async def callback_admin_referral_search(callback: CallbackQuery, state: FSMCont
     
     await state.set_state(AdminReferralSearchStates.waiting_for_user_id)
 
+@router.callback_query(F.data.startswith("admin_referral_user_"), IsAdminCallbackFilter(is_admin=True))
+async def callback_admin_referral_user_page(callback: CallbackQuery, state: FSMContext):
+    parts = callback.data.split("_")
+    user_id = int(parts[3])
+    page = int(parts[5])
+    
+    await display_user_referrals(callback, state, user_id, page, reuse_message=callback.message)
+
 @router.message(AdminReferralSearchStates.waiting_for_user_id)
 async def process_referral_search(message, state: FSMContext):
     admins = glv.config.get('ADMINS', [])
@@ -136,8 +144,22 @@ async def process_referral_search(message, state: FSMContext):
         await state.clear()
         return
     
+    await display_user_referrals(message, state, user_id, page=1)
+    await state.clear()
+
+async def display_user_referrals(message_or_callback, state: FSMContext, user_id: int, page: int, reuse_message=None):
+    if hasattr(message_or_callback, 'from_user'):
+        admin_id = message_or_callback.from_user.id
+        lang = message_or_callback.from_user.language_code or 'ru'
+    else:
+        admin_id = message_or_callback.id
+        lang = 'ru'
+    
+    if isinstance(message_or_callback, CallbackQuery):
+        await safe_answer(message_or_callback)
+    
     stats = await referrals.get_referral_stats(user_id)
-    data = await referrals.get_user_referrals(user_id, page=1, per_page=5)
+    data = await referrals.get_user_referrals(user_id, page=page, per_page=5)
     
     try:
         chat = await glv.bot.get_chat(user_id)
@@ -152,7 +174,7 @@ async def process_referral_search(message, state: FSMContext):
         earned_days=stats['earned_days']
     ) + "\n\n"
     
-    for i, ref in enumerate(data['referrals'], start=1):
+    for i, ref in enumerate(data['referrals'], start=(page-1)*5+1):
         try:
             ref_chat = await glv.bot.get_chat(ref['referee_id'])
             ref_username = f"@{ref_chat.username}" if ref_chat.username else (ref_chat.first_name or f"ID: {ref['referee_id']}")
@@ -163,7 +185,6 @@ async def process_referral_search(message, state: FSMContext):
             index=i,
             username=ref_username,
             user_id=ref['referee_id'],
-            date="—",
             purchases=ref['purchases'],
             days=ref['earned_days']
         ) + "\n\n"
@@ -173,12 +194,11 @@ async def process_referral_search(message, state: FSMContext):
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
-        chat_id=message.from_user.id,
+        chat_id=admin_id,
         text=text,
-        reply_markup=get_admin_referral_user_keyboard(user_id, data['page'], data['total_pages'], lang)
+        reply_markup=get_admin_referral_user_keyboard(user_id, data['page'], data['total_pages'], lang),
+        reuse_message=reuse_message
     )
-    
-    await state.clear()
 
 def register_admin_referrals(dp):
     from aiogram import Dispatcher

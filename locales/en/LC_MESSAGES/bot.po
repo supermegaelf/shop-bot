@@ -345,10 +345,10 @@ msgid "admin_referral_user_not_found"
 msgstr "User not found ⛔️"
 
 msgid "admin_referral_user_info"
-msgstr "Referrer: {username} (ID: {user_id})\n\n👥 Invited: {invited_count} people\n💰 Earned: {earned_days} days\n\nReferrals list:"
+msgstr "Referrer: {username}\n\n🆔 ID: {user_id}\n👥 People invited: {invited_count}\n💰 Days earned: {earned_days}\n\nReferrals:"
 
 msgid "admin_referral_referee_item"
-msgstr "{index}. {username} (ID: {user_id})\nRegistered: {date}\nPurchases: {purchases} | Earned: {days} days"
+msgstr "{index}. {username} (ID: {user_id})\npurchases: {purchases} 💳 | days earned: {days} 🎁"
 
 msgid "admin_referral_no_referrals"
 msgstr "No active referrals 🥲"
