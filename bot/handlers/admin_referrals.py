@@ -144,6 +144,11 @@ async def process_referral_search(message, state: FSMContext):
         await state.clear()
         return
     
+    try:
+        await message.delete()
+    except:
+        pass
+    
     await display_user_referrals(message, state, user_id, page=1)
     await state.clear()
 
