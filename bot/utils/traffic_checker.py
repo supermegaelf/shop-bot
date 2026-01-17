@@ -18,13 +18,6 @@ async def check_users_traffic(bot: Bot):
     panel = get_panel()
     users = await get_all_active_users()
     
-    logging.info(f"Found {len(users)} active users")
-    if users:
-        logging.info(f"First user type: {type(users[0])}, value: {users[0]}")
-        logging.info(f"First user attributes: {dir(users[0])}")
-        if hasattr(users[0], '_mapping'):
-            logging.info(f"First user _mapping: {users[0]._mapping}")
-    
     notification_count = 0
     error_count = 0
     
