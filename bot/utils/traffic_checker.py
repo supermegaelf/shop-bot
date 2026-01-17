@@ -60,11 +60,9 @@ async def check_users_traffic(bot: Bot):
             logging.info(f"User {tg_id}: traffic usage {traffic_usage*100:.1f}% ({panel_profile.used_traffic}/{panel_profile.data_limit})")
             
             if traffic_usage > TRAFFIC_THRESHOLD:
-                logging.info(f"User {tg_id}: traffic threshold exceeded ({traffic_usage*100:.1f}% > {TRAFFIC_THRESHOLD*100}%)")
                 last_notification = await get_last_traffic_notification(tg_id, "traffic_75_percent")
                 
                 if last_notification:
-                    logging.info(f"User {tg_id}: found last notification: {last_notification}")
                     # Extract notification object from list
                     notification_obj = last_notification[0]
                     if not hasattr(notification_obj, 'sent_at'):
@@ -76,22 +74,15 @@ async def check_users_traffic(bot: Bot):
                                 # sent_at_str is already a datetime object from _mapping
                                 last_sent = sent_at_str if isinstance(sent_at_str, datetime) else datetime.fromisoformat(str(sent_at_str))
                             else:
-                                logging.info(f"User {tg_id}: no sent_at in _mapping, skipping")
                                 continue
                         else:
-                            logging.info(f"User {tg_id}: notification object has no _mapping, skipping")
                             continue
                     else:
                         last_sent = notification_obj.sent_at
                     time_since_last = datetime.now() - last_sent
-                    hours_since = time_since_last.total_seconds() / 3600
-                    logging.info(f"User {tg_id}: last notification sent {hours_since:.1f} hours ago (cooldown: {NOTIFICATION_COOLDOWN_HOURS}h)")
                     
                     if time_since_last < timedelta(hours=NOTIFICATION_COOLDOWN_HOURS):
-                        logging.info(f"User {tg_id}: skipping notification (cooldown period)")
                         continue
-                else:
-                    logging.info(f"User {tg_id}: no previous notification found, will send new one")
                 
                 try:
                     chat_member = await bot.get_chat_member(tg_id, tg_id)
