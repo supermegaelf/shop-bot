@@ -324,7 +324,12 @@ async def add_traffic_notification(tg_id: int, notification_type: str):
 
 async def get_all_active_users():
     async with engine.connect() as conn:
-        sql_query = select(VPNUsers).where(VPNUsers.test != True)
+        # Include all users with subscriptions (both paid and trial)
+        # test = null: trial available (no subscription yet)
+        # test = True: active trial subscription (should receive notifications)
+        # test = False: trial expired, has paid subscription (should receive notifications)
+        # We exclude only users with test = null (no subscription)
+        sql_query = select(VPNUsers).where(VPNUsers.test.isnot(None))
         result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
         return result
 
