@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
+from datetime import datetime, time
 
 from aiogram import Bot, Dispatcher, enums, F
 from aiogram.client.default import DefaultBotProperties
@@ -9,7 +10,6 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.i18n import I18n, SimpleI18nMiddleware
 from aiohttp import web
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-import aioschedule
 
 from handlers.commands import register_commands
 from handlers.messages import register_messages
@@ -32,12 +32,6 @@ glv.dp = Dispatcher(storage=glv.storage)
 app = web.Application()
 logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
 
-async def traffic_check_job():
-    await check_users_traffic(glv.bot)
-
-async def cleanup_job():
-    await cleanup_old_traffic_notifications(30)
-
 async def on_startup(bot: Bot):
     try:
         await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")
@@ -45,14 +39,36 @@ async def on_startup(bot: Bot):
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
     
-    aioschedule.every(3).minutes.do(traffic_check_job)
-    aioschedule.every().day.at("03:00").do(cleanup_job)
     logging.info("Scheduler tasks registered: traffic check every 3 minutes, cleanup daily at 03:00")
 
 async def run_scheduler():
+    traffic_check_interval = 3 * 60  # 3 minutes in seconds
+    last_traffic_check = 0
+    last_cleanup_date = None
+    
     while True:
-        await aioschedule.run_pending()
-        await asyncio.sleep(1)
+        now = datetime.now()
+        current_time = now.timestamp()
+        
+        # Traffic check every 3 minutes
+        if current_time - last_traffic_check >= traffic_check_interval:
+            try:
+                await check_users_traffic(glv.bot)
+                last_traffic_check = current_time
+            except Exception as e:
+                logging.error(f"Error in traffic check: {e}", exc_info=True)
+        
+        # Cleanup at 03:00 daily
+        if now.hour == 3 and now.minute == 0:
+            if last_cleanup_date != now.date():
+                try:
+                    await cleanup_old_traffic_notifications(30)
+                    last_cleanup_date = now.date()
+                    logging.info("Daily cleanup completed")
+                except Exception as e:
+                    logging.error(f"Error in daily cleanup: {e}", exc_info=True)
+        
+        await asyncio.sleep(60)  # Check every minute
 
 def setup_routers():
     glv.dp.message.filter(F.chat.type == "private")
