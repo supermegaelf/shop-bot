@@ -27,9 +27,11 @@ async def check_users_traffic(bot: Bot):
             panel_profile = await panel.get_panel_user(user.tg_id)
             
             if not panel_profile or not panel_profile.data_limit:
+                logging.debug(f"User {user.tg_id}: no profile or data_limit")
                 continue
             
             traffic_usage = panel_profile.used_traffic / panel_profile.data_limit
+            logging.info(f"User {user.tg_id}: traffic usage {traffic_usage*100:.1f}% ({panel_profile.used_traffic}/{panel_profile.data_limit})")
             
             if traffic_usage > TRAFFIC_THRESHOLD:
                 last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
