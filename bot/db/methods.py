@@ -284,9 +284,34 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
         ).order_by(TrafficNotification.sent_at.desc()).limit(1)
         result = (await conn.execute(sql_query)).fetchone()
         if result:
-            # Extract model from Row object
-            notification = result[0] if hasattr(result, '__getitem__') else result
-            return [notification]
+            # Row object contains model at index 0, but might be int (id) if select is wrong
+            # Try to get model object from Row
+            if hasattr(result, '_mapping'):
+                # It's a Row with _mapping dict
+                from db.models import TrafficNotification
+                # Reconstruct model object from mapping
+                notification = TrafficNotification(
+                    id=result._mapping.get('id'),
+                    tg_id=result._mapping.get('tg_id'),
+                    notification_type=result._mapping.get('notification_type'),
+                    sent_at=result._mapping.get('sent_at')
+                )
+                return [notification]
+            elif hasattr(result, '__getitem__'):
+                notification = result[0]
+                # If it's already a model object, return it
+                if hasattr(notification, 'sent_at'):
+                    return [notification]
+                # Otherwise it might be a Row, try _mapping
+                if hasattr(notification, '_mapping'):
+                    from db.models import TrafficNotification
+                    notification = TrafficNotification(
+                        id=notification._mapping.get('id'),
+                        tg_id=notification._mapping.get('tg_id'),
+                        notification_type=notification._mapping.get('notification_type'),
+                        sent_at=notification._mapping.get('sent_at')
+                    )
+                    return [notification]
         return None
 
 async def add_traffic_notification(tg_id: int, notification_type: str):
