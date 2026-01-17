@@ -19,7 +19,6 @@ async def get_buy_menu_keyboard(tg_id: int, months: int, purchase_type: str) -> 
             callback_data=good['callback'])
         )
     
-    # Определяем куда должна вести кнопка "Назад" в зависимости от типа покупки
     back_callback = "back_to_subscription" if purchase_type == "update" else "payment"
     builder.row(InlineKeyboardButton(text=_("button_back"), callback_data=back_callback))
     
