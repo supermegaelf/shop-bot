@@ -47,7 +47,7 @@ def get_install_subscription_keyboard(subscription_url, lang='en') -> InlineKeyb
     ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
-def get_subscription_details_keyboard(subscription_url: str, lang=None) -> InlineKeyboardMarkup:
+def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy_traffic_button: bool = False) -> InlineKeyboardMarkup:
     from aiogram.utils.i18n import gettext as _
     
     builder = InlineKeyboardBuilder()
@@ -57,6 +57,14 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None) -> Inlin
             InlineKeyboardButton(
                 text=_("button_install"),
                 web_app=WebAppInfo(url=subscription_url)
+            )
+        )
+    
+    if show_buy_traffic_button:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_buy_more_traffic"),
+                callback_data="extend_data_limit"
             )
         )
     
