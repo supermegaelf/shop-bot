@@ -45,9 +45,9 @@ async def on_startup(bot: Bot):
     async def cleanup_job():
         await cleanup_old_traffic_notifications(30)
     
-    aioschedule.every(15).minutes.do(traffic_check_job)
+    aioschedule.every(3).minutes.do(traffic_check_job)
     aioschedule.every().day.at("03:00").do(cleanup_job)
-    logging.info("Scheduler tasks registered: traffic check every 15 minutes, cleanup daily at 03:00")
+    logging.info("Scheduler tasks registered: traffic check every 3 minutes, cleanup daily at 03:00")
 
 async def run_scheduler():
     while True:
