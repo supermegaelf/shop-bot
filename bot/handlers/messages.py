@@ -36,7 +36,7 @@ def _format_profile_data(panel_profile):
         expire_date = _format_expire_date(panel_profile.expire) if panel_profile.expire else "∞"
         data_used = f"{panel_profile.used_traffic / 1073741824:.2f}"
         data_limit = f"{panel_profile.data_limit // 1073741824}" if panel_profile.data_limit else "∞"
-        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
+        show_buy_traffic_button = panel_profile.data_limit and (panel_profile.used_traffic / panel_profile.data_limit) > 0.75
     else:
         url = ""
         status = "–"

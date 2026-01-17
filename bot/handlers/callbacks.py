@@ -60,7 +60,7 @@ def _format_profile_data(panel_profile):
         )
         show_buy_traffic_button = (
             panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
+            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.75
         )
     else:
         url = ""
