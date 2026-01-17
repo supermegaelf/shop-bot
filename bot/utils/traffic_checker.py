@@ -71,7 +71,7 @@ async def check_users_traffic(bot: Bot):
                         if hasattr(notification_obj, '_mapping'):
                             sent_at_str = notification_obj._mapping.get('sent_at')
                             if sent_at_str:
-                                from datetime import datetime
+                                # sent_at_str is already a datetime object from _mapping
                                 last_sent = sent_at_str if isinstance(sent_at_str, datetime) else datetime.fromisoformat(str(sent_at_str))
                             else:
                                 continue
