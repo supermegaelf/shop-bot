@@ -9,6 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.i18n import I18n, SimpleI18nMiddleware
 from aiohttp import web
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+import aioschedule
 
 from handlers.commands import register_commands
 from handlers.messages import register_messages
@@ -18,6 +19,8 @@ from handlers.broadcast import register_broadcast
 from handlers.promo_management import register_promo_management
 from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
+from utils.traffic_checker import check_users_traffic
+from db.methods import cleanup_old_traffic_notifications
 import glv
 
 glv.bot = Bot(
@@ -35,6 +38,15 @@ async def on_startup(bot: Bot):
     except Exception as e:
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
+    
+    aioschedule.every(15).minutes.do(check_users_traffic, bot)
+    aioschedule.every().day.at("03:00").do(cleanup_old_traffic_notifications, 30)
+    logging.info("Scheduler tasks registered: traffic check every 15 minutes, cleanup daily at 03:00")
+
+async def run_scheduler():
+    while True:
+        await aioschedule.run_pending()
+        await asyncio.sleep(1)
 
 def setup_routers():
     glv.dp.message.filter(F.chat.type == "private")
@@ -71,6 +83,9 @@ async def main():
     webhook_requests_handler.register(app, path="/webhook")
 
     setup_application(app, glv.dp, bot=glv.bot)
+    
+    asyncio.create_task(run_scheduler())
+    
     await web._run_app(app, host="0.0.0.0", port=glv.config['WEBHOOK_PORT'])
 
 if __name__ == "__main__":

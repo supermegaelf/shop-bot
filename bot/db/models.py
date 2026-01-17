@@ -52,3 +52,10 @@ class UserMessages(Base):
     message_type = Column(String(50), nullable=False)
     created_at = Column(DateTime, nullable=False, default=datetime.now)
 
+class TrafficNotification(Base):
+    __tablename__ = "traffic_notifications"
+    
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    tg_id = Column(BigInteger, nullable=False, index=True)
+    notification_type = Column(String(50), nullable=False)
+    sent_at = Column(DateTime, nullable=False, default=datetime.now)
