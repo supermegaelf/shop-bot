@@ -297,9 +297,20 @@ async def add_traffic_notification(tg_id: int, notification_type: str):
 async def get_all_active_users():
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.test != True)
-        result = await conn.scalars(sql_query)
-        users = result.all()
-        return list(users)
+        result = (await conn.execute(sql_query)).fetchall()
+        # In SQLAlchemy 2.0, fetchall() returns Row objects where the model is at index 0
+        # But we need to access it correctly - try row.VPNUsers or row[0]
+        users = []
+        for row in result:
+            # Try different ways to access the model
+            if hasattr(row, 'VPNUsers'):
+                user_obj = row.VPNUsers
+            elif hasattr(row, '__getitem__') and len(row) > 0:
+                user_obj = row[0]
+            else:
+                user_obj = row
+            users.append(user_obj)
+        return users
 
 async def cleanup_old_traffic_notifications(days: int = 30):
     cutoff_date = datetime.now() - timedelta(days=days)
