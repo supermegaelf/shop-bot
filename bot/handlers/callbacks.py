@@ -60,7 +60,7 @@ def _format_profile_data(panel_profile):
         )
         show_buy_traffic_button = (
             panel_profile.data_limit
-            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.9
+            and (panel_profile.used_traffic / panel_profile.data_limit) > 0.75
         )
     else:
         url = ""
@@ -117,7 +117,10 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
     
-    keyboard = get_subscription_details_keyboard(profile_data["url"])
+    keyboard = get_subscription_details_keyboard(
+        profile_data["url"],
+        show_buy_traffic_button=profile_data["show_buy_traffic_button"]
+    )
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -194,7 +197,7 @@ async def callback_extend_data_limit_notification(
     
     await state.update_data(payment_from_notification=True)
 
-    await callback_extend_data_limit(callback)
+    await callback_extend_data_limit(callback, state)
 
 
 @router.callback_query(F.data.startswith("pay_kassa_"))
@@ -479,7 +482,10 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
     
-    keyboard = get_subscription_details_keyboard(profile_data["url"])
+    keyboard = get_subscription_details_keyboard(
+        profile_data["url"],
+        show_buy_traffic_button=profile_data["show_buy_traffic_button"]
+    )
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -553,7 +559,7 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
             chat_id=callback.from_user.id,
             text=_("message_select_traffic_amount"),
             reply_markup=keyboard,
-            reuse_message=reuse_message,
+            reuse_message=callback.message,
         )
 
 

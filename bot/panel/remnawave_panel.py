@@ -353,7 +353,7 @@ class RemnawavePanel(Panel):
                 username=updated_user['username'],
                 status=updated_user['status'].lower(),
                 subscription_url=updated_user['subscriptionUrl'],
-                used_traffic=updated_user['usedTrafficBytes'],
+                used_traffic=self._extract_used_traffic(updated_user),
                 data_limit=updated_user.get('trafficLimitBytes'),
                 expire=datetime.fromisoformat(updated_user['expireAt'].replace('Z', '+00:00')) if updated_user.get('expireAt') else None
             )
