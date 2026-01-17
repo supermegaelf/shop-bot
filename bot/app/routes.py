@@ -18,7 +18,9 @@ from db.methods import (
     disable_trial,
     is_test_subscription,
     use_all_promo_codes,
-    has_confirmed_payments
+    has_confirmed_payments,
+    get_last_traffic_notification,
+    add_traffic_notification
 )
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods
@@ -175,7 +177,7 @@ async def notify_user(request: Request):
     logging.info(f"sign: {signature}, computed:{computed_signature}")
     if not hmac.compare_digest(signature, computed_signature):
         return web.Response(status=403)
-    if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expires_in_24_hours', 'user.expired', 'user.limited']:
+    if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expires_in_24_hours', 'user.expired', 'user.limited', 'user.modified']:
         return web.Response()
     vpn_id = payload['data']['username']
     user = await get_marzban_profile_by_vpn_id(vpn_id)
@@ -190,6 +192,36 @@ async def notify_user(request: Request):
     message = ""
     keyboard = None
     match event:
+        case "user.modified":
+            user_traffic = payload['data'].get('userTraffic', {})
+            used_traffic = user_traffic.get('usedTrafficBytes', 0)
+            data_limit = payload['data'].get('trafficLimitBytes', 0)
+            
+            if data_limit and used_traffic:
+                traffic_usage = used_traffic / data_limit
+                
+                if traffic_usage > 0.75:
+                    last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
+                    
+                    if last_notification:
+                        last_sent = last_notification[0].sent_at
+                        time_since_last = datetime.now() - last_sent
+                        
+                        if time_since_last.total_seconds() < 86400:
+                            return web.Response()
+                    
+                    remaining_percent = int((1 - traffic_usage) * 100)
+                    message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
+                        name=chat_member.user.first_name,
+                        amount=remaining_percent
+                    )
+                    keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+                    
+                    await add_traffic_notification(user.tg_id, "traffic_75_percent")
+                else:
+                    return web.Response()
+            else:
+                return web.Response()
         case "user.bandwidth_usage_threshold_reached":
             threshold = int(payload['data'].get('threshold_percent', 80))
             remaining_percent = 100 - threshold
