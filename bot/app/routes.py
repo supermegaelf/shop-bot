@@ -216,7 +216,8 @@ async def notify_user(request: Request):
                             logging.info(f"Skipping notification (cooldown period)")
                             return web.Response()
                     
-                    remaining_percent = int((1 - traffic_usage) * 100)
+                    # Always show 25% remaining when threshold (75%) is exceeded
+                    remaining_percent = 25
                     message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
                         name=chat_member.user.first_name,
                         amount=remaining_percent
