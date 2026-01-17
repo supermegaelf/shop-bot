@@ -284,7 +284,7 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
         ).order_by(TrafficNotification.sent_at.desc()).limit(1)
         result = await conn.scalars(sql_query)
         notification = result.first()
-        return [(notification,)] if notification else None
+        return [notification] if notification else None
 
 async def add_traffic_notification(tg_id: int, notification_type: str):
     async with engine.begin() as conn:
