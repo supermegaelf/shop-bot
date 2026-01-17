@@ -95,11 +95,11 @@ async def check_users_traffic(bot: Bot):
                     logging.info(f"Sent traffic notification to user {tg_id} (usage: {traffic_usage*100:.1f}%)")
                     
                 except Exception as e:
-                    logging.warning(f"Failed to send traffic notification to user {tg_id}: {e}")
+                    logging.warning(f"Failed to send traffic notification to user {tg_id}: {e}", exc_info=True)
                     error_count += 1
                     
         except Exception as e:
-            logging.debug(f"Error checking traffic for user {tg_id if 'tg_id' in locals() else 'unknown'}: {e}")
+            logging.error(f"Error checking traffic for user {tg_id if 'tg_id' in locals() else 'unknown'}: {e}", exc_info=True)
             error_count += 1
     
     logging.info(f"Traffic check completed. Sent: {notification_count}, Errors: {error_count}")
