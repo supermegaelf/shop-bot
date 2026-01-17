@@ -197,17 +197,23 @@ async def notify_user(request: Request):
             used_traffic = user_traffic.get('usedTrafficBytes', 0)
             data_limit = payload['data'].get('trafficLimitBytes', 0)
             
+            logging.info(f"user.modified: used={used_traffic}, limit={data_limit}")
+            
             if data_limit and used_traffic:
                 traffic_usage = used_traffic / data_limit
+                logging.info(f"Traffic usage for user {user.tg_id}: {traffic_usage*100:.1f}%")
                 
                 if traffic_usage > 0.75:
+                    logging.info(f"Traffic threshold exceeded (>75%) for user {user.tg_id}")
                     last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
                     
                     if last_notification:
                         last_sent = last_notification[0].sent_at
                         time_since_last = datetime.now() - last_sent
+                        logging.info(f"Last notification sent {time_since_last.total_seconds():.0f}s ago")
                         
                         if time_since_last.total_seconds() < 86400:
+                            logging.info(f"Skipping notification (cooldown period)")
                             return web.Response()
                     
                     remaining_percent = int((1 - traffic_usage) * 100)
@@ -218,9 +224,12 @@ async def notify_user(request: Request):
                     keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
                     
                     await add_traffic_notification(user.tg_id, "traffic_75_percent")
+                    logging.info(f"Traffic notification prepared for user {user.tg_id}")
                 else:
+                    logging.info(f"Traffic usage below threshold (<=75%), skipping notification")
                     return web.Response()
             else:
+                logging.info(f"Missing traffic data: used={used_traffic}, limit={data_limit}")
                 return web.Response()
         case "user.bandwidth_usage_threshold_reached":
             threshold = int(payload['data'].get('threshold_percent', 80))
