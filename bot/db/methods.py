@@ -298,8 +298,7 @@ async def get_all_active_users():
     async with engine.connect() as conn:
         sql_query = select(VPNUsers).where(VPNUsers.test != True)
         result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
-        # fetchall() returns Row objects, extract models using tuple unpacking
-        return [row._mapping[VPNUsers] if hasattr(row, '_mapping') else row[0] for row in result]
+        return result
 
 async def cleanup_old_traffic_notifications(days: int = 30):
     cutoff_date = datetime.now() - timedelta(days=days)

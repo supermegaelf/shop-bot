@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from aiogram import Bot
 
 from db.methods import get_all_active_users, get_last_traffic_notification, add_traffic_notification
+from db.models import VPNUsers
 from panel import get_panel
 from keyboards import get_buy_more_traffic_keyboard
 from utils.ephemeral import EphemeralNotification
@@ -20,17 +21,34 @@ async def check_users_traffic(bot: Bot):
     logging.info(f"Found {len(users)} active users")
     if users:
         logging.info(f"First user type: {type(users[0])}, value: {users[0]}")
+        logging.info(f"First user attributes: {dir(users[0])}")
+        if hasattr(users[0], '_mapping'):
+            logging.info(f"First user _mapping: {users[0]._mapping}")
     
     notification_count = 0
     error_count = 0
     
-    for user in users:
+    for user_row in users:
         try:
-            # Handle both model objects and tuples
-            if isinstance(user, tuple):
-                user = user[0]
-            elif not hasattr(user, 'tg_id'):
-                logging.warning(f"Unexpected user type: {type(user)}, value: {user}")
+            # Extract model from Row object
+            # In SQLAlchemy 2.0, Row objects can be accessed via index or _mapping
+            if hasattr(user_row, '_mapping'):
+                user = user_row._mapping.get(VPNUsers) or user_row._mapping.get('VPNUsers')
+            elif hasattr(user_row, '__getitem__'):
+                # Try to get model by index - might be at different positions
+                user = None
+                for i in range(len(user_row)):
+                    item = user_row[i]
+                    if hasattr(item, 'tg_id'):
+                        user = item
+                        break
+                if user is None:
+                    user = user_row[0] if len(user_row) > 0 else user_row
+            else:
+                user = user_row
+            
+            if not hasattr(user, 'tg_id'):
+                logging.warning(f"User object has no tg_id attribute. Type: {type(user)}, Value: {user}")
                 continue
             
             panel_profile = await panel.get_panel_user(user.tg_id)
