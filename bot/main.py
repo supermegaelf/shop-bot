@@ -32,18 +32,18 @@ glv.dp = Dispatcher(storage=glv.storage)
 app = web.Application()
 logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
 
+async def traffic_check_job():
+    await check_users_traffic(glv.bot)
+
+async def cleanup_job():
+    await cleanup_old_traffic_notifications(30)
+
 async def on_startup(bot: Bot):
     try:
         await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")
     except Exception as e:
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
-    
-    async def traffic_check_job():
-        await check_users_traffic(glv.bot)
-    
-    async def cleanup_job():
-        await cleanup_old_traffic_notifications(30)
     
     aioschedule.every(3).minutes.do(traffic_check_job)
     aioschedule.every().day.at("03:00").do(cleanup_job)
