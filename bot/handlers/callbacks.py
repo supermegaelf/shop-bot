@@ -197,7 +197,7 @@ async def callback_extend_data_limit_notification(
     
     await state.update_data(payment_from_notification=True)
 
-    await callback_extend_data_limit(callback)
+    await callback_extend_data_limit(callback, state)
 
 
 @router.callback_query(F.data.startswith("pay_kassa_"))
@@ -559,7 +559,7 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
             chat_id=callback.from_user.id,
             text=_("message_select_traffic_amount"),
             reply_markup=keyboard,
-            reuse_message=reuse_message,
+            reuse_message=callback.message,
         )
 
 
