@@ -17,11 +17,22 @@ async def check_users_traffic(bot: Bot):
     panel = get_panel()
     users = await get_all_active_users()
     
+    logging.info(f"Found {len(users)} active users")
+    if users:
+        logging.info(f"First user type: {type(users[0])}, value: {users[0]}")
+    
     notification_count = 0
     error_count = 0
     
     for user in users:
         try:
+            # Handle both model objects and tuples
+            if isinstance(user, tuple):
+                user = user[0]
+            elif not hasattr(user, 'tg_id'):
+                logging.warning(f"Unexpected user type: {type(user)}, value: {user}")
+                continue
+            
             panel_profile = await panel.get_panel_user(user.tg_id)
             
             if not panel_profile or not panel_profile.data_limit:
