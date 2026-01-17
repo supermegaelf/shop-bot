@@ -282,9 +282,12 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
             TrafficNotification.tg_id == tg_id,
             TrafficNotification.notification_type == notification_type
         ).order_by(TrafficNotification.sent_at.desc()).limit(1)
-        result = await conn.scalars(sql_query)
-        notification = result.first()
-        return [notification] if notification else None
+        result = (await conn.execute(sql_query)).fetchone()
+        if result:
+            # Extract model from Row object
+            notification = result[0] if hasattr(result, '__getitem__') else result
+            return [notification]
+        return None
 
 async def add_traffic_notification(tg_id: int, notification_type: str):
     async with engine.begin() as conn:
