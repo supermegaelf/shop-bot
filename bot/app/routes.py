@@ -241,6 +241,23 @@ async def notify_user(request: Request):
             else:
                 logging.info(f"Missing traffic data: used={used_traffic}, limit={data_limit}")
                 return web.Response()
+            
+            # Send notification for user.modified case
+            msg_id = await EphemeralNotification.send_ephemeral(
+                bot=glv.bot,
+                chat_id=user.tg_id,
+                text=message,
+                reply_markup=keyboard,
+                lang=chat_member.user.language_code,
+                disable_web_page_preview=True
+            )
+            
+            if msg_id:
+                logging.info(f"Ephemeral notification user.modified sent to user id={user.tg_id}, msg_id={msg_id}")
+            else:
+                logging.warning(f"Failed to send ephemeral notification user.modified to user id={user.tg_id}")
+            
+            return web.Response()
         case "user.bandwidth_usage_threshold_reached":
             threshold = int(payload['data'].get('threshold_percent', 80))
             remaining_percent = 100 - threshold
