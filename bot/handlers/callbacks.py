@@ -117,7 +117,10 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
     
-    keyboard = get_subscription_details_keyboard(profile_data["url"])
+    keyboard = get_subscription_details_keyboard(
+        profile_data["url"],
+        show_buy_traffic_button=profile_data["show_buy_traffic_button"]
+    )
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
@@ -479,7 +482,10 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
     
-    keyboard = get_subscription_details_keyboard(profile_data["url"])
+    keyboard = get_subscription_details_keyboard(
+        profile_data["url"],
+        show_buy_traffic_button=profile_data["show_buy_traffic_button"]
+    )
     
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
