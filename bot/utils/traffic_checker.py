@@ -20,9 +20,7 @@ async def check_users_traffic(bot: Bot):
     notification_count = 0
     error_count = 0
     
-    for user_row in users:
-        user = user_row[0]
-        
+    for user in users:
         try:
             panel_profile = await panel.get_panel_user(user.tg_id)
             
