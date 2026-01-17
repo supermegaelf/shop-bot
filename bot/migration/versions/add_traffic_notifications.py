@@ -1,7 +1,7 @@
 """Add traffic notifications table
 
-Revision ID: add_traffic_notifications
-Revises: add_referral_system
+Revision ID: 8b4c5d6e7f89
+Revises: 7a3c4d5e6f78
 Create Date: 2026-01-17 00:00:00.000000
 
 """
@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 
 
-revision = 'add_traffic_notifications'
-down_revision = 'add_referral_system'
+revision = '8b4c5d6e7f89'
+down_revision = '7a3c4d5e6f78'
 branch_labels = None
 depends_on = None
 
