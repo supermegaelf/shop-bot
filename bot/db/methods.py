@@ -287,10 +287,9 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
             # Row object contains model at index 0, but might be int (id) if select is wrong
             # Try to get model object from Row
             if hasattr(result, '_mapping'):
-                # It's a Row with _mapping dict
-                from db.models import TrafficNotification
-                # Reconstruct model object from mapping
-                notification = TrafficNotification(
+                # It's a Row with _mapping dict - reconstruct model object from mapping
+                from db.models import TrafficNotification as TrafficNotificationModel
+                notification = TrafficNotificationModel(
                     id=result._mapping.get('id'),
                     tg_id=result._mapping.get('tg_id'),
                     notification_type=result._mapping.get('notification_type'),
@@ -304,8 +303,8 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
                     return [notification]
                 # Otherwise it might be a Row, try _mapping
                 if hasattr(notification, '_mapping'):
-                    from db.models import TrafficNotification
-                    notification = TrafficNotification(
+                    from db.models import TrafficNotification as TrafficNotificationModel
+                    notification = TrafficNotificationModel(
                         id=notification._mapping.get('id'),
                         tg_id=notification._mapping.get('tg_id'),
                         notification_type=notification._mapping.get('notification_type'),
