@@ -47,6 +47,15 @@ async def check_users_traffic(bot: Bot):
                 logging.debug(f"User {tg_id}: no profile or data_limit")
                 continue
             
+            # Validate data to prevent division by zero and negative values
+            if panel_profile.data_limit <= 0:
+                logging.warning(f"User {tg_id}: invalid data_limit: {panel_profile.data_limit}")
+                continue
+            
+            if panel_profile.used_traffic < 0:
+                logging.warning(f"User {tg_id}: negative used_traffic: {panel_profile.used_traffic}")
+                continue
+            
             traffic_usage = panel_profile.used_traffic / panel_profile.data_limit
             logging.info(f"User {tg_id}: traffic usage {traffic_usage*100:.1f}% ({panel_profile.used_traffic}/{panel_profile.data_limit})")
             

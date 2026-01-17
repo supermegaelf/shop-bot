@@ -199,7 +199,16 @@ async def notify_user(request: Request):
             
             logging.info(f"user.modified: used={used_traffic}, limit={data_limit}")
             
-            if data_limit and used_traffic:
+            # Validate data to prevent division by zero and negative values
+            if not data_limit or data_limit <= 0:
+                logging.warning(f"Invalid data_limit for user {user.tg_id}: {data_limit}")
+                return web.Response()
+            
+            if used_traffic < 0:
+                logging.warning(f"Negative used_traffic for user {user.tg_id}: {used_traffic}")
+                return web.Response()
+            
+            if used_traffic and data_limit:
                 traffic_usage = used_traffic / data_limit
                 logging.info(f"Traffic usage for user {user.tg_id}: {traffic_usage*100:.1f}%")
                 
