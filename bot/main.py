@@ -39,8 +39,14 @@ async def on_startup(bot: Bot):
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
     
-    aioschedule.every(15).minutes.do(check_users_traffic, bot)
-    aioschedule.every().day.at("03:00").do(cleanup_old_traffic_notifications, 30)
+    async def traffic_check_job():
+        await check_users_traffic(glv.bot)
+    
+    async def cleanup_job():
+        await cleanup_old_traffic_notifications(30)
+    
+    aioschedule.every(15).minutes.do(traffic_check_job)
+    aioschedule.every().day.at("03:00").do(cleanup_job)
     logging.info("Scheduler tasks registered: traffic check every 15 minutes, cleanup daily at 03:00")
 
 async def run_scheduler():
