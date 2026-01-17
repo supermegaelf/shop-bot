@@ -23,15 +23,11 @@ async def check_users_traffic(bot: Bot):
     
     for user_row in users:
         try:
-            # Extract tg_id from Row object
-            # In SQLAlchemy 2.0, Row objects have _mapping dict with column values
             if hasattr(user_row, '_mapping'):
                 tg_id = user_row._mapping.get('tg_id')
             elif hasattr(user_row, '__getitem__'):
-                # Row tuple: (id, tg_id, vpn_id, test)
                 tg_id = user_row[1] if len(user_row) > 1 else None
             elif hasattr(user_row, 'tg_id'):
-                # Already a model object
                 tg_id = user_row.tg_id
             else:
                 logging.warning(f"Cannot extract tg_id from user_row. Type: {type(user_row)}, Value: {user_row}")
@@ -47,7 +43,6 @@ async def check_users_traffic(bot: Bot):
                 logging.debug(f"User {tg_id}: no profile or data_limit")
                 continue
             
-            # Validate data to prevent division by zero and negative values
             if panel_profile.data_limit <= 0:
                 logging.warning(f"User {tg_id}: invalid data_limit: {panel_profile.data_limit}")
                 continue
@@ -63,15 +58,12 @@ async def check_users_traffic(bot: Bot):
                 last_notification = await get_last_traffic_notification(tg_id, "traffic_75_percent")
                 
                 if last_notification:
-                    # Extract notification object from list
                     notification_obj = last_notification[0]
                     if not hasattr(notification_obj, 'sent_at'):
                         logging.warning(f"Notification object has no sent_at. Type: {type(notification_obj)}, Value: {notification_obj}")
-                        # Try to get from _mapping if it's a Row object
                         if hasattr(notification_obj, '_mapping'):
                             sent_at_str = notification_obj._mapping.get('sent_at')
                             if sent_at_str:
-                                # sent_at_str is already a datetime object from _mapping
                                 last_sent = sent_at_str if isinstance(sent_at_str, datetime) else datetime.fromisoformat(str(sent_at_str))
                             else:
                                 continue
@@ -89,7 +81,6 @@ async def check_users_traffic(bot: Bot):
                     if not chat_member:
                         continue
                     
-                    # Always show 25% remaining when threshold (75%) is exceeded
                     remaining_percent = 25
                     message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
                         name=chat_member.user.first_name,

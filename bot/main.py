@@ -42,7 +42,7 @@ async def on_startup(bot: Bot):
     logging.info("Scheduler tasks registered: traffic check every 3 minutes, cleanup daily at 03:00")
 
 async def run_scheduler():
-    traffic_check_interval = 3 * 60  # 3 minutes in seconds
+    traffic_check_interval = 3 * 60
     last_traffic_check = 0
     last_cleanup_date = None
     
@@ -50,7 +50,6 @@ async def run_scheduler():
         now = datetime.now()
         current_time = now.timestamp()
         
-        # Traffic check every 3 minutes
         if current_time - last_traffic_check >= traffic_check_interval:
             try:
                 await check_users_traffic(glv.bot)
@@ -58,7 +57,6 @@ async def run_scheduler():
             except Exception as e:
                 logging.error(f"Error in traffic check: {e}", exc_info=True)
         
-        # Cleanup at 03:00 daily
         if now.hour == 3 and now.minute == 0:
             if last_cleanup_date != now.date():
                 try:
@@ -68,7 +66,7 @@ async def run_scheduler():
                 except Exception as e:
                     logging.error(f"Error in daily cleanup: {e}", exc_info=True)
         
-        await asyncio.sleep(60)  # Check every minute
+        await asyncio.sleep(60)
 
 def setup_routers():
     glv.dp.message.filter(F.chat.type == "private")

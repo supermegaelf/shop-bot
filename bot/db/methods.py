@@ -284,10 +284,7 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
         ).order_by(TrafficNotification.sent_at.desc()).limit(1)
         result = (await conn.execute(sql_query)).fetchone()
         if result:
-            # Row object contains model at index 0, but might be int (id) if select is wrong
-            # Try to get model object from Row
             if hasattr(result, '_mapping'):
-                # It's a Row with _mapping dict - reconstruct model object from mapping
                 from db.models import TrafficNotification as TrafficNotificationModel
                 notification = TrafficNotificationModel(
                     id=result._mapping.get('id'),
@@ -298,10 +295,8 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
                 return [notification]
             elif hasattr(result, '__getitem__'):
                 notification = result[0]
-                # If it's already a model object, return it
                 if hasattr(notification, 'sent_at'):
                     return [notification]
-                # Otherwise it might be a Row, try _mapping
                 if hasattr(notification, '_mapping'):
                     from db.models import TrafficNotification as TrafficNotificationModel
                     notification = TrafficNotificationModel(
@@ -324,11 +319,6 @@ async def add_traffic_notification(tg_id: int, notification_type: str):
 
 async def get_all_active_users():
     async with engine.connect() as conn:
-        # Include all users with subscriptions (both paid and trial)
-        # test = null: trial available (no subscription yet)
-        # test = True: active trial subscription (should receive notifications)
-        # test = False: trial expired, has paid subscription (should receive notifications)
-        # We exclude only users with test = null (no subscription)
         sql_query = select(VPNUsers).where(VPNUsers.test.isnot(None))
         result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
         return result

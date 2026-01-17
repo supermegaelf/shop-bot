@@ -199,7 +199,6 @@ async def notify_user(request: Request):
             
             logging.info(f"user.modified: used={used_traffic}, limit={data_limit}")
             
-            # Validate data to prevent division by zero and negative values
             if not data_limit or data_limit <= 0:
                 logging.warning(f"Invalid data_limit for user {user.tg_id}: {data_limit}")
                 return web.Response()
@@ -225,7 +224,6 @@ async def notify_user(request: Request):
                             logging.info(f"Skipping notification (cooldown period)")
                             return web.Response()
                     
-                    # Always show 25% remaining when threshold (75%) is exceeded
                     remaining_percent = 25
                     message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
                         name=chat_member.user.first_name,
@@ -242,7 +240,6 @@ async def notify_user(request: Request):
                 logging.info(f"Missing traffic data: used={used_traffic}, limit={data_limit}")
                 return web.Response()
             
-            # Send notification for user.modified case
             msg_id = await EphemeralNotification.send_ephemeral(
                 bot=glv.bot,
                 chat_id=user.tg_id,
