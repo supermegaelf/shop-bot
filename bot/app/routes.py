@@ -260,7 +260,19 @@ async def notify_user(request: Request):
             
             return web.Response()
         case "user.bandwidth_usage_threshold_reached":
-            threshold = int(payload['data'].get('threshold_percent', 80))
+            threshold = int(payload['data'].get('threshold_percent', 75))
+            
+            last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
+            if last_notification:
+                sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
+                if sent_at:
+                    time_since_last = datetime.now() - sent_at
+                    logging.info(f"Last notification sent {time_since_last.total_seconds():.0f}s ago")
+                    
+                    if time_since_last.total_seconds() < 86400:
+                        logging.info(f"Skipping notification (cooldown period)")
+                        return web.Response()
+            
             remaining_percent = 100 - threshold
             message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=remaining_percent)
             keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
@@ -293,6 +305,10 @@ async def notify_user(request: Request):
 
     if msg_id:
         logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
+        
+        if event == "user.bandwidth_usage_threshold_reached":
+            await add_traffic_notification(user.tg_id, "traffic_75_percent")
+        
         from db.methods import save_user_message
         try:
             await save_user_message(user.tg_id, msg_id, 'notification')
