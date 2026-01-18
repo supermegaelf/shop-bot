@@ -1,6 +1,6 @@
 import ipaddress
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 import hmac
 import hashlib
 import json
@@ -269,7 +269,8 @@ async def notify_user(request: Request):
             panel_profile = await panel.get_panel_user(user.tg_id)
             if not panel_profile or not panel_profile.expire:
                 return web.Response()
-            time_of_expiration = panel_profile.expire.strftime('%H:%M')
+            msk_offset = timedelta(hours=3)
+            time_of_expiration = (panel_profile.expire + msk_offset).strftime('%H:%M')
             message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
             keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
         case "user.expired":
