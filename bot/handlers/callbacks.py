@@ -202,6 +202,9 @@ async def callback_extend_data_limit_notification(
     
     await state.update_data(payment_from_notification=True)
 
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
+
     await callback_extend_data_limit(callback, state)
 
 
