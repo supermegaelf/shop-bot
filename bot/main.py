@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 from pathlib import Path
+from datetime import datetime, time
 
 from aiogram import Bot, Dispatcher, enums, F
 from aiogram.client.default import DefaultBotProperties
@@ -18,6 +19,8 @@ from handlers.broadcast import register_broadcast
 from handlers.promo_management import register_promo_management
 from middlewares.db_check import DBCheck
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
+from utils.traffic_checker import check_users_traffic
+from db.methods import cleanup_old_traffic_notifications
 import glv
 
 glv.bot = Bot(
@@ -35,6 +38,35 @@ async def on_startup(bot: Bot):
     except Exception as e:
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
+    
+    logging.info("Scheduler tasks registered: traffic check every 3 minutes, cleanup daily at 03:00")
+
+async def run_scheduler():
+    traffic_check_interval = 3 * 60
+    last_traffic_check = 0
+    last_cleanup_date = None
+    
+    while True:
+        now = datetime.now()
+        current_time = now.timestamp()
+        
+        if current_time - last_traffic_check >= traffic_check_interval:
+            try:
+                await check_users_traffic(glv.bot)
+                last_traffic_check = current_time
+            except Exception as e:
+                logging.error(f"Error in traffic check: {e}", exc_info=True)
+        
+        if now.hour == 3 and now.minute == 0:
+            if last_cleanup_date != now.date():
+                try:
+                    await cleanup_old_traffic_notifications(30)
+                    last_cleanup_date = now.date()
+                    logging.info("Daily cleanup completed")
+                except Exception as e:
+                    logging.error(f"Error in daily cleanup: {e}", exc_info=True)
+        
+        await asyncio.sleep(60)
 
 def setup_routers():
     glv.dp.message.filter(F.chat.type == "private")
@@ -71,6 +103,9 @@ async def main():
     webhook_requests_handler.register(app, path="/webhook")
 
     setup_application(app, glv.dp, bot=glv.bot)
+    
+    asyncio.create_task(run_scheduler())
+    
     await web._run_app(app, host="0.0.0.0", port=glv.config['WEBHOOK_PORT'])
 
 if __name__ == "__main__":

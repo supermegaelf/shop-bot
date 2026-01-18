@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete, exists
 from sqlalchemy.exc import OperationalError
 
-from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages
+from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages, TrafficNotification
 import glv
 
 class PaymentPlatform(Enum):
@@ -274,4 +274,36 @@ async def cleanup_old_messages(days: int = 7):
     cutoff_date = datetime.now() - timedelta(days=days)
     async with engine.begin() as conn:
         sql_query = delete(UserMessages).where(UserMessages.created_at < cutoff_date)
+        await conn.execute(sql_query)
+
+async def get_last_traffic_notification(tg_id: int, notification_type: str):
+    async with engine.connect() as conn:
+        sql_query = select(TrafficNotification).where(
+            TrafficNotification.tg_id == tg_id,
+            TrafficNotification.notification_type == notification_type
+        ).order_by(TrafficNotification.sent_at.desc()).limit(1)
+        result = (await conn.execute(sql_query)).fetchone()
+        if result:
+            return result
+        return None
+
+async def add_traffic_notification(tg_id: int, notification_type: str):
+    async with engine.begin() as conn:
+        sql_query = insert(TrafficNotification).values(
+            tg_id=tg_id,
+            notification_type=notification_type,
+            sent_at=datetime.now()
+        )
+        await conn.execute(sql_query)
+
+async def get_all_active_users():
+    async with engine.connect() as conn:
+        sql_query = select(VPNUsers).where(VPNUsers.test.isnot(None))
+        result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
+        return result
+
+async def cleanup_old_traffic_notifications(days: int = 30):
+    cutoff_date = datetime.now() - timedelta(days=days)
+    async with engine.begin() as conn:
+        sql_query = delete(TrafficNotification).where(TrafficNotification.sent_at < cutoff_date)
         await conn.execute(sql_query)
