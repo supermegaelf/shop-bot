@@ -97,15 +97,20 @@ class MessageCleanup:
         try:
             tg_id = await self._get_tg_id(chat_id)
             db_messages = await get_user_messages(tg_id)
+            
+            logging.info(f"Cleanup: sync_from_db for user {tg_id}, db_messages: {db_messages}")
+            
             if db_messages and any(db_messages.values()):
                 await self.state.update_data(messages=db_messages)
-                if self.debug:
-                    msg_count = sum(1 for m in db_messages.values() if m)
-                    logging.info(f"Cleanup: synced {msg_count} messages from DB to state for user {tg_id}")
+                notification_count = len(db_messages.get('notification', []))
+                profile_count = 1 if db_messages.get('profile') else 0
+                nav_count = len(db_messages.get('navigation', []))
+                logging.info(f"Cleanup: synced messages from DB for user {tg_id}: profile={profile_count}, navigation={nav_count}, notifications={notification_count}")
                 return True
+            else:
+                logging.info(f"Cleanup: no messages in DB for user {tg_id}")
         except Exception as e:
-            if self.debug:
-                logging.warning(f"Cleanup: failed to sync from DB: {e}")
+            logging.warning(f"Cleanup: failed to sync from DB: {e}", exc_info=True)
         return False
 
     async def _delete_message(self, chat_id: int, message_id: int, message_type: Optional[str] = None) -> bool:
@@ -512,6 +517,8 @@ class MessageCleanup:
         messages = await self._get_messages_state(chat_id)
         types_to_cleanup = [MessageType.NAVIGATION, MessageType.NOTIFICATION, MessageType.SUCCESS]
         
+        logging.info(f"Cleanup: cleanup_back_to_profile_except for user {chat_id}, except_message_id={except_message_id}, messages={messages}")
+        
         for msg_type in types_to_cleanup:
             type_key = msg_type.value
             if type_key not in messages:
@@ -520,9 +527,11 @@ class MessageCleanup:
             if isinstance(messages[type_key], list):
                 message_ids_to_delete = [msg_id for msg_id in messages[type_key] if msg_id != except_message_id]
                 if message_ids_to_delete:
+                    logging.info(f"Cleanup: deleting {type_key} messages: {message_ids_to_delete}")
                     await self._delete_messages(chat_id, message_ids_to_delete, type_key)
                 messages[type_key] = [msg_id for msg_id in messages[type_key] if msg_id == except_message_id]
             elif messages[type_key] is not None and messages[type_key] != except_message_id:
+                logging.info(f"Cleanup: deleting {type_key} message: {messages[type_key]}")
                 await self._delete_message(chat_id, messages[type_key], type_key)
                 messages[type_key] = None
         
