@@ -41,23 +41,15 @@ async def on_startup(bot: Bot):
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
     
-    logging.info("Scheduler tasks registered: traffic check every 3 minutes, cleanup daily at 03:00")
+    logging.info("Scheduler tasks registered: cleanup daily at 03:00. Traffic notifications via Remnawave webhook.")
 
 async def run_scheduler():
-    traffic_check_interval = 3 * 60
-    last_traffic_check = 0
     last_cleanup_date = None
+    
+    logging.info("Scheduler started: traffic notifications disabled (will use Remnawave webhook)")
     
     while True:
         now = datetime.now()
-        current_time = now.timestamp()
-        
-        if current_time - last_traffic_check >= traffic_check_interval:
-            try:
-                await check_users_traffic(glv.bot)
-                last_traffic_check = current_time
-            except Exception as e:
-                logging.error(f"Error in traffic check: {e}", exc_info=True)
         
         if now.hour == 3 and now.minute == 0:
             if last_cleanup_date != now.date():
