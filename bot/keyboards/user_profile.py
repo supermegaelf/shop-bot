@@ -19,11 +19,13 @@ def get_buy_more_traffic_keyboard(lang, back=True, from_notification=False) -> I
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def get_renew_subscription_keyboard(lang, back=True, from_notification=False) -> InlineKeyboardMarkup:
+    callback_data = 'payment_from_notification' if from_notification else 'payment'
+    
     kb = [
         [
             InlineKeyboardButton(
                 text=get_i18n_string("button_renew", lang),
-                callback_data='payment')
+                callback_data=callback_data)
         ]
     ]
     if back:

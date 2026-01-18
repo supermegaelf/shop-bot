@@ -153,7 +153,7 @@ async def callback_month_amount_select(callback: CallbackQuery, state: FSMContex
     )
 
 
-@router.callback_query(F.data.startswith("extend_data_limit"))
+@router.callback_query(F.data == "extend_data_limit")
 async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext):
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
@@ -196,6 +196,10 @@ async def callback_extend_data_limit_notification(
     await safe_answer(callback)
     
     await state.update_data(payment_from_notification=True)
+
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.sync_from_db(callback.from_user.id)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
 
     await callback_extend_data_limit(callback, state)
 
@@ -381,6 +385,21 @@ async def callback_payment(callback: CallbackQuery, state: FSMContext):
         reply_markup=keyboard,
         reuse_message=callback.message,
     )
+
+
+@router.callback_query(F.data == "payment_from_notification")
+async def callback_payment_from_notification(
+    callback: CallbackQuery, state: FSMContext
+):
+    await safe_answer(callback)
+    
+    await state.update_data(payment_from_notification=True)
+
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.sync_from_db(callback.from_user.id)
+    await cleanup.cleanup_back_to_profile_except(callback.from_user.id, callback.message.message_id)
+
+    await callback_payment(callback, state)
 
 
 @router.callback_query(F.data == "faq")
