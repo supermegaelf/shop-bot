@@ -284,28 +284,7 @@ async def get_last_traffic_notification(tg_id: int, notification_type: str):
         ).order_by(TrafficNotification.sent_at.desc()).limit(1)
         result = (await conn.execute(sql_query)).fetchone()
         if result:
-            if hasattr(result, '_mapping'):
-                from db.models import TrafficNotification as TrafficNotificationModel
-                notification = TrafficNotificationModel(
-                    id=result._mapping.get('id'),
-                    tg_id=result._mapping.get('tg_id'),
-                    notification_type=result._mapping.get('notification_type'),
-                    sent_at=result._mapping.get('sent_at')
-                )
-                return [notification]
-            elif hasattr(result, '__getitem__'):
-                notification = result[0]
-                if hasattr(notification, 'sent_at'):
-                    return [notification]
-                if hasattr(notification, '_mapping'):
-                    from db.models import TrafficNotification as TrafficNotificationModel
-                    notification = TrafficNotificationModel(
-                        id=notification._mapping.get('id'),
-                        tg_id=notification._mapping.get('tg_id'),
-                        notification_type=notification._mapping.get('notification_type'),
-                        sent_at=notification._mapping.get('sent_at')
-                    )
-                    return [notification]
+            return result
         return None
 
 async def add_traffic_notification(tg_id: int, notification_type: str):

@@ -216,13 +216,14 @@ async def notify_user(request: Request):
                     last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
                     
                     if last_notification:
-                        last_sent = last_notification[0].sent_at
-                        time_since_last = datetime.now() - last_sent
-                        logging.info(f"Last notification sent {time_since_last.total_seconds():.0f}s ago")
-                        
-                        if time_since_last.total_seconds() < 86400:
-                            logging.info(f"Skipping notification (cooldown period)")
-                            return web.Response()
+                        sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
+                        if sent_at:
+                            time_since_last = datetime.now() - sent_at
+                            logging.info(f"Last notification sent {time_since_last.total_seconds():.0f}s ago")
+                            
+                            if time_since_last.total_seconds() < 86400:
+                                logging.info(f"Skipping notification (cooldown period)")
+                                return web.Response()
                     
                     remaining_percent = 25
                     message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
@@ -230,9 +231,6 @@ async def notify_user(request: Request):
                         amount=remaining_percent
                     )
                     keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
-                    
-                    await add_traffic_notification(user.tg_id, "traffic_75_percent")
-                    logging.info(f"Traffic notification prepared for user {user.tg_id}")
                 else:
                     logging.info(f"Traffic usage below threshold (<=75%), skipping notification")
                     return web.Response()
@@ -250,6 +248,7 @@ async def notify_user(request: Request):
             )
             
             if msg_id:
+                await add_traffic_notification(user.tg_id, "traffic_75_percent")
                 logging.info(f"Ephemeral notification user.modified sent to user id={user.tg_id}, msg_id={msg_id}")
                 from db.methods import save_user_message
                 try:

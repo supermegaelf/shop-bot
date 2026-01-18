@@ -58,23 +58,11 @@ async def check_users_traffic(bot: Bot):
                 last_notification = await get_last_traffic_notification(tg_id, "traffic_75_percent")
                 
                 if last_notification:
-                    notification_obj = last_notification[0]
-                    if not hasattr(notification_obj, 'sent_at'):
-                        logging.warning(f"Notification object has no sent_at. Type: {type(notification_obj)}, Value: {notification_obj}")
-                        if hasattr(notification_obj, '_mapping'):
-                            sent_at_str = notification_obj._mapping.get('sent_at')
-                            if sent_at_str:
-                                last_sent = sent_at_str if isinstance(sent_at_str, datetime) else datetime.fromisoformat(str(sent_at_str))
-                            else:
-                                continue
-                        else:
+                    sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
+                    if sent_at:
+                        time_since_last = datetime.now() - sent_at
+                        if time_since_last < timedelta(hours=NOTIFICATION_COOLDOWN_HOURS):
                             continue
-                    else:
-                        last_sent = notification_obj.sent_at
-                    time_since_last = datetime.now() - last_sent
-                    
-                    if time_since_last < timedelta(hours=NOTIFICATION_COOLDOWN_HOURS):
-                        continue
                 
                 try:
                     chat_member = await bot.get_chat_member(tg_id, tg_id)
