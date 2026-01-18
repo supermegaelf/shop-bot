@@ -88,7 +88,7 @@ async def check_users_traffic(bot: Bot):
                     )
                     keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
                     
-                    await EphemeralNotification.send_ephemeral(
+                    msg_id = await EphemeralNotification.send_ephemeral(
                         bot=bot,
                         chat_id=tg_id,
                         text=message,
@@ -96,9 +96,15 @@ async def check_users_traffic(bot: Bot):
                         lang=chat_member.user.language_code
                     )
                     
-                    await add_traffic_notification(tg_id, "traffic_75_percent")
-                    notification_count += 1
-                    logging.info(f"Sent traffic notification to user {tg_id} (usage: {traffic_usage*100:.1f}%)")
+                    if msg_id:
+                        await add_traffic_notification(tg_id, "traffic_75_percent")
+                        from db.methods import save_user_message
+                        try:
+                            await save_user_message(tg_id, msg_id, 'notification')
+                        except Exception as e:
+                            logging.warning(f"Failed to save notification message to DB: {e}")
+                        notification_count += 1
+                        logging.info(f"Sent traffic notification to user {tg_id} (usage: {traffic_usage*100:.1f}%)")
                     
                 except Exception as e:
                     logging.warning(f"Failed to send traffic notification to user {tg_id}: {e}", exc_info=True)

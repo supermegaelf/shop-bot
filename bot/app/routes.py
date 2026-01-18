@@ -251,6 +251,11 @@ async def notify_user(request: Request):
             
             if msg_id:
                 logging.info(f"Ephemeral notification user.modified sent to user id={user.tg_id}, msg_id={msg_id}")
+                from db.methods import save_user_message
+                try:
+                    await save_user_message(user.tg_id, msg_id, 'notification')
+                except Exception as e:
+                    logging.warning(f"Failed to save notification message to DB: {e}")
             else:
                 logging.warning(f"Failed to send ephemeral notification user.modified to user id={user.tg_id}")
             
@@ -288,6 +293,11 @@ async def notify_user(request: Request):
 
     if msg_id:
         logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
+        from db.methods import save_user_message
+        try:
+            await save_user_message(user.tg_id, msg_id, 'notification')
+        except Exception as e:
+            logging.warning(f"Failed to save notification message to DB: {e}")
     else:
         logging.warning(f"Failed to send ephemeral notification {event} to user id={user.tg_id}")
 
