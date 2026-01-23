@@ -155,60 +155,34 @@ async def callback_month_amount_select(callback: CallbackQuery, state: FSMContex
 
 @router.callback_query(F.data == "extend_data_limit")
 async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext):
-    logging.info(f"extend_data_limit callback received from user {callback.from_user.id}")
-    
-    try:
-        panel = get_panel()
-        panel_profile = await panel.get_panel_user(callback.from_user.id)
-        
-        if not panel_profile:
-            logging.warning(f"extend_data_limit: no panel_profile for user {callback.from_user.id}")
-            await safe_answer(callback, _("message_error"), show_alert=True)
-            return
-        
-        if not panel_profile.data_limit:
-            logging.warning(f"extend_data_limit: no data_limit for user {callback.from_user.id}, profile: {panel_profile}")
-            await safe_answer(callback, _("message_error"), show_alert=True)
-            return
-        
-        if not panel_profile.expire:
-            logging.warning(f"extend_data_limit: no expire for user {callback.from_user.id}, profile: {panel_profile}")
-            await safe_answer(callback, _("message_error"), show_alert=True)
-            return
-
-        await safe_answer(callback)
-
-        subscription_months_left = (
-            panel_profile.expire.timestamp() - datetime.now().timestamp()
-        ) / 2592000
-
-        filtered_goods = [
-            good
-            for good in goods.get()
-            if good["months"] > subscription_months_left and good["type"] == "update"
-        ]
-        
-        logging.info(f"extend_data_limit: filtered_goods count={len(filtered_goods)} for user {callback.from_user.id}, months_left={subscription_months_left:.2f}")
-        
-        if filtered_goods:
-            min_good = min(filtered_goods, key=lambda good: good["months"])
-            keyboard = await get_buy_menu_keyboard(
-                callback.from_user.id, min_good["months"], "update"
-            )
-
-            cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-            await cleanup.send_navigation(
-                chat_id=callback.from_user.id,
-                text=_("message_select_traffic_amount"),
-                reply_markup=keyboard,
-                reuse_message=callback.message,
-            )
-        else:
-            logging.warning(f"extend_data_limit: no filtered_goods for user {callback.from_user.id}, months_left={subscription_months_left:.2f}")
-            await callback.answer(_("message_error"), show_alert=True)
-    except Exception as e:
-        logging.error(f"extend_data_limit error for user {callback.from_user.id}: {e}", exc_info=True)
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    if not panel_profile or not panel_profile.data_limit or not panel_profile.expire:
         await safe_answer(callback, _("message_error"), show_alert=True)
+        return
+
+    await safe_answer(callback)
+
+    filtered_goods = [
+        good
+        for good in goods.get()
+        if good["type"] == "update"
+    ]
+    
+    if filtered_goods:
+        keyboard = await get_buy_menu_keyboard(
+            callback.from_user.id, filtered_goods[0]["months"], "update"
+        )
+
+        cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_select_traffic_amount"),
+            reply_markup=keyboard,
+            reuse_message=callback.message,
+        )
+    else:
+        await callback.answer(_("message_error"), show_alert=True)
 
 
 @router.callback_query(F.data == "extend_data_limit_notification")
