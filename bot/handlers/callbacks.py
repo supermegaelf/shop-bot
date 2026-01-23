@@ -163,19 +163,14 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
 
     await safe_answer(callback)
 
-    subscription_months_left = (
-        panel_profile.expire.timestamp() - datetime.now().timestamp()
-    ) / 2592000
-
     filtered_goods = [
         good
         for good in goods.get()
-        if good["months"] > subscription_months_left and good["type"] == "update"
+        if good["type"] == "update"
     ]
     if filtered_goods:
-        min_good = min(filtered_goods, key=lambda good: good["months"])
         keyboard = await get_buy_menu_keyboard(
-            callback.from_user.id, min_good["months"], "update"
+            callback.from_user.id, filtered_goods[0]["months"], "update"
         )
 
         cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
