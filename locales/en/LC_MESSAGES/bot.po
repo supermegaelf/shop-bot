@@ -27,7 +27,7 @@ msgid "message_select_traffic_amount"
 msgstr "Select the appropriate amount of traffic ⬇️"
 
 msgid "message_traffic_renewal_info"
-msgstr "Traffic is updated monthly on the date of the first payment.\n\n"
+msgstr "Traffic is updated monthly on the 1st.\n\n"
 "Choose the appropriate amount of traffic for the month (if it runs out, you can buy more 🙃) ⬇️"
 
 msgid "\n\nFollow the link below to install VPN ⬇️\n\n{link}"
