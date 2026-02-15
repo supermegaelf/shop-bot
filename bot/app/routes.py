@@ -91,15 +91,17 @@ async def _process_payment_success(payment, good, user):
         
         await use_all_promo_codes(payment.tg_id)
         
-        try:
-            purchase_days = good["months"] * 30
-            await referrals.apply_referral_bonuses(
-                referee_id=payment.tg_id,
-                purchase_days=purchase_days,
-                lang=payment.lang or 'ru'
-            )
-        except Exception as ref_error:
-            logging.error(f"Failed to apply referral bonuses for user {payment.tg_id}: {ref_error}")
+        if good.get("type") == "renew" and "months" in good:
+            try:
+                purchase_days = good["months"] * 30
+                await referrals.apply_referral_bonuses(
+                    referee_id=payment.tg_id,
+                    purchase_days=purchase_days,
+                    payment_id=payment.id,
+                    lang=payment.lang or 'ru'
+                )
+            except Exception as ref_error:
+                logging.error(f"Failed to apply referral bonuses for user {payment.tg_id}: {ref_error}")
     except Exception as e:
         logging.error(
             f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",

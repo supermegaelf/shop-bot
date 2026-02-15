@@ -130,15 +130,18 @@ async def success_payment(message: Message, state: FSMContext):
     )
     await use_all_promo_codes(message.from_user.id)
     
-    try:
-        purchase_days = good["months"] * 30
-        await referrals.apply_referral_bonuses(
-            referee_id=message.from_user.id,
-            purchase_days=purchase_days,
-            lang=message.from_user.language_code or 'ru'
-        )
-    except Exception as e:
-        logging.error(f"Failed to apply referral bonuses for user {message.from_user.id}: {e}")
+    if good.get("type") == "renew" and "months" in good:
+        try:
+            purchase_days = good["months"] * 30
+            payment_db_id = payment.id if payment else None
+            await referrals.apply_referral_bonuses(
+                referee_id=message.from_user.id,
+                purchase_days=purchase_days,
+                payment_id=payment_db_id,
+                lang=message.from_user.language_code or 'ru'
+            )
+        except Exception as e:
+            logging.error(f"Failed to apply referral bonuses for user {message.from_user.id}: {e}")
 
 
 def register_payments(dp: Dispatcher):

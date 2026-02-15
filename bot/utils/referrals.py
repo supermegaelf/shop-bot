@@ -86,6 +86,14 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
     if not user or not user.referred_by_id:
         return {'success': False, 'reason': 'no_referrer'}
     
+    if payment_id:
+        async with engine.connect() as conn:
+            check_query = select(ReferralBonus).where(ReferralBonus.payment_id == payment_id)
+            existing = (await conn.execute(check_query)).fetchone()
+            if existing:
+                logging.info(f"Referral bonus already applied for payment_id={payment_id}")
+                return {'success': False, 'reason': 'already_applied'}
+    
     inviter_id = user.referred_by_id
     
     bonus_days_inviter = max(1, math.ceil(purchase_days * inviter_percent / 100))
@@ -103,6 +111,8 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
             created_at=datetime.now()
         )
         await conn.execute(insert_query)
+    
+    logging.info(f"Referral bonus created: inviter={inviter_id} (+{bonus_days_inviter}d), referee={referee_id} (+{bonus_days_referee}d), purchase={purchase_days}d, payment_id={payment_id}")
     
     try:
         from panel import get_panel
@@ -124,7 +134,11 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
                         }
                         await panel.client.patch(f"/users", json=update_payload)
                         
-                        inviter_lang = 'ru'
+                        try:
+                            inviter_chat = await glv.bot.get_chat(inviter_id)
+                            inviter_lang = inviter_chat.language_code or 'ru'
+                        except:
+                            inviter_lang = 'ru'
                         
                         text = get_i18n_string("referral_notification_inviter", inviter_lang).format(
                             days=bonus_days_inviter
@@ -220,10 +234,13 @@ async def get_referrers_list(page: int = 1, per_page: int = 5) -> Dict:
     
     async with engine.connect() as conn:
         referrers_query = select(
-            VPNUsers.tg_id,
             VPNUsers.referred_by_id,
-            func.count(VPNUsers.tg_id).label('referrals_count')
-        ).select_from(VPNUsers).where(
+            func.count(VPNUsers.tg_id).label('referrals_count'),
+            func.coalesce(func.sum(ReferralBonus.bonus_days_inviter), 0).label('earned_days')
+        ).select_from(VPNUsers).outerjoin(
+            ReferralBonus, 
+            (VPNUsers.referred_by_id == ReferralBonus.inviter_id) & (VPNUsers.tg_id == ReferralBonus.referee_id)
+        ).where(
             VPNUsers.referred_by_id.isnot(None)
         ).group_by(
             VPNUsers.referred_by_id
@@ -238,17 +255,10 @@ async def get_referrers_list(page: int = 1, per_page: int = 5) -> Dict:
     
     referrers = []
     for row in results:
-        referrer_id = row.referred_by_id
-        count = row.referrals_count
-        
-        async with engine.connect() as conn:
-            bonus_query = select(func.sum(ReferralBonus.bonus_days_inviter)).where(ReferralBonus.inviter_id == referrer_id)
-            days = (await conn.execute(bonus_query)).scalar() or 0
-        
         referrers.append({
-            'referrer_id': referrer_id,
-            'referrals_count': count,
-            'earned_days': days
+            'referrer_id': row.referred_by_id,
+            'referrals_count': row.referrals_count,
+            'earned_days': int(row.earned_days)
         })
     
     total_pages = math.ceil(total / per_page) if total > 0 else 1
@@ -264,7 +274,22 @@ async def get_user_referrals(user_id: int, page: int = 1, per_page: int = 5) -> 
     offset = (page - 1) * per_page
     
     async with engine.connect() as conn:
-        referrals_query = select(VPNUsers).where(VPNUsers.referred_by_id == user_id).limit(per_page).offset(offset)
+        referrals_query = select(
+            VPNUsers.tg_id,
+            func.count(Payments.id).label('purchases'),
+            func.coalesce(func.sum(ReferralBonus.bonus_days_inviter), 0).label('earned_days')
+        ).select_from(VPNUsers).outerjoin(
+            Payments,
+            (VPNUsers.tg_id == Payments.tg_id) & (Payments.confirmed == True)
+        ).outerjoin(
+            ReferralBonus,
+            (ReferralBonus.inviter_id == user_id) & (ReferralBonus.referee_id == VPNUsers.tg_id)
+        ).where(
+            VPNUsers.referred_by_id == user_id
+        ).group_by(
+            VPNUsers.tg_id
+        ).limit(per_page).offset(offset)
+        
         results = (await conn.execute(referrals_query)).fetchall()
         
         total_query = select(func.count()).select_from(VPNUsers).where(VPNUsers.referred_by_id == user_id)
@@ -272,19 +297,10 @@ async def get_user_referrals(user_id: int, page: int = 1, per_page: int = 5) -> 
     
     referrals = []
     for row in results:
-        referee_id = row.tg_id
-        
-        async with engine.connect() as conn:
-            purchases_query = select(func.count()).select_from(Payments).where(Payments.tg_id == referee_id, Payments.confirmed == True)
-            purchases = (await conn.execute(purchases_query)).scalar() or 0
-            
-            bonus_query = select(func.sum(ReferralBonus.bonus_days_inviter)).where(ReferralBonus.inviter_id == user_id, ReferralBonus.referee_id == referee_id)
-            days = (await conn.execute(bonus_query)).scalar() or 0
-        
         referrals.append({
-            'referee_id': referee_id,
-            'purchases': purchases,
-            'earned_days': days
+            'referee_id': row.tg_id,
+            'purchases': row.purchases,
+            'earned_days': int(row.earned_days)
         })
     
     total_pages = math.ceil(total / per_page) if total > 0 else 1

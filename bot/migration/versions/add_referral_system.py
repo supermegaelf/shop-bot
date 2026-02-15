@@ -33,6 +33,9 @@ def upgrade() -> None:
     if 'ix_vpnusers_referral_code' not in indexes:
         op.create_index('ix_vpnusers_referral_code', 'vpnusers', ['referral_code'], unique=True)
     
+    if 'ix_vpnusers_referred_by_id' not in indexes:
+        op.create_index('ix_vpnusers_referred_by_id', 'vpnusers', ['referred_by_id'], unique=False)
+    
     try:
         op.create_foreign_key('fk_vpnusers_referred_by', 'vpnusers', 'vpnusers', ['referred_by_id'], ['tg_id'])
     except:
@@ -56,6 +59,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     op.drop_table('referral_bonuses')
     op.drop_constraint('fk_vpnusers_referred_by', 'vpnusers', type_='foreignkey')
+    op.drop_index('ix_vpnusers_referred_by_id', table_name='vpnusers')
     op.drop_index('ix_vpnusers_referral_code', table_name='vpnusers')
     op.drop_index('ix_vpnusers_tg_id', table_name='vpnusers')
     op.drop_column('vpnusers', 'referred_by_id')
