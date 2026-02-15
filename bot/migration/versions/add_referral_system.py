@@ -1,7 +1,7 @@
 """Add referral system
 
 Revision ID: add_referral_system
-Revises: e9f8a7b6c5d4
+Revises: 7a3c4d5e6f78
 Create Date: 2026-01-11 00:00:00.000000
 
 """
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 revision = 'add_referral_system'
-down_revision = 'e9f8a7b6c5d4'
+down_revision = '7a3c4d5e6f78'
 branch_labels = None
 depends_on = None
 
