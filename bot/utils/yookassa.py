@@ -22,7 +22,7 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
             "return_url": f"https://t.me/{(await glv.bot.get_me()).username}"
         },
         "capture": True,
-        "description": f"Подписка на {glv.config['SHOP_NAME']}",
+        "description": f"Подписка на сервис {glv.config['SHOP_NAME']}",
         "save_payment_method": False,
         "receipt": {
             "customer": {
