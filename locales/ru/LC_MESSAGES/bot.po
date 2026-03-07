@@ -324,6 +324,9 @@ msgstr "\n\nПерейдите по ссылке ниже, установите 
 msgid "referral_notification_inviter"
 msgstr "Друг оформил подписку 🎉\n\nНачислено дней: {days} 🎁"
 
+msgid "referral_notification_referee"
+msgstr "Вы получили бонус за подписку по реферальной ссылке 🎁\n\nНачислено дней: {days}"
+
 msgid "button_referral_stats"
 msgstr "Статистика 📊"
 

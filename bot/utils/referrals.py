@@ -153,6 +153,24 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
                             'expireAt': new_expire.isoformat().replace('+00:00', 'Z')
                         }
                         await panel.client.patch("/users", json=update_payload)
+
+                        try:
+                            referee_chat = await glv.bot.get_chat(referee_id)
+                            referee_lang = referee_chat.language_code or 'ru'
+                        except:
+                            referee_lang = 'ru'
+
+                        text = get_i18n_string("referral_notification_referee", referee_lang).format(
+                            days=bonus_days_referee
+                        )
+                        keyboard = get_referral_notification_keyboard(referee_lang)
+                        await EphemeralNotification.send_ephemeral(
+                            bot=glv.bot,
+                            chat_id=referee_id,
+                            text=text,
+                            reply_markup=keyboard,
+                            lang=referee_lang
+                        )
             except Exception as e:
                 logging.error(f"Failed to apply bonus to referee {referee_id}: {e}")
 

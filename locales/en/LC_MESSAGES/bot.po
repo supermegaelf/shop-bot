@@ -324,6 +324,9 @@ msgstr "\n\nFollow the link below, install VPN and get bonus days after payment 
 msgid "referral_notification_inviter"
 msgstr "Friend purchased subscription 🎉\n\nDays credited: {days} 🎁"
 
+msgid "referral_notification_referee"
+msgstr "You received a bonus for subscribing via referral link 🎁\n\nDays credited: {days}"
+
 msgid "button_referral_stats"
 msgstr "Statistics 📊"
 
