@@ -2,9 +2,9 @@ import secrets
 import string
 import math
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Dict
-from sqlalchemy import select, func
+from sqlalchemy import select, func, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.models import VPNUsers, ReferralBonus, Payments
@@ -40,7 +40,6 @@ async def ensure_referral_code(tg_id: int) -> Optional[str]:
             
             if not existing:
                 async with engine.begin() as conn:
-                    from sqlalchemy import update
                     update_query = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(referral_code=code)
                     await conn.execute(update_query)
                 return code
@@ -59,7 +58,6 @@ async def set_referrer(tg_id: int, referrer_id: int) -> bool:
         return False
     
     async with engine.begin() as conn:
-        from sqlalchemy import update
         update_query = update(VPNUsers).where(VPNUsers.tg_id == tg_id).values(referred_by_id=referrer_id)
         await conn.execute(update_query)
     
@@ -100,57 +98,38 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
             return {'success': False, 'reason': 'already_applied'}
     
     inviter_id = user.referred_by_id
-    
+
     bonus_days_inviter = max(1, math.ceil(purchase_days * inviter_percent / 100))
     bonus_days_referee = max(1, math.ceil(purchase_days * referee_percent / 100))
-    
-    async with engine.begin() as conn:
-        from sqlalchemy import insert
-        insert_query = insert(ReferralBonus).values(
-            inviter_id=inviter_id,
-            referee_id=referee_id,
-            payment_id=payment_id,
-            bonus_days_inviter=bonus_days_inviter,
-            bonus_days_referee=bonus_days_referee,
-            purchase_days=purchase_days,
-            created_at=datetime.now()
-        )
-        await conn.execute(insert_query)
-    
-    logging.info(f"Referral bonus created: inviter={inviter_id} (+{bonus_days_inviter}d), referee={referee_id} (+{bonus_days_referee}d), purchase={purchase_days}d, payment_id={payment_id}")
-    
+
     try:
         from panel import get_panel
         panel = get_panel()
-        
+
         inviter_user = await get_vpn_user(inviter_id)
         if inviter_user and inviter_user.vpn_id:
             try:
                 inviter_profile = await panel.get_panel_user(inviter_id)
                 if inviter_profile and inviter_profile.expire:
-                    from datetime import timedelta
                     new_expire = inviter_profile.expire + timedelta(days=bonus_days_inviter)
-                    
                     user_data = await panel._get_user_by_username(inviter_user.vpn_id)
                     if user_data:
                         update_payload = {
                             'uuid': user_data['uuid'],
                             'expireAt': new_expire.isoformat().replace('+00:00', 'Z')
                         }
-                        await panel.client.patch(f"/users", json=update_payload)
-                        
+                        await panel.client.patch("/users", json=update_payload)
+
                         try:
                             inviter_chat = await glv.bot.get_chat(inviter_id)
                             inviter_lang = inviter_chat.language_code or 'ru'
                         except:
                             inviter_lang = 'ru'
-                        
+
                         text = get_i18n_string("referral_notification_inviter", inviter_lang).format(
                             days=bonus_days_inviter
                         )
-                        
                         keyboard = get_referral_notification_keyboard(inviter_lang)
-                        
                         await EphemeralNotification.send_ephemeral(
                             bot=glv.bot,
                             chat_id=inviter_id,
@@ -160,29 +139,41 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
                         )
             except Exception as e:
                 logging.error(f"Failed to apply bonus to inviter {inviter_id}: {e}")
-        
+
         referee_user = await get_vpn_user(referee_id)
         if referee_user and referee_user.vpn_id:
             try:
                 referee_profile = await panel.get_panel_user(referee_id)
                 if referee_profile and referee_profile.expire:
-                    from datetime import timedelta
                     new_expire = referee_profile.expire + timedelta(days=bonus_days_referee)
-                    
                     user_data = await panel._get_user_by_username(referee_user.vpn_id)
                     if user_data:
                         update_payload = {
                             'uuid': user_data['uuid'],
                             'expireAt': new_expire.isoformat().replace('+00:00', 'Z')
                         }
-                        await panel.client.patch(f"/users", json=update_payload)
+                        await panel.client.patch("/users", json=update_payload)
             except Exception as e:
                 logging.error(f"Failed to apply bonus to referee {referee_id}: {e}")
-        
+
+        async with engine.begin() as conn:
+            await conn.execute(
+                insert(ReferralBonus).values(
+                    inviter_id=inviter_id,
+                    referee_id=referee_id,
+                    payment_id=payment_id,
+                    bonus_days_inviter=bonus_days_inviter,
+                    bonus_days_referee=bonus_days_referee,
+                    purchase_days=purchase_days,
+                    created_at=datetime.now()
+                )
+            )
+        logging.info(f"Referral bonus applied: inviter={inviter_id} (+{bonus_days_inviter}d), referee={referee_id} (+{bonus_days_referee}d), purchase={purchase_days}d, payment_id={payment_id}")
+
     except Exception as e:
         logging.error(f"Failed to apply referral bonuses: {e}")
         return {'success': False, 'reason': 'bonus_application_failed'}
-    
+
     return {
         'success': True,
         'bonus_days_inviter': bonus_days_inviter,
