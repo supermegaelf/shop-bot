@@ -308,7 +308,7 @@ msgid "referral_menu_title"
 msgstr "🎁 Referral Program"
 
 msgid "referral_stats_title"
-msgstr "Statistics 📊"
+msgstr "Referral statistics 📊"
 
 msgid "referral_invited_count"
 msgstr "Friends invited: {count}"
@@ -335,7 +335,7 @@ msgid "referral_notification_referee"
 msgstr "You received a bonus for subscribing via referral link 🎁\n\nDays credited: {days}"
 
 msgid "button_referral_stats"
-msgstr "Referral statistics 📊"
+msgstr "Statistics 📊"
 
 msgid "button_referral_list"
 msgstr "Referrers 💰"
