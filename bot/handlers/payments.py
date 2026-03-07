@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
 from utils import goods, MessageCleanup, try_delete_message, referrals
+from utils.lang import get_i18n_string
 from db.methods import (
     get_vpn_user,
     add_payment,
@@ -80,11 +81,20 @@ async def success_payment(message: Message, state: FSMContext):
         if panel_profile is None:
             raise Exception("Panel returned None profile")
 
+        referee_bonus_days = 0
+        if good.get("type") == "renew" and "months" in good:
+            purchase_days = good["months"] * 30
+            referee_bonus_days = await referrals.get_referee_bonus_days(message.from_user.id, purchase_days)
+
         user_has_payments = await has_confirmed_payments(message.from_user.id)
         if user_has_payments:
+            if referee_bonus_days > 0:
+                text = get_i18n_string("message_payment_success_with_bonus", message.from_user.language_code).format(days=referee_bonus_days)
+            else:
+                text = _("message_payment_success")
             await cleanup.send_success(
                 chat_id=message.from_user.id,
-                text=_("message_payment_success"),
+                text=text,
                 reply_markup=get_payment_success_keyboard(
                     message.from_user.language_code, from_notification
                 ),
@@ -132,11 +142,10 @@ async def success_payment(message: Message, state: FSMContext):
     
     if good.get("type") == "renew" and "months" in good:
         try:
-            purchase_days = good["months"] * 30
             payment_db_id = payment.id if payment else None
             await referrals.apply_referral_bonuses(
                 referee_id=message.from_user.id,
-                purchase_days=purchase_days,
+                purchase_days=good["months"] * 30,
                 payment_id=payment_db_id,
                 lang=message.from_user.language_code or 'ru'
             )

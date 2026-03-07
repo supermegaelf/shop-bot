@@ -48,6 +48,13 @@ msgstr ""
 "Thanks for being with us ❤️\n️\n"
 "Enjoy surfing 🏄🏻‍♂️"
 
+msgid "message_payment_success_with_bonus"
+msgstr ""
+"Payment successful ✅\n️\n"
+"Referral bonus +{days} days 🎁\n️\n"
+"Thanks for being with us ❤️\n️\n"
+"Enjoy surfing 🏄🏻‍♂️"
+
 msgid "button_back"
 msgstr "⬅️ Back"
 

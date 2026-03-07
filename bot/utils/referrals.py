@@ -76,6 +76,13 @@ async def get_referral_stats(tg_id: int) -> Dict:
         'earned_days': earned_days
     }
 
+async def get_referee_bonus_days(referee_id: int, purchase_days: int) -> int:
+    referee_percent = glv.config.get('REFERRAL_BONUS_PERCENT_REFEREE', 5)
+    user = await get_vpn_user(referee_id)
+    if not user or not user.referred_by_id:
+        return 0
+    return max(1, math.ceil(purchase_days * referee_percent / 100))
+
 async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id: int = None, lang: str = 'ru') -> Dict:
     inviter_percent = glv.config.get('REFERRAL_BONUS_PERCENT_INVITER', 10)
     referee_percent = glv.config.get('REFERRAL_BONUS_PERCENT_REFEREE', 5)
@@ -153,24 +160,6 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
                             'expireAt': new_expire.isoformat().replace('+00:00', 'Z')
                         }
                         await panel.client.patch("/users", json=update_payload)
-
-                        try:
-                            referee_chat = await glv.bot.get_chat(referee_id)
-                            referee_lang = referee_chat.language_code or 'ru'
-                        except:
-                            referee_lang = 'ru'
-
-                        text = get_i18n_string("referral_notification_referee", referee_lang).format(
-                            days=bonus_days_referee
-                        )
-                        keyboard = get_referral_notification_keyboard(referee_lang)
-                        await EphemeralNotification.send_ephemeral(
-                            bot=glv.bot,
-                            chat_id=referee_id,
-                            text=text,
-                            reply_markup=keyboard,
-                            lang=referee_lang
-                        )
             except Exception as e:
                 logging.error(f"Failed to apply bonus to referee {referee_id}: {e}")
 
