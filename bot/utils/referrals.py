@@ -86,13 +86,18 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
     if not user or not user.referred_by_id:
         return {'success': False, 'reason': 'no_referrer'}
     
-    if payment_id:
-        async with engine.connect() as conn:
+    async with engine.connect() as conn:
+        if payment_id is not None:
             check_query = select(ReferralBonus).where(ReferralBonus.payment_id == payment_id)
-            existing = (await conn.execute(check_query)).fetchone()
-            if existing:
-                logging.info(f"Referral bonus already applied for payment_id={payment_id}")
-                return {'success': False, 'reason': 'already_applied'}
+        else:
+            check_query = select(ReferralBonus).where(
+                ReferralBonus.referee_id == referee_id,
+                ReferralBonus.payment_id.is_(None)
+            )
+        existing = (await conn.execute(check_query)).fetchone()
+        if existing:
+            logging.info(f"Referral bonus already applied for payment_id={payment_id}, referee={referee_id}")
+            return {'success': False, 'reason': 'already_applied'}
     
     inviter_id = user.referred_by_id
     
@@ -201,7 +206,7 @@ async def get_admin_referral_stats() -> Dict:
         conversion = round((purchased_count / total_referrals * 100), 1) if total_referrals > 0 else 0
         avg_bonus = round((total_bonus / active_referrers), 1) if active_referrers > 0 else 0
         
-        top_referrer_query = select(VPNUsers.tg_id, func.count(VPNUsers.tg_id).label('count')).select_from(VPNUsers).where(VPNUsers.referred_by_id.isnot(None)).group_by(VPNUsers.referred_by_id).order_by(func.count(VPNUsers.tg_id).desc()).limit(1)
+        top_referrer_query = select(VPNUsers.referred_by_id, func.count(VPNUsers.tg_id).label('count')).select_from(VPNUsers).where(VPNUsers.referred_by_id.isnot(None)).group_by(VPNUsers.referred_by_id).order_by(func.count(VPNUsers.tg_id).desc()).limit(1)
         top_result = (await conn.execute(top_referrer_query)).first()
         
         top_referrer_id = None

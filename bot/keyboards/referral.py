@@ -5,10 +5,8 @@ def get_referral_menu_keyboard(lang: str = 'ru', referral_link: str = '') -> Inl
     share_text = get_i18n_string("referral_share_button", lang)
     back_text = get_i18n_string("button_back", lang)
     
-    share_message = get_i18n_string("referral_inline_message", lang).format(referral_link=referral_link)
-    
     keyboard = [
-        [InlineKeyboardButton(text=share_text, switch_inline_query=share_message)],
+        [InlineKeyboardButton(text=share_text, switch_inline_query="")],
         [InlineKeyboardButton(text=back_text, callback_data="back_to_profile")]
     ]
     

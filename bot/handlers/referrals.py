@@ -45,7 +45,7 @@ async def callback_referral_menu(callback: CallbackQuery, state: FSMContext):
         reuse_message=callback.message
     )
 
-@router.inline_query()
+@router.inline_query(F.query == "")
 async def referral_inline_handler(inline_query: InlineQuery):
     user_id = inline_query.from_user.id
     lang = inline_query.from_user.language_code or 'ru'
