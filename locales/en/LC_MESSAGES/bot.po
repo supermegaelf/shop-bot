@@ -51,7 +51,7 @@ msgstr ""
 msgid "message_payment_success_with_bonus"
 msgstr ""
 "Payment successful ✅\n️\n"
-"Referral bonus +{days} days 🎁\n️\n"
+"Bonus days credited: {days} 🎁\n️\n"
 "Thanks for being with us ❤️\n️\n"
 "Enjoy surfing 🏄🏻‍♂️"
 
