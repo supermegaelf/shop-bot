@@ -335,7 +335,7 @@ msgid "referral_notification_referee"
 msgstr "You received a bonus for subscribing via referral link 🎁\n\nDays credited: {days}"
 
 msgid "button_referral_stats"
-msgstr "Statistics 📊"
+msgstr "Referral statistics 📊"
 
 msgid "button_referral_list"
 msgstr "Referrers 💰"
