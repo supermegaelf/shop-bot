@@ -51,7 +51,7 @@ msgstr ""
 msgid "message_payment_success_with_bonus"
 msgstr ""
 "Оплата прошла успешно ✅\n️\n"
-"Начислено бонусных дней: {days} 🎁\n️\n"
+"Бонусные дни: <b>+{days}</b> 🎁\n️\n"
 "Спасибо, что вы с нами ❤️\n️\n"
 "Приятного сёрфинга 🏄🏻‍♂️"
 
@@ -311,10 +311,10 @@ msgid "referral_stats_title"
 msgstr "Реферальная статистика 📊"
 
 msgid "referral_invited_count"
-msgstr "Друзей приглашено: {count}"
+msgstr "Друзей приглашено: <b>{count}</b>"
 
 msgid "referral_earned_days"
-msgstr "Бонусных дней получено: {days}"
+msgstr "Бонусных дней получено: <b>{days}</b>"
 
 msgid "referral_how_title"
 msgstr "Как получить бонус?"
@@ -329,7 +329,7 @@ msgid "referral_inline_message"
 msgstr "\n\nПерейдите по ссылке ниже, установите VPN и получите бонусные дни после оплаты ⬇️\n\n{referral_link}"
 
 msgid "referral_notification_inviter"
-msgstr "Друг оформил подписку 🎉\n\nНачислено дней: {days} 🎁"
+msgstr "Друг оформил подписку 🎉\n\nБонусные дни: <b>+{days}</b> 🎁"
 
 msgid "referral_notification_referee"
 msgstr "Вы получили бонус за подписку по реферальной ссылке 🎁\n\nНачислено дней: {days}"

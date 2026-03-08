@@ -51,7 +51,7 @@ msgstr ""
 msgid "message_payment_success_with_bonus"
 msgstr ""
 "Payment successful ✅\n️\n"
-"Bonus days credited: {days} 🎁\n️\n"
+"Bonus days: <b>+{days}</b> 🎁\n️\n"
 "Thanks for being with us ❤️\n️\n"
 "Enjoy surfing 🏄🏻‍♂️"
 
@@ -311,10 +311,10 @@ msgid "referral_stats_title"
 msgstr "Referral statistics 📊"
 
 msgid "referral_invited_count"
-msgstr "Friends invited: {count}"
+msgstr "Friends invited: <b>{count}</b>"
 
 msgid "referral_earned_days"
-msgstr "Bonus days received: {days}"
+msgstr "Bonus days received: <b>{days}</b>"
 
 msgid "referral_how_title"
 msgstr "How to get bonus?"
@@ -329,7 +329,7 @@ msgid "referral_inline_message"
 msgstr "\n\nFollow the link below, install VPN and get bonus days after payment ⬇️\n\n{referral_link}"
 
 msgid "referral_notification_inviter"
-msgstr "Friend purchased subscription 🎉\n\nDays credited: {days} 🎁"
+msgstr "Friend purchased subscription 🎉\n\nBonus days: <b>+{days}</b> 🎁"
 
 msgid "referral_notification_referee"
 msgstr "You received a bonus for subscribing via referral link 🎁\n\nDays credited: {days}"
