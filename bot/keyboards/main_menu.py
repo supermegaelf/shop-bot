@@ -32,6 +32,10 @@ async def get_main_menu_keyboard(user_id: int = None, lang=None, has_subscriptio
         ])
     
     kb.append([
+        InlineKeyboardButton(text=get_i18n_str("main_menu_referral", lang), callback_data="referral_menu")
+    ])
+    
+    kb.append([
         InlineKeyboardButton(text=get_i18n_str("button_help", lang), callback_data="help")
     ])
     
