@@ -320,7 +320,7 @@ msgid "referral_how_title"
 msgstr "How to get bonus?"
 
 msgid "referral_how_it_works"
-msgstr "1. Click <i>«Share 🔗»</i> ⬇️\n2. Choose a friend you want to invite.\n3. After their payment, you both get bonus days 🎁"
+msgstr "1. Click <i>«Share 🔗»</i> ⬇️\n2. Choose a friend you want to invite.\n3. After each of their payments, you both get bonus days 🎁"
 
 msgid "referral_share_button"
 msgstr "Share 🔗"
