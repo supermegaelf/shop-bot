@@ -23,7 +23,7 @@ from db.methods import (
     add_traffic_notification
 )
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
-from utils import webhook_data, goods
+from utils import webhook_data, goods, referrals
 from utils import get_i18n_string
 from panel import get_panel
 
@@ -66,6 +66,11 @@ async def _process_payment_success(payment, good, user):
             except Exception as e:
                 logging.debug(f"Failed to delete payment message {payment.message_id}: {e}")
 
+        referee_bonus_days = 0
+        if good.get("type") == "renew" and "months" in good:
+            purchase_days = good["months"] * 30
+            referee_bonus_days = await referrals.get_referee_bonus_days(payment.tg_id, purchase_days)
+
         if good['type'] == 'update':
             await glv.bot.send_message(
                 payment.tg_id,
@@ -76,9 +81,13 @@ async def _process_payment_success(payment, good, user):
             await confirm_payment(payment.payment_id)
             user_has_payments = await has_confirmed_payments(payment.tg_id)
             if user_has_payments:
+                if referee_bonus_days > 0:
+                    text = get_i18n_string("message_payment_success_with_bonus", payment.lang).format(days=referee_bonus_days)
+                else:
+                    text = get_i18n_string("message_payment_success", payment.lang)
                 await glv.bot.send_message(
                     payment.tg_id,
-                    get_i18n_string("message_payment_success", payment.lang),
+                    text,
                     reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
                 )
             else:
@@ -88,8 +97,19 @@ async def _process_payment_success(payment, good, user):
                     get_i18n_string("message_new_subscription_created", payment.lang),
                     reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
                 )
-        
+
         await use_all_promo_codes(payment.tg_id)
+
+        if good.get("type") == "renew" and "months" in good:
+            try:
+                await referrals.apply_referral_bonuses(
+                    referee_id=payment.tg_id,
+                    purchase_days=purchase_days,
+                    payment_id=payment.id,
+                    lang=payment.lang or 'ru'
+                )
+            except Exception as ref_error:
+                logging.error(f"Failed to apply referral bonuses for user {payment.tg_id}: {ref_error}")
     except Exception as e:
         logging.error(
             f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",
