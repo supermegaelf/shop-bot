@@ -25,14 +25,24 @@ from utils.traffic_checker import check_users_traffic
 from db.methods import cleanup_old_traffic_notifications
 import glv
 
+from utils.lknpd import LknpdService
+
 glv.bot = Bot(
     glv.config['BOT_TOKEN'],
     default=DefaultBotProperties(parse_mode=enums.ParseMode.HTML)
 )
 glv.storage = MemoryStorage()
 glv.dp = Dispatcher(storage=glv.storage)
+glv.lknpd_service = LknpdService(
+    inn=glv.config.get('NALOGO_INN'),
+    password=glv.config.get('NALOGO_PASSWORD'),
+)
 app = web.Application()
 logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
+
+async def on_shutdown():
+    if glv.lknpd_service:
+        await glv.lknpd_service.aclose()
 
 async def on_startup(bot: Bot):
     try:
@@ -87,6 +97,7 @@ async def main():
     setup_routers()
     setup_middlewares()
     glv.dp.startup.register(on_startup)
+    glv.dp.shutdown.register(on_shutdown)
 
     app.router.add_post("/cryptomus_payment", check_crypto_payment)
     app.router.add_post("/yookassa_payment", check_yookassa_payment)

@@ -55,10 +55,17 @@ config = {
     'TG_INFO_CHANEL': os.environ.get('TG_INFO_CHANEL'),
     'STARS_PAYMENT_ENABLED': os.environ.get('STARS_PAYMENT_ENABLED', False) == 'true',
     'ADMINS': _parse_admins(os.environ.get('ADMINS', '')),
-    'VPN_NOT_WORKING_LINK': os.environ.get('VPN_NOT_WORKING_LINK')
+    'VPN_NOT_WORKING_LINK': os.environ.get('VPN_NOT_WORKING_LINK'),
+    'YOOKASSA_VAT_CODE': os.environ.get('YOOKASSA_VAT_CODE', '1'),
+    'YOOKASSA_PAYMENT_MODE': os.environ.get('YOOKASSA_PAYMENT_MODE', 'full_prepayment'),
+    'YOOKASSA_PAYMENT_SUBJECT': os.environ.get('YOOKASSA_PAYMENT_SUBJECT', 'service'),
+    'NALOGO_INN': os.environ.get('NALOGO_INN'),
+    'NALOGO_PASSWORD': os.environ.get('NALOGO_PASSWORD'),
+    'NALOGO_RECEIPT_NAME': os.environ.get('NALOGO_RECEIPT_NAME', 'Подписка на сервис'),
 }
 
 bot: Bot = None
 storage = None
 dp: Dispatcher = None
+lknpd_service = None
 MESSAGE_CLEANUP_DEBUG = os.environ.get('MESSAGE_CLEANUP_DEBUG', 'false') == 'true'

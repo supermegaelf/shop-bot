@@ -1,14 +1,21 @@
+import logging
+
 from yookassa import Configuration
 from yookassa import Payment
 
-from db.methods import add_payment, get_user_promo_discount, PaymentPlatform
+from db.methods import get_user_promo_discount
 from utils import goods
 import glv
 
 if glv.config['YOOKASSA_SHOPID'] and glv.config['YOOKASSA_TOKEN']:
     Configuration.configure(glv.config['YOOKASSA_SHOPID'], glv.config['YOOKASSA_TOKEN'])
 
-async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
+async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict | None:
+    receipt_email = glv.config.get('EMAIL')
+    if not receipt_email:
+        logging.error("YooKassa receipt email is not configured (EMAIL env var is missing)")
+        return None
+
     good = goods.get(callback)
     discount = await get_user_promo_discount(tg_id)
     price = int(good['price']['ru'] * (1 - discount / 100))
@@ -26,7 +33,7 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
         "save_payment_method": False,
         "receipt": {
             "customer": {
-                "email": glv.config['EMAIL']
+                "email": receipt_email
             },
             "items": [
                 {
@@ -36,7 +43,9 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
                         "value": price,
                         "currency": "RUB"
                     },
-                    "vat_code": "1"
+                    "vat_code": glv.config.get('YOOKASSA_VAT_CODE', '1'),
+                    "payment_mode": glv.config.get('YOOKASSA_PAYMENT_MODE', 'full_prepayment'),
+                    "payment_subject": glv.config.get('YOOKASSA_PAYMENT_SUBJECT', 'service'),
                 },
             ]
         }

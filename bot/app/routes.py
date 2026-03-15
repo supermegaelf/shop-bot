@@ -40,7 +40,7 @@ YOOKASSA_IPS = (
 )
 
 
-async def _process_payment_success(payment, good, user):
+async def _process_payment_success(payment, good, user, amount: float = 0.0):
     panel = get_panel()
     
     try:
@@ -110,6 +110,13 @@ async def _process_payment_success(payment, good, user):
                 )
             except Exception as ref_error:
                 logging.error(f"Failed to apply referral bonuses for user {payment.tg_id}: {ref_error}")
+
+        if amount and glv.lknpd_service and glv.lknpd_service.configured:
+            try:
+                item_name = glv.config.get('NALOGO_RECEIPT_NAME', 'Подписка на сервис')
+                await glv.lknpd_service.create_income_receipt(item_name=item_name, amount=amount)
+            except Exception as lknpd_err:
+                logging.error(f"LKNPD call failed for payment {payment.payment_id}: {lknpd_err}")
     except Exception as e:
         logging.error(
             f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",
@@ -172,7 +179,8 @@ async def check_yookassa_payment(request: Request):
     if data['status'] in ['succeeded']:
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
-        await _process_payment_success(payment, good, user)
+        amount = float(data['amount']['value'])
+        await _process_payment_success(payment, good, user, amount)
     
     if data['status'] == 'canceled':
         await delete_payment(payment.payment_id)
