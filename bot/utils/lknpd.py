@@ -160,7 +160,7 @@ class LknpdService:
             logger.info(f"LKNPD income registered, receipt_uuid={receipt_uuid}")
             return receipt_uuid
         except Exception as exc:
-            logger.error(f"LKNPD income registration failed: {exc}", exc_info=True)
+            logger.error(f"LKNPD income registration failed: {exc}")
             return None
 
     async def aclose(self) -> None:
