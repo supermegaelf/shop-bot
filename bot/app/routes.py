@@ -64,7 +64,7 @@ async def _process_payment_success(payment, good, user):
             try:
                 await glv.bot.delete_message(payment.tg_id, payment.message_id)
             except Exception as e:
-                logging.debug(f"Failed to delete payment message {payment.message_id}: {e}")
+                logging.warning(f"Failed to delete payment message {payment.message_id} for user {payment.tg_id}: {e}")
 
         referee_bonus_days = 0
         if good.get("type") == "renew" and "months" in good:
