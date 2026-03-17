@@ -51,15 +51,8 @@ async def success_payment(message: Message, state: FSMContext):
     if payment and payment.message_id:
         try:
             await glv.bot.delete_message(message.from_user.id, payment.message_id)
-        except Exception:
-            try:
-                await glv.bot.edit_message_reply_markup(
-                    chat_id=message.from_user.id,
-                    message_id=payment.message_id,
-                    reply_markup=None,
-                )
-            except Exception:
-                pass
+        except Exception as e:
+            logging.warning(f"Failed to delete payment message {payment.message_id} for user {message.from_user.id}: {e}")
 
     await try_delete_message(message)
 
