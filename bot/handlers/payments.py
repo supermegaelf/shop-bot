@@ -48,11 +48,13 @@ async def success_payment(message: Message, state: FSMContext):
         message.successful_payment.invoice_payload, PaymentPlatform.TELEGRAM
     )
 
+    logging.info(f"Payment message_id to delete: {payment.message_id if payment else None} for user {message.from_user.id}")
     if payment and payment.message_id:
         try:
             await glv.bot.delete_message(message.from_user.id, payment.message_id)
+            logging.info(f"Deleted payment message {payment.message_id} for user {message.from_user.id}")
         except Exception as e:
-            logging.debug(f"Failed to delete payment message {payment.message_id}: {e}")
+            logging.warning(f"Failed to delete payment message {payment.message_id} for user {message.from_user.id}: {e}")
 
     await try_delete_message(message)
 

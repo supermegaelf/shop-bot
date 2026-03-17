@@ -60,11 +60,13 @@ async def _process_payment_success(payment, good, user):
         if panel_profile is None:
             raise Exception("Panel returned None profile")
 
+        logging.info(f"Payment message_id to delete: {payment.message_id} for user {payment.tg_id}")
         if payment.message_id:
             try:
                 await glv.bot.delete_message(payment.tg_id, payment.message_id)
+                logging.info(f"Deleted payment message {payment.message_id} for user {payment.tg_id}")
             except Exception as e:
-                logging.debug(f"Failed to delete payment message {payment.message_id}: {e}")
+                logging.warning(f"Failed to delete payment message {payment.message_id} for user {payment.tg_id}: {e}")
 
         referee_bonus_days = 0
         if good.get("type") == "renew" and "months" in good:
