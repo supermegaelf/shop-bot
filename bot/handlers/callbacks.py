@@ -226,6 +226,14 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
         reuse_message=callback.message,
     )
 
+    import logging as _log
+    _log.info(
+        f"[kassa] user={callback.from_user.id} "
+        f"callback_msg_id={callback.message.message_id} "
+        f"callback_msg_from={callback.message.from_user.id if callback.message.from_user else None} "
+        f"sent_message_id={sent_message_id}"
+    )
+
     from db.methods import add_payment, PaymentPlatform
 
     await add_payment(
