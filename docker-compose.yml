@@ -34,6 +34,12 @@ services:
             ADMINS: ${ADMINS}
             VPN_NOT_WORKING_LINK: ${VPN_NOT_WORKING_LINK}
             REMNAWAVE_TOKEN: ${REMNAWAVE_TOKEN}
+            YOOKASSA_VAT_CODE: ${YOOKASSA_VAT_CODE:-1}
+            YOOKASSA_PAYMENT_MODE: ${YOOKASSA_PAYMENT_MODE:-full_prepayment}
+            YOOKASSA_PAYMENT_SUBJECT: ${YOOKASSA_PAYMENT_SUBJECT:-service}
+            NALOGO_INN: ${NALOGO_INN:-}
+            NALOGO_PASSWORD: ${NALOGO_PASSWORD:-}
+            NALOGO_RECEIPT_NAME: ${NALOGO_RECEIPT_NAME:-Подписка на сервис}
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
