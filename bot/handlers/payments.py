@@ -16,6 +16,7 @@ from db.methods import (
     use_all_promo_codes,
     has_confirmed_payments,
     get_payment,
+    get_pending_telegram_payment,
 )
 from keyboards import (
     get_install_subscription_keyboard,
@@ -44,8 +45,8 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
 
 @router.message(F.successful_payment)
 async def success_payment(message: Message, state: FSMContext):
-    payment = await get_payment(
-        message.successful_payment.invoice_payload, PaymentPlatform.TELEGRAM
+    payment = await get_pending_telegram_payment(
+        message.from_user.id, message.successful_payment.invoice_payload
     )
 
     if payment and payment.message_id:

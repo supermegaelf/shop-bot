@@ -109,6 +109,21 @@ async def get_payment(payment_id, platform:PaymentPlatform) -> Payments:
         payment: Payments = (await conn.execute(sql_q)).fetchone()
     return payment
 
+async def get_pending_telegram_payment(tg_id: int, callback: str) -> Payments:
+    async with engine.connect() as conn:
+        sql_q = (
+            select(Payments)
+            .where(
+                Payments.tg_id == tg_id,
+                Payments.callback == callback,
+                Payments.type == PaymentPlatform.TELEGRAM.value,
+                Payments.confirmed == False,
+            )
+            .order_by(Payments.created_at.desc())
+        )
+        payment: Payments = (await conn.execute(sql_q)).fetchone()
+    return payment
+
 async def confirm_payment(payment_id):
     async with engine.begin() as conn:
         sql_q = update(Payments).where(Payments.payment_id == payment_id).values(confirmed=True)
