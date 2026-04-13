@@ -204,10 +204,11 @@ async def notify_user(request: Request):
     if user is None:
         logging.info(f"No user found id={vpn_id}")
         return web.Response(status=404)
-    chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
-    if chat_member is None:
-        logging.info(f"No chat_member found id={user.tg_id}")
-        return web.Response(status=404)
+    try:
+        chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
+    except Exception as e:
+        logging.warning(f"Failed to get chat member for user {user.tg_id}: {e}")
+        return web.Response()
     event = payload['event']
     message = ""
     keyboard = None

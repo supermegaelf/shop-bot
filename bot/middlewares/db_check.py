@@ -1,3 +1,4 @@
+import logging
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
@@ -12,6 +13,9 @@ class DBCheck(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
         user = data["event_from_user"]
-        await create_vpn_user(user.id)
+        try:
+            await create_vpn_user(user.id)
+        except Exception:
+            logging.error(f"Failed to create/check user {user.id} in DB", exc_info=True)
         result = await handler(event, data)
         return result
