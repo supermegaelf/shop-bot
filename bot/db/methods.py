@@ -5,7 +5,7 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import insert, select, update, delete, exists
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, IntegrityError
 
 from db.models import VPNUsers, Payments, PromoCode, UserPromoCode, UserMessages, TrafficNotification, ReferralBonus
 import glv
@@ -33,15 +33,21 @@ async def _retry_on_connection_error(func, max_retries=3, delay=0.5):
             await asyncio.sleep(delay * (attempt + 1))
 
 async def create_vpn_user(tg_id: int):
-    async with engine.connect() as conn:
-        sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
-        result: VPNUsers = (await conn.execute(sql_query)).fetchone()
-        if result is not None:
-            return
-    async with engine.begin() as conn:
-        hash = hashlib.md5(str(tg_id).encode()).hexdigest()
-        sql_query = insert(VPNUsers).values(tg_id=tg_id, vpn_id=hash, test=None)
-        await conn.execute(sql_query)
+    async def _execute():
+        async with engine.connect() as conn:
+            sql_query = select(VPNUsers).where(VPNUsers.tg_id == tg_id)
+            result: VPNUsers = (await conn.execute(sql_query)).fetchone()
+            if result is not None:
+                return
+        async with engine.begin() as conn:
+            vpn_hash = hashlib.md5(str(tg_id).encode()).hexdigest()
+            sql_query = insert(VPNUsers).values(tg_id=tg_id, vpn_id=vpn_hash, test=None)
+            await conn.execute(sql_query)
+
+    try:
+        await _retry_on_connection_error(_execute)
+    except IntegrityError:
+        pass
 
 async def get_vpn_user(tg_id: int) -> VPNUsers:
     async def _execute():
