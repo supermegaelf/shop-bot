@@ -17,7 +17,7 @@ class RemnawavePanel(Panel):
             'Authorization': f"Bearer {glv.config['REMNAWAVE_TOKEN']}"
         }
         api_base_url = f"{glv.config['PANEL_HOST']}/api"
-        client = httpx.AsyncClient(headers=headers, base_url=api_base_url, timeout=30.0)
+        client = httpx.AsyncClient(headers=headers, base_url=api_base_url, timeout=5.0)
         self.client = client
 
     def _extract_used_traffic(self, user_data: dict) -> int:
