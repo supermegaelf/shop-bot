@@ -30,6 +30,8 @@ from panel import get_panel
 
 import glv
 
+_background_tasks: set = set()
+
 YOOKASSA_IPS = (
     "185.71.76.0/27",
     "185.71.77.0/27",
@@ -204,7 +206,9 @@ async def notify_user(request: Request):
         logging.info(f"No user found id={vpn_id}")
         return web.Response(status=404)
 
-    asyncio.create_task(_process_notification(payload, user))
+    task = asyncio.create_task(_process_notification(payload, user))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
     return web.Response()
 
 
