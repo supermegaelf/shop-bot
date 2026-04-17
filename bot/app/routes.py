@@ -186,8 +186,8 @@ async def notify_user(request: Request):
     signature = request.headers.get('x-remnawave-signature')
     if not signature:
         return web.Response(status=403)
-    payload = await request.json()
-    payload_bytes = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    payload_bytes = await request.read()
+    payload = json.loads(payload_bytes)
     logging.info(f"payload: {payload}")
     webhook_secret = str(glv.config['WEBHOOK_SECRET']).encode('utf-8')
     computed_signature = hmac.new(
