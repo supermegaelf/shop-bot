@@ -1,3 +1,4 @@
+import asyncio
 import ipaddress
 import logging
 from datetime import datetime, timedelta
@@ -28,6 +29,8 @@ from utils import get_i18n_string
 from panel import get_panel
 
 import glv
+
+_background_tasks: set = set()
 
 YOOKASSA_IPS = (
     "185.71.76.0/27",
@@ -180,13 +183,11 @@ async def check_yookassa_payment(request: Request):
     return web.Response()
 
 async def notify_user(request: Request):
-    from utils.ephemeral import EphemeralNotification
-
     signature = request.headers.get('x-remnawave-signature')
     if not signature:
         return web.Response(status=403)
-    payload = await request.json()
-    payload_bytes = json.dumps(payload, separators=(',', ':')).encode('utf-8')
+    payload_bytes = await request.read()
+    payload = json.loads(payload_bytes)
     logging.info(f"payload: {payload}")
     webhook_secret = str(glv.config['WEBHOOK_SECRET']).encode('utf-8')
     computed_signature = hmac.new(
@@ -204,138 +205,158 @@ async def notify_user(request: Request):
     if user is None:
         logging.info(f"No user found id={vpn_id}")
         return web.Response(status=404)
-    try:
-        chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
-    except Exception as e:
-        logging.warning(f"Failed to get chat member for user {user.tg_id}: {e}")
-        return web.Response()
+
+    task = asyncio.create_task(_process_notification(payload, user))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
+    return web.Response()
+
+
+async def _process_notification(payload: dict, user) -> None:
+    from utils.ephemeral import EphemeralNotification
+    from db.methods import save_user_message
+
     event = payload['event']
+
+    try:
+        chat_member = await asyncio.wait_for(
+            glv.bot.get_chat_member(user.tg_id, user.tg_id),
+            timeout=10.0
+        )
+    except (asyncio.TimeoutError, Exception) as e:
+        logging.warning(f"Failed to get chat member for user {user.tg_id}: {e}")
+        return
+
     message = ""
     keyboard = None
-    match event:
-        case "user.modified":
-            user_traffic = payload['data'].get('userTraffic', {})
-            used_traffic = user_traffic.get('usedTrafficBytes', 0)
-            data_limit = payload['data'].get('trafficLimitBytes', 0)
-            
-            logging.info(f"user.modified: used={used_traffic}, limit={data_limit}")
-            
-            if not data_limit or data_limit <= 0:
-                logging.warning(f"Invalid data_limit for user {user.tg_id}: {data_limit}")
-                return web.Response()
-            
-            if used_traffic < 0:
-                logging.warning(f"Negative used_traffic for user {user.tg_id}: {used_traffic}")
-                return web.Response()
-            
-            if used_traffic and data_limit:
+
+    try:
+        match event:
+            case "user.modified":
+                user_traffic = payload['data'].get('userTraffic', {})
+                used_traffic = user_traffic.get('usedTrafficBytes', 0)
+                data_limit = payload['data'].get('trafficLimitBytes', 0)
+
+                logging.info(f"user.modified: used={used_traffic}, limit={data_limit}")
+
+                if not data_limit or data_limit <= 0:
+                    logging.warning(f"Invalid data_limit for user {user.tg_id}: {data_limit}")
+                    return
+
+                if used_traffic < 0:
+                    logging.warning(f"Negative used_traffic for user {user.tg_id}: {used_traffic}")
+                    return
+
+                if not (used_traffic and data_limit):
+                    logging.info(f"Missing traffic data: used={used_traffic}, limit={data_limit}")
+                    return
+
                 traffic_usage = used_traffic / data_limit
                 logging.info(f"Traffic usage for user {user.tg_id}: {traffic_usage*100:.1f}%")
-                
-                if traffic_usage > 0.75:
-                    logging.info(f"Traffic threshold exceeded (>75%) for user {user.tg_id}")
-                    last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
-                    
-                    if last_notification:
-                        sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
-                        if sent_at:
-                            time_since_last = datetime.now() - sent_at
-                            logging.info(f"Last notification sent {time_since_last.total_seconds():.0f}s ago")
-                            
-                            if time_since_last.total_seconds() < 86400:
-                                logging.info(f"Skipping notification (cooldown period)")
-                                return web.Response()
-                    
-                    remaining_percent = 25
-                    message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
-                        name=chat_member.user.first_name,
-                        amount=remaining_percent
-                    )
-                    keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
-                else:
+
+                if traffic_usage <= 0.75:
                     logging.info(f"Traffic usage below threshold (<=75%), skipping notification")
-                    return web.Response()
-            else:
-                logging.info(f"Missing traffic data: used={used_traffic}, limit={data_limit}")
-                return web.Response()
-            
-            msg_id = await EphemeralNotification.send_ephemeral(
+                    return
+
+                logging.info(f"Traffic threshold exceeded (>75%) for user {user.tg_id}")
+                last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
+
+                if last_notification:
+                    sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
+                    if sent_at and (datetime.now() - sent_at).total_seconds() < 86400:
+                        logging.info(f"Skipping notification (cooldown period)")
+                        return
+
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
+                    name=chat_member.user.first_name,
+                    amount=25
+                )
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+                msg_id = await asyncio.wait_for(
+                    EphemeralNotification.send_ephemeral(
+                        bot=glv.bot,
+                        chat_id=user.tg_id,
+                        text=message,
+                        reply_markup=keyboard,
+                        lang=chat_member.user.language_code,
+                        disable_web_page_preview=True
+                    ),
+                    timeout=10.0
+                )
+
+                if msg_id:
+                    await add_traffic_notification(user.tg_id, "traffic_75_percent")
+                    logging.info(f"Ephemeral notification user.modified sent to user id={user.tg_id}, msg_id={msg_id}")
+                    try:
+                        await save_user_message(user.tg_id, msg_id, 'notification')
+                    except Exception as e:
+                        logging.warning(f"Failed to save notification message to DB: {e}")
+                else:
+                    logging.warning(f"Failed to send ephemeral notification user.modified to user id={user.tg_id}")
+                return
+
+            case "user.bandwidth_usage_threshold_reached":
+                threshold = int(payload['data'].get('threshold_percent', 75))
+
+                last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
+                if last_notification:
+                    sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
+                    if sent_at and (datetime.now() - sent_at).total_seconds() < 86400:
+                        logging.info(f"Skipping notification (cooldown period)")
+                        return
+
+                remaining_percent = 100 - threshold
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=remaining_percent)
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case "user.expires_in_24_hours":
+                panel = get_panel()
+                panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return
+                msk_offset = timedelta(hours=3)
+                time_of_expiration = (panel_profile.expire + msk_offset).strftime('%H:%M')
+                message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case "user.expired":
+                message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case "user.limited":
+                message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
+                keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case _:
+                return
+
+        msg_id = await asyncio.wait_for(
+            EphemeralNotification.send_ephemeral(
                 bot=glv.bot,
                 chat_id=user.tg_id,
                 text=message,
                 reply_markup=keyboard,
                 lang=chat_member.user.language_code,
                 disable_web_page_preview=True
-            )
-            
-            if msg_id:
+            ),
+            timeout=10.0
+        )
+
+        if msg_id:
+            logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
+
+            if event == "user.bandwidth_usage_threshold_reached":
                 await add_traffic_notification(user.tg_id, "traffic_75_percent")
-                logging.info(f"Ephemeral notification user.modified sent to user id={user.tg_id}, msg_id={msg_id}")
-                from db.methods import save_user_message
-                try:
-                    await save_user_message(user.tg_id, msg_id, 'notification')
-                except Exception as e:
-                    logging.warning(f"Failed to save notification message to DB: {e}")
-            else:
-                logging.warning(f"Failed to send ephemeral notification user.modified to user id={user.tg_id}")
-            
-            return web.Response()
-        case "user.bandwidth_usage_threshold_reached":
-            threshold = int(payload['data'].get('threshold_percent', 75))
-            
-            last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
-            if last_notification:
-                sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
-                if sent_at:
-                    time_since_last = datetime.now() - sent_at
-                    logging.info(f"Last notification sent {time_since_last.total_seconds():.0f}s ago")
-                    
-                    if time_since_last.total_seconds() < 86400:
-                        logging.info(f"Skipping notification (cooldown period)")
-                        return web.Response()
-            
-            remaining_percent = 100 - threshold
-            message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=remaining_percent)
-            keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
-        case "user.expires_in_24_hours":
-            panel = get_panel()
-            panel_profile = await panel.get_panel_user(user.tg_id)
-            if not panel_profile or not panel_profile.expire:
-                return web.Response()
-            msk_offset = timedelta(hours=3)
-            time_of_expiration = (panel_profile.expire + msk_offset).strftime('%H:%M')
-            message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
-            keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
-        case "user.expired":
-            message = get_i18n_string("message_user_expired", chat_member.user.language_code).format(name=chat_member.user.first_name, link=glv.config['SUPPORT_LINK'])
-            keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
-        case "user.limited":
-            message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
-            keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
-        case _:
-            return web.Response()
 
-    msg_id = await EphemeralNotification.send_ephemeral(
-        bot=glv.bot,
-        chat_id=user.tg_id,
-        text=message,
-        reply_markup=keyboard,
-        lang=chat_member.user.language_code,
-        disable_web_page_preview=True
-    )
+            try:
+                await save_user_message(user.tg_id, msg_id, 'notification')
+            except Exception as e:
+                logging.warning(f"Failed to save notification message to DB: {e}")
+        else:
+            logging.warning(f"Failed to send ephemeral notification {event} to user id={user.tg_id}")
 
-    if msg_id:
-        logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
-        
-        if event == "user.bandwidth_usage_threshold_reached":
-            await add_traffic_notification(user.tg_id, "traffic_75_percent")
-        
-        from db.methods import save_user_message
-        try:
-            await save_user_message(user.tg_id, msg_id, 'notification')
-        except Exception as e:
-            logging.warning(f"Failed to save notification message to DB: {e}")
-    else:
-        logging.warning(f"Failed to send ephemeral notification {event} to user id={user.tg_id}")
-
-    return web.Response()
+    except asyncio.TimeoutError:
+        logging.warning(f"Timeout processing notification {event} for user {user.tg_id}")
+    except Exception as e:
+        logging.error(f"Error processing notification {event} for user {user.tg_id}: {e}", exc_info=True)
