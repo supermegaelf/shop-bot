@@ -103,7 +103,9 @@ async def main():
 
     setup_application(app, glv.dp, bot=glv.bot)
     
-    asyncio.create_task(run_scheduler())
+    scheduler_task = asyncio.create_task(run_scheduler())
+    _scheduler_tasks = {scheduler_task}
+    scheduler_task.add_done_callback(_scheduler_tasks.discard)
     
     await web._run_app(app, host="0.0.0.0", port=glv.config['WEBHOOK_PORT'])
 
