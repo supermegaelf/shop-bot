@@ -703,13 +703,46 @@ async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
     
     await state.set_state(BroadcastStates.waiting_for_message)
 
+_broadcast_tasks: set = set()
+
+async def _run_broadcast(admin_id: int, broadcast_message: str):
+    from db.methods import get_vpn_users
+
+    users = await get_vpn_users()
+    admin_ids = glv.config['ADMINS']
+    success_count = 0
+    fail_count = 0
+
+    for user in users:
+        if user.tg_id in admin_ids:
+            continue
+        try:
+            dismiss_keyboard = get_broadcast_dismiss_keyboard(lang='ru')
+            await glv.bot.send_message(
+                user.tg_id,
+                broadcast_message,
+                disable_web_page_preview=True,
+                reply_markup=dismiss_keyboard
+            )
+            success_count += 1
+            await asyncio.sleep(0.5)
+        except Exception:
+            fail_count += 1
+
+    await glv.bot.send_message(
+        admin_id,
+        _("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count),
+        reply_markup=get_admin_management_keyboard(),
+    )
+
+
 @router.callback_query(F.data == "broadcast_confirm_yes", IsAdminCallbackFilter(is_admin=True))
 async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMContext):
     await safe_answer(callback)
-    
+
     data = await state.get_data()
     broadcast_message = data.get('broadcast_message')
-    
+
     if not broadcast_message:
         from bot.utils.telegram_message import safe_edit_or_send
         await safe_edit_or_send(
@@ -719,7 +752,7 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
         )
         await state.clear()
         return
-    
+
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
@@ -727,38 +760,11 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
         reply_markup=None,
         reuse_message=callback.message,
     )
-    
-    success_count = 0
-    fail_count = 0
-
-    from db.methods import get_vpn_users
-    users = await get_vpn_users()
-    admin_ids = glv.config['ADMINS']
-    
-    for user in users:
-        if user.tg_id in admin_ids:
-            continue
-        
-        try:
-            lang = 'ru'
-            dismiss_keyboard = get_broadcast_dismiss_keyboard(lang=lang)
-            await glv.bot.send_message(
-                user.tg_id, 
-                broadcast_message, 
-                disable_web_page_preview=True,
-                reply_markup=dismiss_keyboard
-            )
-            success_count += 1
-            await asyncio.sleep(0.5)
-        except Exception as e:
-            fail_count += 1
-    
-    await cleanup.send_navigation(
-        chat_id=callback.from_user.id,
-        text=_("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count),
-        reply_markup=get_admin_management_keyboard(),
-    )
     await state.clear()
+
+    task = asyncio.create_task(_run_broadcast(callback.from_user.id, broadcast_message))
+    _broadcast_tasks.add(task)
+    task.add_done_callback(_broadcast_tasks.discard)
 
 @router.callback_query(F.data == "broadcast_confirm_no", IsAdminCallbackFilter(is_admin=True))
 async def callback_broadcast_confirm_no(callback: CallbackQuery, state: FSMContext):

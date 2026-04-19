@@ -4,8 +4,10 @@ import sys
 from pathlib import Path
 from datetime import datetime, time
 
+import aiohttp
 from aiogram import Bot, Dispatcher, enums, F
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.utils.i18n import I18n, SimpleI18nMiddleware
 from aiohttp import web
@@ -27,6 +29,7 @@ import glv
 
 glv.bot = Bot(
     glv.config['BOT_TOKEN'],
+    session=AiohttpSession(timeout=aiohttp.ClientTimeout(total=30, sock_connect=5.0)),
     default=DefaultBotProperties(parse_mode=enums.ParseMode.HTML)
 )
 glv.storage = MemoryStorage()
@@ -100,7 +103,9 @@ async def main():
 
     setup_application(app, glv.dp, bot=glv.bot)
     
-    asyncio.create_task(run_scheduler())
+    scheduler_task = asyncio.create_task(run_scheduler())
+    _scheduler_tasks = {scheduler_task}
+    scheduler_task.add_done_callback(_scheduler_tasks.discard)
     
     await web._run_app(app, host="0.0.0.0", port=glv.config['WEBHOOK_PORT'])
 

@@ -27,7 +27,8 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
         'Content-Type': 'application/json'
     }
     response = None
-    async with aiohttp.ClientSession() as session:
+    timeout = aiohttp.ClientTimeout(total=15)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         async with session.post("https://api.cryptomus.com/v1/payment", json=data, headers=headers) as resp:
             if 200 <= resp.status < 300:
                 response = (await resp.json())['result']

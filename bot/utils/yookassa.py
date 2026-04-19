@@ -1,3 +1,6 @@
+import asyncio
+import functools
+
 from yookassa import Configuration
 from yookassa import Payment
 
@@ -12,14 +15,15 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
     good = goods.get(callback)
     discount = await get_user_promo_discount(tg_id)
     price = int(good['price']['ru'] * (1 - discount / 100))
-    resp = Payment.create({
+    bot_username = (await glv.bot.get_me()).username
+    payload = {
         "amount": {
             "value": price,
             "currency": "RUB"
         },
         "confirmation": {
             "type": "redirect",
-            "return_url": f"https://t.me/{(await glv.bot.get_me()).username}"
+            "return_url": f"https://t.me/{bot_username}"
         },
         "capture": True,
         "description": f"Подписка на сервис {glv.config['SHOP_NAME']}",
@@ -40,7 +44,9 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
                 },
             ]
         }
-        })
+    }
+    loop = asyncio.get_running_loop()
+    resp = await loop.run_in_executor(None, functools.partial(Payment.create, payload))
     return {
         "url": resp.confirmation.confirmation_url,
         "amount": resp.amount.value,
