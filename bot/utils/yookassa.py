@@ -1,8 +1,11 @@
 import asyncio
+import concurrent.futures
 import functools
 
 from yookassa import Configuration
 from yookassa import Payment
+
+_executor = concurrent.futures.ThreadPoolExecutor(max_workers=4, thread_name_prefix="yookassa")
 
 from db.methods import add_payment, get_user_promo_discount, PaymentPlatform
 from utils import goods
@@ -46,7 +49,7 @@ async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
         }
     }
     loop = asyncio.get_running_loop()
-    resp = await loop.run_in_executor(None, functools.partial(Payment.create, payload))
+    resp = await loop.run_in_executor(_executor, functools.partial(Payment.create, payload))
     return {
         "url": resp.confirmation.confirmation_url,
         "amount": resp.amount.value,
