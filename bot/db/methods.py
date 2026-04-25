@@ -18,9 +18,11 @@ class PaymentPlatform(Enum):
 engine = create_async_engine(
     glv.config['DB_URL'],
     pool_pre_ping=True,
-    pool_recycle=1800,
+    pool_recycle=3600,
     pool_size=10,
-    max_overflow=20
+    max_overflow=20,
+    pool_timeout=15,
+    connect_args={"connect_timeout": 30}
 )
 
 async def _retry_on_connection_error(func, max_retries=3, delay=0.5):
