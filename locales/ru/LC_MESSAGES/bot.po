@@ -155,7 +155,7 @@ msgstr ""
 msgid "message_reached_days_left"
 msgstr ""
 "Здравствуйте, {name} 👋🏻\n\n"
-"Ваша VPN-подписка <i><u>истекает</u></i> <i><u>завтра</u></i> в <i><u>{time}</u></i> по MSK 🔔\n\n"
+"Ваша VPN-подписка <i><u>истекает</u></i> <i><u>завтра</u></i> в <i><u>{time}</u></i> по МСК 🔔\n\n"
 "Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
 
 msgid "message_user_expired"
