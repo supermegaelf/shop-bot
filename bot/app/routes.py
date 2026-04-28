@@ -198,7 +198,7 @@ async def notify_user(request: Request):
     logging.info(f"sign: {signature}, computed:{computed_signature}")
     if not hmac.compare_digest(signature, computed_signature):
         return web.Response(status=403)
-    if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expires_in_24_hours', 'user.expired', 'user.limited', 'user.modified']:
+    if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expires_in_24_hours', 'user.expires_in_48_hours', 'user.expires_in_72_hours', 'user.expired', 'user.limited', 'user.modified']:
         return web.Response()
     vpn_id = payload['data']['username']
     user = await get_marzban_profile_by_vpn_id(vpn_id)
@@ -318,6 +318,26 @@ async def _process_notification(payload: dict, user) -> None:
                 msk_offset = timedelta(hours=3)
                 time_of_expiration = (panel_profile.expire + msk_offset).strftime('%H:%M')
                 message = get_i18n_string("message_reached_days_left", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case "user.expires_in_48_hours":
+                panel = get_panel()
+                panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return
+                msk_offset = timedelta(hours=3)
+                time_of_expiration = (panel_profile.expire + msk_offset).strftime('%H:%M')
+                message = get_i18n_string("message_expires_in_48_hours", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
+                keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case "user.expires_in_72_hours":
+                panel = get_panel()
+                panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.expire:
+                    return
+                msk_offset = timedelta(hours=3)
+                time_of_expiration = (panel_profile.expire + msk_offset).strftime('%H:%M')
+                message = get_i18n_string("message_expires_in_72_hours", chat_member.user.language_code).format(name=chat_member.user.first_name, time=time_of_expiration)
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
 
             case "user.expired":

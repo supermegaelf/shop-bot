@@ -363,3 +363,15 @@ msgstr "{index}. {username} (ID: {user_id})\npurchases: {purchases} 💳 | days 
 
 msgid "admin_referral_no_referrals"
 msgstr "No active referrals 🥲"
+
+msgid "message_expires_in_48_hours"
+msgstr ""
+"Hello, {name} 👋🏻\n\n"
+"Your VPN subscription <i><u>expires</u></i> <i><u>in 2 days</u></i> at <i><u>{time}</u></i> MSK 🔔\n\n"
+"To stay connected, click the button below ⬇️"
+
+msgid "message_expires_in_72_hours"
+msgstr ""
+"Hello, {name} 👋🏻\n\n"
+"Your VPN subscription <i><u>expires</u></i> <i><u>in 3 days</u></i> at <i><u>{time}</u></i> MSK 🔔\n\n"
+"To stay connected, click the button below ⬇️"
