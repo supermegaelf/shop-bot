@@ -363,3 +363,15 @@ msgstr "{index}. {username} (ID: {user_id})\nпокупки: {purchases} 💳 | 
 
 msgid "admin_referral_no_referrals"
 msgstr "Активных рефералов нет 🥲"
+
+msgid "message_expires_in_48_hours"
+msgstr ""
+"Здравствуйте, {name} 👋🏻\n\n"
+"Ваша VPN-подписка <i><u>истекает</u></i> <i><u>через 2 дня</u></i> в <i><u>{time}</u></i> по МСК 🔔\n\n"
+"Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
+
+msgid "message_expires_in_72_hours"
+msgstr ""
+"Здравствуйте, {name} 👋🏻\n\n"
+"Ваша VPN-подписка <i><u>истекает</u></i> <i><u>через 3 дня</u></i> в <i><u>{time}</u></i> по МСК 🔔\n\n"
+"Чтобы остаться на связи, нажмите на кнопку ниже ⬇️"
