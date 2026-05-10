@@ -199,7 +199,7 @@ msgstr "Subscription ⭐️"
 msgid "main_menu_news"
 msgstr ""
 "Welcome, {name} 👋🏻\n\n"
-"Latest news are <a href=\"{link}\">here</a> 📣\n\n"
+"Latest news — <b><a href=\"{link}\">here</a></b> 📣\n\n"
 "Select an option ⬇️"
 
 msgid "subscription_details"
