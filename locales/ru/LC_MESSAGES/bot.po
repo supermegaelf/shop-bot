@@ -199,7 +199,7 @@ msgstr "Подписка ⭐️"
 msgid "main_menu_news"
 msgstr ""
 "Добро пожаловать, {name} 👋🏻\n\n"
-"Последние новости <a href=\"{link}\">тут</a> 📣\n\n"
+"Последние новости — <b><a href=\"{link}\">тут</a></b> 📣\n\n"
 "Выберите пункт ⬇️"
 
 msgid "subscription_details"
