@@ -705,7 +705,7 @@ async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
 
 _broadcast_tasks: set = set()
 
-async def _run_broadcast(admin_id: int, broadcast_message: str):
+async def _run_broadcast(admin_id: int, broadcast_message: str, started_message_id: int):
     from db.methods import get_vpn_users
 
     users = await get_vpn_users()
@@ -729,11 +729,20 @@ async def _run_broadcast(admin_id: int, broadcast_message: str):
         except Exception:
             fail_count += 1
 
-    await glv.bot.send_message(
-        admin_id,
-        _("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count),
-        reply_markup=get_admin_management_keyboard(),
-    )
+    completed_text = _("message_broadcast_completed").format(success_count=success_count, fail_count=fail_count)
+    try:
+        await glv.bot.edit_message_text(
+            chat_id=admin_id,
+            message_id=started_message_id,
+            text=completed_text,
+            reply_markup=get_admin_management_keyboard(),
+        )
+    except Exception:
+        await glv.bot.send_message(
+            admin_id,
+            completed_text,
+            reply_markup=get_admin_management_keyboard(),
+        )
 
 
 @router.callback_query(F.data == "broadcast_confirm_yes", IsAdminCallbackFilter(is_admin=True))
@@ -754,7 +763,7 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
         return
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.send_navigation(
+    started_message_id = await cleanup.send_navigation(
         chat_id=callback.from_user.id,
         text=_("message_broadcast_started"),
         reply_markup=None,
@@ -762,7 +771,7 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
     )
     await state.clear()
 
-    task = asyncio.create_task(_run_broadcast(callback.from_user.id, broadcast_message))
+    task = asyncio.create_task(_run_broadcast(callback.from_user.id, broadcast_message, started_message_id))
     _broadcast_tasks.add(task)
     task.add_done_callback(_broadcast_tasks.discard)
 

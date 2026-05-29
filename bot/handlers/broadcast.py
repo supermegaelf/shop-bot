@@ -38,13 +38,33 @@ async def process_message(message: Message, state: FSMContext):
         return
     
     await state.update_data(broadcast_message=broadcast_message)
-    
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-    await cleanup.send_navigation(
-        chat_id=message.from_user.id,
-        text=_("message_confirm_broadcast").format(text=broadcast_message),
-        reply_markup=get_broadcast_confirmation_keyboard(),
-    )
+
+    state_data = await state.get_data()
+    nav_list = (state_data.get('messages') or {}).get('navigation', [])
+    nav_message_id = nav_list[-1] if nav_list else None
+
+    confirm_text = _("message_confirm_broadcast").format(text=broadcast_message)
+    edited = False
+    if nav_message_id:
+        try:
+            await glv.bot.edit_message_text(
+                chat_id=message.from_user.id,
+                message_id=nav_message_id,
+                text=confirm_text,
+                reply_markup=get_broadcast_confirmation_keyboard(),
+            )
+            edited = True
+        except Exception:
+            pass
+
+    if not edited:
+        cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+        await cleanup.send_navigation(
+            chat_id=message.from_user.id,
+            text=confirm_text,
+            reply_markup=get_broadcast_confirmation_keyboard(),
+        )
+
     await state.set_state(BroadcastStates.waiting_for_confirmation)
 
 def register_broadcast(dp: Dispatcher):
