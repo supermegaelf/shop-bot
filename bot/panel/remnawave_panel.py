@@ -186,6 +186,7 @@ class RemnawavePanel(Panel):
                     'uuid': user_uuid,
                     'status': 'ACTIVE',
                     'trafficLimitBytes': data_limit,
+                    'trafficLimitStrategy': 'MONTH',
                     'expireAt': new_expire_at.isoformat().replace('+00:00', 'Z')
                 }
                 update_response = await self.client.patch(f"/users", json=update_payload)
