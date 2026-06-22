@@ -33,11 +33,14 @@ def get_broadcast_start_keyboard(lang=None) -> InlineKeyboardMarkup:
 def get_broadcast_confirmation_keyboard(lang=None) -> InlineKeyboardMarkup:
     kb = [
         [
-            InlineKeyboardButton(text=get_i18n_str("button_yes", lang), callback_data="broadcast_confirm_yes"),
-            InlineKeyboardButton(text=get_i18n_str("button_no", lang), callback_data="broadcast_confirm_no")
+            InlineKeyboardButton(text=get_i18n_str("button_broadcast_sound", lang), callback_data="broadcast_confirm_yes"),
+            InlineKeyboardButton(text=get_i18n_str("button_broadcast_silent", lang), callback_data="broadcast_confirm_silent"),
+        ],
+        [
+            InlineKeyboardButton(text=get_i18n_str("button_broadcast_cancel", lang), callback_data="broadcast_confirm_no"),
         ]
     ]
-    
+
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def get_promo_codes_management_keyboard(lang=None) -> InlineKeyboardMarkup:
