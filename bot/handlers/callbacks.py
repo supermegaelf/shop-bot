@@ -705,7 +705,7 @@ async def callback_admin_broadcast(callback: CallbackQuery, state: FSMContext):
 
 _broadcast_tasks: set = set()
 
-async def _run_broadcast(admin_id: int, broadcast_message: str, started_message_id: int):
+async def _run_broadcast(admin_id: int, broadcast_message: str, started_message_id: int, disable_notification: bool = False):
     from db.methods import get_vpn_users
 
     users = await get_vpn_users()
@@ -722,6 +722,7 @@ async def _run_broadcast(admin_id: int, broadcast_message: str, started_message_
                 user.tg_id,
                 broadcast_message,
                 disable_web_page_preview=True,
+                disable_notification=disable_notification,
                 reply_markup=dismiss_keyboard
             )
             success_count += 1
@@ -772,6 +773,36 @@ async def callback_broadcast_confirm_yes(callback: CallbackQuery, state: FSMCont
     await state.clear()
 
     task = asyncio.create_task(_run_broadcast(callback.from_user.id, broadcast_message, started_message_id))
+    _broadcast_tasks.add(task)
+    task.add_done_callback(_broadcast_tasks.discard)
+
+@router.callback_query(F.data == "broadcast_confirm_silent", IsAdminCallbackFilter(is_admin=True))
+async def callback_broadcast_confirm_silent(callback: CallbackQuery, state: FSMContext):
+    await safe_answer(callback)
+
+    data = await state.get_data()
+    broadcast_message = data.get('broadcast_message')
+
+    if not broadcast_message:
+        from bot.utils.telegram_message import safe_edit_or_send
+        await safe_edit_or_send(
+            callback.message,
+            text=_("message_error"),
+            debug=glv.MESSAGE_CLEANUP_DEBUG,
+        )
+        await state.clear()
+        return
+
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    started_message_id = await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_broadcast_started"),
+        reply_markup=None,
+        reuse_message=callback.message,
+    )
+    await state.clear()
+
+    task = asyncio.create_task(_run_broadcast(callback.from_user.id, broadcast_message, started_message_id, disable_notification=True))
     _broadcast_tasks.add(task)
     task.add_done_callback(_broadcast_tasks.discard)
 

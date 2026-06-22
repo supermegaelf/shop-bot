@@ -85,6 +85,15 @@ msgstr "✅ Yes"
 msgid "button_no"
 msgstr "❌ No"
 
+msgid "button_broadcast_sound"
+msgstr "Yes🔊"
+
+msgid "button_broadcast_silent"
+msgstr "Yes🔇"
+
+msgid "button_broadcast_cancel"
+msgstr "Cancel ❌"
+
 msgid "button_share"
 msgstr "Share 🔗"
 
