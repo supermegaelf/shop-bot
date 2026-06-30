@@ -233,9 +233,10 @@ async def _process_notification(payload: dict, user) -> None:
     try:
         match event:
             case "user.bandwidth_usage_threshold_reached":
-                threshold = int(payload['data'].get('threshold_percent', 75))
+                threshold = int(payload['data'].get('lastTriggeredThreshold', 75))
+                notification_type = f"traffic_{threshold}_percent"
 
-                last_notification = await get_last_traffic_notification(user.tg_id, "traffic_75_percent")
+                last_notification = await get_last_traffic_notification(user.tg_id, notification_type)
                 if last_notification:
                     sent_at = last_notification.sent_at if hasattr(last_notification, 'sent_at') else last_notification._mapping.get('sent_at')
                     if sent_at and (datetime.now() - sent_at).total_seconds() < 86400:
@@ -298,7 +299,7 @@ async def _process_notification(payload: dict, user) -> None:
             logging.info(f"Ephemeral notification {event} sent to user id={user.tg_id}, msg_id={msg_id}")
 
             if event == "user.bandwidth_usage_threshold_reached":
-                await add_traffic_notification(user.tg_id, "traffic_75_percent")
+                await add_traffic_notification(user.tg_id, notification_type)
 
             try:
                 await save_user_message(user.tg_id, msg_id, 'notification')
