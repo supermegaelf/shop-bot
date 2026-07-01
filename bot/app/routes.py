@@ -291,7 +291,7 @@ async def _process_notification(payload: dict, user) -> None:
                     return
                 message = get_i18n_string("message_not_connected", chat_member.user.language_code).format(
                     name=chat_member.user.first_name,
-                    link=glv.config.get('SUPPORT_LINK', '')
+                    link=glv.config['SUPPORT_LINK']
                 )
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[[
                     InlineKeyboardButton(
