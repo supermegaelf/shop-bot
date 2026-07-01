@@ -282,9 +282,12 @@ async def _process_notification(payload: dict, user) -> None:
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
 
             case "user.not_connected":
+                if not await is_test_subscription(user.tg_id):
+                    return
                 panel = get_panel()
                 panel_profile = await panel.get_panel_user(user.tg_id)
                 if not panel_profile or not panel_profile.subscription_url:
+                    logging.info(f"No panel profile or subscription_url for user {user.tg_id}, skipping not_connected notification")
                     return
                 message = get_i18n_string("message_not_connected", chat_member.user.language_code).format(
                     name=chat_member.user.first_name,
