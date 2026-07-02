@@ -1,4 +1,4 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup,  WebAppInfo
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.i18n import gettext as _
 
@@ -37,7 +37,7 @@ def get_install_subscription_keyboard(subscription_url, lang='en') -> InlineKeyb
         [
             InlineKeyboardButton(
                 text=get_i18n_string("button_install", lang),
-                web_app=WebAppInfo(url=subscription_url)
+                url=subscription_url
             )
         ],
         [
@@ -58,7 +58,7 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy
         builder.row(
             InlineKeyboardButton(
                 text=_("button_install"),
-                web_app=WebAppInfo(url=subscription_url)
+                url=subscription_url
             )
         )
     
