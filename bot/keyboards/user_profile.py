@@ -33,20 +33,20 @@ def get_renew_subscription_keyboard(lang, back=True, from_notification=False) ->
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def get_install_subscription_keyboard(subscription_url, lang='en') -> InlineKeyboardMarkup:
-    kb = [
-        [
+    kb = []
+    if subscription_url:
+        kb.append([
             InlineKeyboardButton(
                 text=get_i18n_string("button_install", lang),
                 url=subscription_url
             )
-        ],
-        [
-            InlineKeyboardButton(
-                text=get_i18n_string("button_dismiss", lang),
-                callback_data="dismiss_after_install"
-            )
-        ]
-    ]
+        ])
+    kb.append([
+        InlineKeyboardButton(
+            text=get_i18n_string("button_dismiss", lang),
+            callback_data="dismiss_after_install"
+        )
+    ])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy_traffic_button: bool = False) -> InlineKeyboardMarkup:
