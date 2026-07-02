@@ -8,6 +8,7 @@ import json
 
 from aiohttp.web_request import Request
 from aiohttp import web
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
 from db.methods import (
     get_vpn_user,
@@ -198,7 +199,7 @@ async def notify_user(request: Request):
     logging.info(f"sign: {signature}, computed:{computed_signature}")
     if not hmac.compare_digest(signature, computed_signature):
         return web.Response(status=403)
-    if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expiration', 'user.expired', 'user.limited']:
+    if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expiration', 'user.expired', 'user.limited', 'user.not_connected']:
         return web.Response()
     vpn_id = payload['data']['username']
     user = await get_marzban_profile_by_vpn_id(vpn_id)
@@ -279,6 +280,25 @@ async def _process_notification(payload: dict, user) -> None:
             case "user.limited":
                 message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
+
+            case "user.not_connected":
+                if not await is_test_subscription(user.tg_id):
+                    return
+                panel = get_panel()
+                panel_profile = await panel.get_panel_user(user.tg_id)
+                if not panel_profile or not panel_profile.subscription_url:
+                    logging.info(f"No panel profile or subscription_url for user {user.tg_id}, skipping not_connected notification")
+                    return
+                message = get_i18n_string("message_not_connected", chat_member.user.language_code).format(
+                    name=chat_member.user.first_name,
+                    link=glv.config['SUPPORT_LINK']
+                )
+                keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+                    InlineKeyboardButton(
+                        text=get_i18n_string("button_install", chat_member.user.language_code),
+                        web_app=WebAppInfo(url=panel_profile.subscription_url)
+                    )
+                ]])
 
             case _:
                 return
