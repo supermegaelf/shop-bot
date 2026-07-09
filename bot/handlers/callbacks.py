@@ -512,6 +512,8 @@ async def callback_share_subscription(callback: CallbackQuery, state: FSMContext
         InlineKeyboardButton(text=_("button_back"), callback_data="back_to_subscription")
     ]])
 
+    await try_delete_message(callback.message)
+
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation_photo(
         chat_id=callback.from_user.id,
@@ -534,7 +536,11 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
         show_buy_traffic_button=profile_data["show_buy_traffic_button"]
     )
 
-    reuse_message = None if callback.message.photo else callback.message
+    if callback.message.photo:
+        await try_delete_message(callback.message)
+        reuse_message = None
+    else:
+        reuse_message = callback.message
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
