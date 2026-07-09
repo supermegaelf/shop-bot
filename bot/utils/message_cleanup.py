@@ -360,6 +360,20 @@ class MessageCleanup:
         await self.register_message(chat_id, msg.message_id, MessageType.NAVIGATION)
         return msg.message_id
 
+    async def send_navigation_photo(self, chat_id: int, photo, caption: str, reply_markup: InlineKeyboardMarkup, **kwargs) -> int:
+        await self.cleanup_by_event(chat_id, 'navigate')
+
+        msg = await self.bot.send_photo(
+            chat_id=chat_id,
+            photo=photo,
+            caption=caption,
+            reply_markup=reply_markup,
+            **kwargs
+        )
+
+        await self.register_message(chat_id, msg.message_id, MessageType.NAVIGATION)
+        return msg.message_id
+
     async def send_profile(self, chat_id: int, text: str, reply_markup: InlineKeyboardMarkup, reuse_message: Optional[Message] = None, **kwargs) -> int:
         except_message_id = reuse_message.message_id if reuse_message else None
         await self.cleanup_by_event(chat_id, 'show_profile', except_message_id=except_message_id)

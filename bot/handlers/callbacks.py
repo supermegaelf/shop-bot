@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
+from io import BytesIO
 import logging
 import asyncio
 
+import segno
+
 from aiogram import Router, F, Dispatcher
-from aiogram.types import CallbackQuery, LabeledPrice
+from aiogram.types import CallbackQuery, LabeledPrice, InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.i18n import gettext as _
 
@@ -489,6 +492,35 @@ async def callback_back_to_main_menu(callback: CallbackQuery, state: FSMContext)
         user_name=callback.from_user.first_name,
     )
 
+@router.callback_query(F.data == "share_subscription")
+async def callback_share_subscription(callback: CallbackQuery, state: FSMContext):
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    subscription_url = panel_profile.subscription_url if panel_profile else None
+
+    if not subscription_url:
+        await safe_answer(callback, _("message_error"), show_alert=True)
+        return
+
+    await safe_answer(callback)
+
+    buffer = BytesIO()
+    segno.make(subscription_url, error='m').save(buffer, kind='png', scale=8, border=2)
+    photo = BufferedInputFile(buffer.getvalue(), filename="subscription_qr.png")
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text=_("button_back"), callback_data="back_to_subscription")
+    ]])
+
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation_photo(
+        chat_id=callback.from_user.id,
+        photo=photo,
+        caption=_("share_qr_instruction"),
+        reply_markup=keyboard,
+    )
+
+
 @router.callback_query(F.data == "back_to_subscription")
 async def callback_back_to_subscription(callback: CallbackQuery, state: FSMContext):
     await safe_answer(callback)
@@ -501,7 +533,9 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
         profile_data["url"],
         show_buy_traffic_button=profile_data["show_buy_traffic_button"]
     )
-    
+
+    reuse_message = None if callback.message.photo else callback.message
+
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
@@ -512,7 +546,7 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
             data_limit=profile_data["data_limit"],
         ),
         reply_markup=keyboard,
-        reuse_message=callback.message,
+        reuse_message=reuse_message,
         disable_web_page_preview=True,
     )
 
