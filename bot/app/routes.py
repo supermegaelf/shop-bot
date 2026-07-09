@@ -8,7 +8,7 @@ import json
 
 from aiohttp.web_request import Request
 from aiohttp import web
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from db.methods import (
     get_vpn_user,
@@ -296,7 +296,7 @@ async def _process_notification(payload: dict, user) -> None:
                 keyboard = InlineKeyboardMarkup(inline_keyboard=[[
                     InlineKeyboardButton(
                         text=get_i18n_string("button_install", chat_member.user.language_code),
-                        web_app=WebAppInfo(url=panel_profile.subscription_url)
+                        url=panel_profile.subscription_url
                     )
                 ]])
 
