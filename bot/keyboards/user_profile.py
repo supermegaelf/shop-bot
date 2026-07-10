@@ -81,7 +81,7 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy
         builder.row(
             InlineKeyboardButton(
                 text=_("button_share"),
-                switch_inline_query=_("\n\nFollow the link below to install VPN ⬇️\n\n{link}").format(link=subscription_url)
+                callback_data="share_subscription"
             )
         )
     
