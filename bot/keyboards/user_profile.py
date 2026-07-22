@@ -70,6 +70,13 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy
             )
         )
 
+    builder.row(
+        InlineKeyboardButton(
+            text=_("button_renew"),
+            callback_data="payment"
+        )
+    )
+
     if show_change_tariff_button:
         builder.row(
             InlineKeyboardButton(
@@ -77,13 +84,6 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy
                 callback_data="change_tariff"
             )
         )
-
-    builder.row(
-        InlineKeyboardButton(
-            text=_("button_renew"),
-            callback_data="payment"
-        )
-    )
     
     if subscription_url:
         builder.row(
