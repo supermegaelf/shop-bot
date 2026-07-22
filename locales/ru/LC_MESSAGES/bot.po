@@ -156,7 +156,7 @@ msgid "button_change_tariff"
 msgstr "Сменить тариф 🔄"
 
 msgid "message_select_upgrade"
-msgstr "Выберите новый объём трафика для смены тарифа и сумму доплаты ⬇️"
+msgstr "Выберите новый объём трафика для смены тарифа ⬇️"
 
 msgid "message_no_upgrade_available"
 msgstr "Смена тарифа сейчас недоступна ⛔️"

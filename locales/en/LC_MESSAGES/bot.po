@@ -156,7 +156,7 @@ msgid "button_change_tariff"
 msgstr "Change plan 🔄"
 
 msgid "message_select_upgrade"
-msgstr "Choose a new traffic volume to change your plan and see the surcharge ⬇️"
+msgstr "Choose a new traffic volume to change your plan ⬇️"
 
 msgid "message_no_upgrade_available"
 msgstr "Plan change is currently unavailable ⛔️"
