@@ -44,10 +44,46 @@ YOOKASSA_IPS = (
 )
 
 
+async def _send_or_edit_result(chat_id: int, message_id, text: str, reply_markup):
+    if message_id:
+        try:
+            await glv.bot.edit_message_text(
+                text=text,
+                chat_id=chat_id,
+                message_id=message_id,
+                reply_markup=reply_markup,
+            )
+            return
+        except Exception as e:
+            logging.warning(f"Failed to edit payment message {message_id} for user {chat_id}, sending new: {e}")
+            try:
+                await glv.bot.delete_message(chat_id, message_id)
+            except Exception:
+                pass
+    await glv.bot.send_message(chat_id, text, reply_markup=reply_markup)
+
+
 async def _process_payment_success(payment, good, user):
     panel = get_panel()
-    
+
     try:
+        if payment.callback.startswith("upgrade_"):
+            if payment.confirmed:
+                return
+            target = goods.get(payment.callback[len("upgrade_"):])
+            panel_profile = await panel.set_subscription_data_limit(user.vpn_id, target['data_limit'])
+            if panel_profile is None:
+                raise Exception("Panel returned None profile")
+
+            await confirm_payment(payment.payment_id)
+            await _send_or_edit_result(
+                payment.tg_id,
+                payment.message_id,
+                get_i18n_string("message_tariff_changed", payment.lang),
+                get_payment_success_keyboard(payment.lang, payment.from_notification),
+            )
+            return
+
         if good['type'] == 'renew':
             is_trial = await is_test_subscription(payment.tg_id)
             if is_trial:
@@ -64,22 +100,17 @@ async def _process_payment_success(payment, good, user):
         if panel_profile is None:
             raise Exception("Panel returned None profile")
 
-        if payment.message_id:
-            try:
-                await glv.bot.delete_message(payment.tg_id, payment.message_id)
-            except Exception as e:
-                logging.warning(f"Failed to delete payment message {payment.message_id} for user {payment.tg_id}: {e}")
-
         referee_bonus_days = 0
         if good.get("type") == "renew" and "months" in good:
             purchase_days = good["months"] * 30
             referee_bonus_days = await referrals.get_referee_bonus_days(payment.tg_id, purchase_days)
 
         if good['type'] == 'update':
-            await glv.bot.send_message(
+            await _send_or_edit_result(
                 payment.tg_id,
+                payment.message_id,
                 get_i18n_string("message_payment_success", payment.lang),
-                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
+                get_payment_success_keyboard(payment.lang, payment.from_notification),
             )
         else:
             await confirm_payment(payment.payment_id)
@@ -89,17 +120,19 @@ async def _process_payment_success(payment, good, user):
                     text = get_i18n_string("message_payment_success_with_bonus", payment.lang).format(days=referee_bonus_days)
                 else:
                     text = get_i18n_string("message_payment_success", payment.lang)
-                await glv.bot.send_message(
+                await _send_or_edit_result(
                     payment.tg_id,
+                    payment.message_id,
                     text,
-                    reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
+                    get_payment_success_keyboard(payment.lang, payment.from_notification),
                 )
             else:
                 subscription_url = panel_profile.subscription_url
-                await glv.bot.send_message(
+                await _send_or_edit_result(
                     payment.tg_id,
+                    payment.message_id,
                     get_i18n_string("message_new_subscription_created", payment.lang),
-                    reply_markup=get_install_subscription_keyboard(subscription_url, payment.lang)
+                    get_install_subscription_keyboard(subscription_url, payment.lang),
                 )
 
         await use_all_promo_codes(payment.tg_id)

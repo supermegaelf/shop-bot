@@ -152,6 +152,21 @@ msgstr "Криптовалюта 💲"
 msgid "button_buy_more_traffic"
 msgstr "Докупить трафик ➕"
 
+msgid "button_change_tariff"
+msgstr "Сменить тариф 🔄"
+
+msgid "message_select_upgrade"
+msgstr "Выберите новый объём трафика для смены тарифа ⬇️"
+
+msgid "message_no_upgrade_available"
+msgstr "Смена тарифа сейчас недоступна ⛔️"
+
+msgid "message_tariff_changed"
+msgstr ""
+"Тариф успешно изменён ✅\n\n"
+"Новый объём трафика уже доступен 🌍\n\n"
+"Приятного сёрфинга 🏄🏻‍♂️"
+
 msgid "message_error"
 msgstr "Упс! Что-то пошло не так..."
 

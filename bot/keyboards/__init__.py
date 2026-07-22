@@ -6,6 +6,7 @@ from .user_profile import get_buy_more_traffic_keyboard, get_renew_subscription_
 from .xtr_pay import get_xtr_pay_keyboard
 from .help import get_help_keyboard, get_back_to_help_keyboard
 from .month import get_months_keyboard
+from .upgrade import get_upgrade_menu_keyboard
 from .confirmation import get_confirmation_keyboard
 from .payment_success import get_payment_success_keyboard
 from .admin import get_admin_management_keyboard, get_broadcast_confirmation_keyboard, get_broadcast_start_keyboard, get_promo_codes_management_keyboard, get_promo_delete_keyboard, get_promo_back_keyboard

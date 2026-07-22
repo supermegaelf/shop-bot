@@ -152,6 +152,21 @@ msgstr "Cryptocurrency 💲"
 msgid "button_buy_more_traffic"
 msgstr "Buy more traffic ➕"
 
+msgid "button_change_tariff"
+msgstr "Change plan 🔄"
+
+msgid "message_select_upgrade"
+msgstr "Choose a new traffic volume to change your plan ⬇️"
+
+msgid "message_no_upgrade_available"
+msgstr "Plan change is currently unavailable ⛔️"
+
+msgid "message_tariff_changed"
+msgstr ""
+"Your plan has been changed successfully ✅\n\n"
+"The new traffic volume is now available 🌍\n\n"
+"Enjoy surfing 🏄🏻‍♂️"
+
 msgid "message_error"
 msgstr "Oops! Something went wrong..."
 

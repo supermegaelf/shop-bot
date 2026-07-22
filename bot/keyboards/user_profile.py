@@ -49,11 +49,11 @@ def get_install_subscription_keyboard(subscription_url, lang='en') -> InlineKeyb
     ])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
-def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy_traffic_button: bool = False) -> InlineKeyboardMarkup:
+def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy_traffic_button: bool = False, show_change_tariff_button: bool = False) -> InlineKeyboardMarkup:
     from aiogram.utils.i18n import gettext as _
-    
+
     builder = InlineKeyboardBuilder()
-    
+
     if subscription_url:
         builder.row(
             InlineKeyboardButton(
@@ -61,7 +61,7 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy
                 url=subscription_url
             )
         )
-    
+
     if show_buy_traffic_button:
         builder.row(
             InlineKeyboardButton(
@@ -69,13 +69,21 @@ def get_subscription_details_keyboard(subscription_url: str, lang=None, show_buy
                 callback_data="extend_data_limit"
             )
         )
-    
+
     builder.row(
         InlineKeyboardButton(
             text=_("button_renew"),
             callback_data="payment"
         )
     )
+
+    if show_change_tariff_button:
+        builder.row(
+            InlineKeyboardButton(
+                text=_("button_change_tariff"),
+                callback_data="change_tariff"
+            )
+        )
     
     if subscription_url:
         builder.row(

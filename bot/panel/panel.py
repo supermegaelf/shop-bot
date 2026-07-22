@@ -30,6 +30,12 @@ class Panel(ABC):
         pass
 
     @abstractmethod
+    async def set_subscription_data_limit(
+        self, username: str, data_limit: int
+    ) -> PanelProfile:
+        pass
+
+    @abstractmethod
     async def reset_subscription_data_limit(self, username: str):
         pass
 
