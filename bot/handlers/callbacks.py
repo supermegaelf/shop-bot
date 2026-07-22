@@ -138,7 +138,7 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
 
-    _, upgrade_options = await _get_upgrade_context(callback.from_user.id)
+    _current_tariff, upgrade_options = await _get_upgrade_context(callback.from_user.id)
     can_change_tariff = bool(upgrade_options) and panel_profile is not None and panel_profile.status != "expired"
 
     keyboard = get_subscription_details_keyboard(
@@ -254,7 +254,7 @@ async def callback_change_tariff(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("upg_"))
 async def callback_upgrade_select(callback: CallbackQuery, state: FSMContext):
     target_callback = callback.data.replace("upg_", "", 1)
-    _, options = await _get_upgrade_context(callback.from_user.id)
+    _current_tariff, options = await _get_upgrade_context(callback.from_user.id)
     target = goods.get(target_callback)
     if not target or target not in options:
         await safe_answer(callback, _("message_error"), show_alert=True)
@@ -631,7 +631,7 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
 
-    _, upgrade_options = await _get_upgrade_context(callback.from_user.id)
+    _current_tariff, upgrade_options = await _get_upgrade_context(callback.from_user.id)
     can_change_tariff = bool(upgrade_options) and panel_profile is not None and panel_profile.status != "expired"
 
     keyboard = get_subscription_details_keyboard(
