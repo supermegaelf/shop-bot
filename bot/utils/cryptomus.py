@@ -7,12 +7,16 @@ from utils import goods
 from utils.webhook_data import get_sign
 import glv
 
-async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
-    good = goods.get(callback)
+async def create_payment(tg_id: int, callback: str, lang_code: str, amount_override: float = None) -> dict:
+    target_callback = callback[len(goods.UPGRADE_PREFIX):] if callback.startswith(goods.UPGRADE_PREFIX) else callback
+    good = goods.get(target_callback)
     prepared_str = str(tg_id) + str(time.time()) + callback
     o_id = hashlib.md5(prepared_str.encode()).hexdigest()
-    discount = await get_user_promo_discount(tg_id)
-    price = f"{good['price']['en'] * (1 - discount / 100):.2f}"
+    if amount_override is not None:
+        price = f"{amount_override:.2f}"
+    else:
+        discount = await get_user_promo_discount(tg_id)
+        price = f"{good['price']['en'] * (1 - discount / 100):.2f}"
     data = {
         "amount": price,
         "currency": "USD",

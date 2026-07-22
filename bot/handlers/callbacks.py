@@ -25,12 +25,14 @@ from keyboards import (
     get_broadcast_start_keyboard,
     get_broadcast_dismiss_keyboard,
     get_subscription_details_keyboard,
+    get_upgrade_menu_keyboard,
 )
 from db.methods import (
     is_trial_available,
     start_trial,
     get_vpn_user,
     get_user_promo_discount,
+    get_confirmed_payment_callbacks,
 )
 from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message, safe_answer
 from panel import get_panel
@@ -83,6 +85,22 @@ def _format_profile_data(panel_profile):
     }
 
 
+async def _get_upgrade_context(user_id: int):
+    callbacks = await get_confirmed_payment_callbacks(user_id)
+    current = goods.get_current_tariff(callbacks)
+    options = goods.get_upgrade_options(current)
+    return current, options
+
+
+async def _resolve_upgrade(user_id: int, data: str):
+    target_callback = data[len("upgrade_"):]
+    current, options = await _get_upgrade_context(user_id)
+    target = goods.get(target_callback)
+    if not target or target not in options:
+        return None, None
+    return current, target
+
+
 async def _build_and_send_profile(
     cleanup: MessageCleanup,
     user_id: int,
@@ -119,12 +137,16 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
-    
+
+    _, upgrade_options = await _get_upgrade_context(callback.from_user.id)
+    can_change_tariff = bool(upgrade_options) and panel_profile is not None and panel_profile.status != "expired"
+
     keyboard = get_subscription_details_keyboard(
         profile_data["url"],
-        show_buy_traffic_button=profile_data["show_buy_traffic_button"]
+        show_buy_traffic_button=profile_data["show_buy_traffic_button"],
+        show_change_tariff_button=can_change_tariff
     )
-    
+
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
@@ -203,22 +225,82 @@ async def callback_extend_data_limit_notification(
     await callback_extend_data_limit(callback, state)
 
 
+@router.callback_query(F.data == "change_tariff")
+async def callback_change_tariff(callback: CallbackQuery, state: FSMContext):
+    panel = get_panel()
+    panel_profile = await panel.get_panel_user(callback.from_user.id)
+    if panel_profile is None or panel_profile.status == "expired":
+        await safe_answer(callback, _("message_no_upgrade_available"), show_alert=True)
+        return
+
+    current, options = await _get_upgrade_context(callback.from_user.id)
+    if not options:
+        await safe_answer(callback, _("message_no_upgrade_available"), show_alert=True)
+        return
+
+    await safe_answer(callback)
+
+    keyboard = get_upgrade_menu_keyboard(current, options)
+
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_select_upgrade"),
+        reply_markup=keyboard,
+        reuse_message=callback.message,
+    )
+
+
+@router.callback_query(F.data.startswith("upg_"))
+async def callback_upgrade_select(callback: CallbackQuery, state: FSMContext):
+    target_callback = callback.data.replace("upg_", "", 1)
+    _, options = await _get_upgrade_context(callback.from_user.id)
+    target = goods.get(target_callback)
+    if not target or target not in options:
+        await safe_answer(callback, _("message_error"), show_alert=True)
+        return
+
+    await safe_answer(callback)
+
+    synthetic_good = {
+        "callback": f"upgrade_{target_callback}",
+        "type": "upgrade",
+        "months": target["months"],
+    }
+
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_select_payment_method"),
+        reply_markup=get_payment_keyboard(synthetic_good),
+        reuse_message=callback.message,
+    )
+
+
 @router.callback_query(F.data.startswith("pay_kassa_"))
 async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
     data = callback.data.replace("pay_kassa_", "")
-    if data not in goods.get_callbacks():
+    is_upgrade = data.startswith("upgrade_")
+    amount_override = None
+    if is_upgrade:
+        current, target = await _resolve_upgrade(callback.from_user.id, data)
+        if not target:
+            await safe_answer(callback, _("message_error"), show_alert=True)
+            return
+        amount_override = goods.get_upgrade_price(current, target, "ru")
+    elif data not in goods.get_callbacks():
         await safe_answer(callback)
         return
 
     await safe_answer(callback)
-    
+
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
         "profile_message_id" not in state_data
     )
 
     result = await yookassa.create_payment(
-        callback.from_user.id, data, callback.from_user.language_code
+        callback.from_user.id, data, callback.from_user.language_code, amount_override=amount_override
     )
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
@@ -245,20 +327,30 @@ async def callback_payment_kassa(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("pay_stars_"))
 async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
     data = callback.data.replace("pay_stars_", "")
-    if data not in goods.get_callbacks():
+    is_upgrade = data.startswith("upgrade_")
+    if is_upgrade:
+        current, target = await _resolve_upgrade(callback.from_user.id, data)
+        if not target:
+            await safe_answer(callback, _("message_error"), show_alert=True)
+            return
+    elif data not in goods.get_callbacks():
         await safe_answer(callback)
         return
 
     await safe_answer(callback)
-    
+
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
         "profile_message_id" not in state_data
     )
 
-    good = goods.get(data)
-    discount = await get_user_promo_discount(callback.from_user.id)
-    price = int(good["price"]["stars"] * (1 - discount / 100))
+    if is_upgrade:
+        good = target
+        price = int(goods.get_upgrade_price(current, target, "stars"))
+    else:
+        good = goods.get(data)
+        discount = await get_user_promo_discount(callback.from_user.id)
+        price = int(good["price"]["stars"] * (1 - discount / 100))
     prices = [LabeledPrice(label="XTR", amount=price)]
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
@@ -297,19 +389,27 @@ async def callback_payment_stars(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(F.data.startswith("pay_crypto_"))
 async def callback_payment_crypto(callback: CallbackQuery, state: FSMContext):
     data = callback.data.replace("pay_crypto_", "")
-    if data not in goods.get_callbacks():
+    is_upgrade = data.startswith("upgrade_")
+    amount_override = None
+    if is_upgrade:
+        current, target = await _resolve_upgrade(callback.from_user.id, data)
+        if not target:
+            await safe_answer(callback, _("message_error"), show_alert=True)
+            return
+        amount_override = goods.get_upgrade_price(current, target, "en")
+    elif data not in goods.get_callbacks():
         await safe_answer(callback)
         return
 
     await safe_answer(callback)
-    
+
     state_data = await state.get_data()
     from_notification = state_data.get("payment_from_notification", False) or (
         "profile_message_id" not in state_data
     )
 
     result = await cryptomus.create_payment(
-        callback.from_user.id, data, callback.from_user.language_code
+        callback.from_user.id, data, callback.from_user.language_code, amount_override=amount_override
     )
     now = datetime.now()
     expire_date = (now + timedelta(minutes=60)).strftime("%d/%m/%Y, %H:%M")
@@ -530,10 +630,14 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
     profile_data = _format_profile_data(panel_profile)
-    
+
+    _, upgrade_options = await _get_upgrade_context(callback.from_user.id)
+    can_change_tariff = bool(upgrade_options) and panel_profile is not None and panel_profile.status != "expired"
+
     keyboard = get_subscription_details_keyboard(
         profile_data["url"],
-        show_buy_traffic_button=profile_data["show_buy_traffic_button"]
+        show_buy_traffic_button=profile_data["show_buy_traffic_button"],
+        show_change_tariff_button=can_change_tariff
     )
 
     if callback.message.photo:
@@ -562,7 +666,15 @@ async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
     await safe_answer(callback)
 
     good_callback = callback.data.replace("back_to_payment_", "")
-    good = goods.get(good_callback)
+    if good_callback.startswith("upgrade_"):
+        target = goods.get(good_callback[len("upgrade_"):])
+        good = {
+            "callback": good_callback,
+            "type": "upgrade",
+            "months": target["months"],
+        }
+    else:
+        good = goods.get(good_callback)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     
@@ -599,9 +711,23 @@ async def callback_back_to_traffic(callback: CallbackQuery, state: FSMContext):
     purchase_type = parts[0]
     months = int(parts[1])
 
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+
+    if purchase_type == "upgrade":
+        current, options = await _get_upgrade_context(callback.from_user.id)
+        if not options:
+            await safe_answer(callback, _("message_no_upgrade_available"), show_alert=True)
+            return
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_select_upgrade"),
+            reply_markup=get_upgrade_menu_keyboard(current, options),
+            reuse_message=callback.message,
+        )
+        return
+
     keyboard = await get_buy_menu_keyboard(callback.from_user.id, months, purchase_type)
 
-    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     if purchase_type == "renew":
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,

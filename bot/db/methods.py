@@ -171,6 +171,15 @@ async def get_user_promo_discount(tg_id: int) -> float:
         result = (await conn.execute(sql_query)).fetchone()
     return result[0] if result else 0.0
 
+async def get_confirmed_payment_callbacks(tg_id: int) -> list:
+    async with engine.connect() as conn:
+        sql_query = select(Payments.callback).where(
+            Payments.tg_id == tg_id,
+            Payments.confirmed == True
+        ).order_by(Payments.created_at.desc())
+        rows = (await conn.execute(sql_query)).fetchall()
+    return [row[0] for row in rows]
+
 async def has_confirmed_payments(tg_id: int) -> bool:
     async with engine.connect() as conn:
         sql_query = select(exists().where(

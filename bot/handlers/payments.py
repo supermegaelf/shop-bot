@@ -65,6 +65,40 @@ async def success_payment(message: Message, state: FSMContext):
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
 
+    payload = message.successful_payment.invoice_payload
+    if payload.startswith("upgrade_"):
+        target = goods.get(payload[len("upgrade_"):])
+        charge_id = message.successful_payment.telegram_payment_charge_id
+        try:
+            panel_profile = await panel.set_subscription_data_limit(user.vpn_id, target["data_limit"])
+            if panel_profile is None:
+                raise Exception("Panel returned None profile")
+        except Exception as e:
+            logging.error(
+                f"Failed to change tariff for user {message.from_user.id} after payment: {e}",
+                exc_info=True
+            )
+            await add_payment(
+                message.from_user.id, payload, message.from_user.language_code,
+                charge_id, PaymentPlatform.TELEGRAM, False, from_notification=from_notification,
+            )
+            await cleanup.send_important(
+                chat_id=message.from_user.id,
+                text=_("message_error") + "\n\n" + _("Please contact support. Your payment has been registered."),
+                reply_markup=await get_main_menu_keyboard(user_id=message.from_user.id)
+            )
+            return
+        await add_payment(
+            message.from_user.id, payload, message.from_user.language_code,
+            charge_id, PaymentPlatform.TELEGRAM, True, from_notification=from_notification,
+        )
+        await cleanup.send_success(
+            chat_id=message.from_user.id,
+            text=get_i18n_string("message_tariff_changed", message.from_user.language_code),
+            reply_markup=get_payment_success_keyboard(message.from_user.language_code, from_notification),
+        )
+        return
+
     try:
         if good["type"] == "renew":
             is_trial = await is_test_subscription(message.from_user.id)

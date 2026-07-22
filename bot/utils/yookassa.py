@@ -14,10 +14,14 @@ import glv
 if glv.config['YOOKASSA_SHOPID'] and glv.config['YOOKASSA_TOKEN']:
     Configuration.configure(glv.config['YOOKASSA_SHOPID'], glv.config['YOOKASSA_TOKEN'])
 
-async def create_payment(tg_id: int, callback: str, lang_code: str) -> dict:
-    good = goods.get(callback)
-    discount = await get_user_promo_discount(tg_id)
-    price = int(good['price']['ru'] * (1 - discount / 100))
+async def create_payment(tg_id: int, callback: str, lang_code: str, amount_override: int = None) -> dict:
+    target_callback = callback[len(goods.UPGRADE_PREFIX):] if callback.startswith(goods.UPGRADE_PREFIX) else callback
+    good = goods.get(target_callback)
+    if amount_override is not None:
+        price = int(amount_override)
+    else:
+        discount = await get_user_promo_discount(tg_id)
+        price = int(good['price']['ru'] * (1 - discount / 100))
     bot_username = (await glv.bot.get_me()).username
     payload = {
         "amount": {

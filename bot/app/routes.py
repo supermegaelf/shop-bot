@@ -46,8 +46,30 @@ YOOKASSA_IPS = (
 
 async def _process_payment_success(payment, good, user):
     panel = get_panel()
-    
+
     try:
+        if payment.callback.startswith("upgrade_"):
+            if payment.confirmed:
+                return
+            target = goods.get(payment.callback[len("upgrade_"):])
+            panel_profile = await panel.set_subscription_data_limit(user.vpn_id, target['data_limit'])
+            if panel_profile is None:
+                raise Exception("Panel returned None profile")
+
+            if payment.message_id:
+                try:
+                    await glv.bot.delete_message(payment.tg_id, payment.message_id)
+                except Exception as e:
+                    logging.warning(f"Failed to delete payment message {payment.message_id} for user {payment.tg_id}: {e}")
+
+            await confirm_payment(payment.payment_id)
+            await glv.bot.send_message(
+                payment.tg_id,
+                get_i18n_string("message_tariff_changed", payment.lang),
+                reply_markup=get_payment_success_keyboard(payment.lang, payment.from_notification)
+            )
+            return
+
         if good['type'] == 'renew':
             is_trial = await is_test_subscription(payment.tg_id)
             if is_trial:

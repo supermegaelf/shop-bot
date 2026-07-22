@@ -361,6 +361,39 @@ class RemnawavePanel(Panel):
         except Exception as e:
             raise
 
+    async def set_subscription_data_limit(self, username: str, data_limit: int) -> PanelProfile:
+        if not await self.check_if_user_exists(username):
+            return None
+        try:
+            user_data = await self._get_user_by_username(username)
+            if not user_data:
+                raise Exception("User not found in response")
+            user_uuid = user_data['uuid']
+
+            update_payload = {
+                'uuid': user_uuid,
+                'status': 'ACTIVE',
+                'trafficLimitBytes': data_limit
+            }
+            update_response = await self.client.patch(f"/users", json=update_payload)
+            update_response.raise_for_status()
+            updated_data = update_response.json()
+
+            updated_user = updated_data['response']
+            subscription_url = updated_user.get('subscriptionUrl') or updated_user.get('subscription_url') or ""
+            if not subscription_url and updated_user.get('uuid'):
+                subscription_url = await self._get_subscription_url(updated_user['uuid'])
+            return PanelProfile(
+                username=updated_user['username'],
+                status=updated_user['status'].lower(),
+                subscription_url=subscription_url,
+                used_traffic=self._extract_used_traffic(updated_user),
+                data_limit=updated_user.get('trafficLimitBytes') or updated_user.get('traffic_limit_bytes'),
+                expire=datetime.fromisoformat(updated_user['expireAt'].replace('Z', '+00:00')) if updated_user.get('expireAt') else None
+            )
+        except Exception as e:
+            raise
+
     async def reset_subscription_data_limit(self, username):
         if not await self.check_if_user_exists(username):
             return None
