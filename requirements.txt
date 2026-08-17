@@ -10,4 +10,5 @@ yookassa
 alembic
 aioschedule
 aiohttp
+httpx
 segno
