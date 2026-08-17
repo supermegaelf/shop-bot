@@ -9,6 +9,5 @@ pyCryptomusAPI
 yookassa
 alembic
 aioschedule
-remnawave_api
 aiohttp
 segno
