@@ -1,8 +1,8 @@
 aiogram[i18n]
-alembic
-SQLAlchemy[asyncio]
+alembic==1.20.0
+SQLAlchemy[asyncio]==2.1.1
 pymysql
-asyncmy
+asyncmy==0.2.15
 cryptography
 requests
 pyCryptomusAPI
