@@ -103,16 +103,6 @@ async def safe_edit_or_send(
         elif "message can't be edited" in error_message:
             if debug:
                 logging.debug(f"safe_edit_or_send: message {message.message_id} can't be edited (too old or no permission), will try to delete and send new")
-            try:
-                deleted = await try_delete_message(message, debug=debug)
-                if deleted:
-                    if debug:
-                        logging.info(f"safe_edit_or_send: deleted old message {message.message_id} before sending new")
-                elif debug:
-                    logging.debug(f"safe_edit_or_send: couldn't delete old message {message.message_id}, will send new anyway")
-            except Exception as delete_error:
-                if debug:
-                    logging.debug(f"safe_edit_or_send: error trying to delete old message {message.message_id}: {delete_error}")
         elif "message is not modified" in error_message:
             if debug:
                 logging.debug(f"safe_edit_or_send: message {message.message_id} not modified (same content)")
@@ -132,7 +122,18 @@ async def safe_edit_or_send(
     except Exception as e:
         if debug:
             logging.error(f"safe_edit_or_send: unexpected error editing message {message.message_id}: {e}", exc_info=True)
-    
+
+    try:
+        deleted = await try_delete_message(message, debug=debug)
+        if deleted:
+            if debug:
+                logging.info(f"safe_edit_or_send: deleted old message {message.message_id} before sending new")
+        elif debug:
+            logging.debug(f"safe_edit_or_send: couldn't delete old message {message.message_id}, will send new anyway")
+    except Exception as delete_error:
+        if debug:
+            logging.debug(f"safe_edit_or_send: error trying to delete old message {message.message_id}: {delete_error}")
+
     try:
         answer_kwargs = {
             "text": text,
