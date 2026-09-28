@@ -15,7 +15,8 @@ from db.methods import (
     get_marzban_profile_by_vpn_id,
     get_payment,
     delete_payment,
-    confirm_payment,
+    claim_payment,
+    release_payment,
     PaymentPlatform,
     disable_trial,
     is_test_subscription,
@@ -27,6 +28,7 @@ from db.methods import (
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods, referrals
 from utils import get_i18n_string
+from utils.admin_alert import notify_admins_payment_failure
 from panel import get_panel
 
 import glv
@@ -64,18 +66,21 @@ async def _send_or_edit_result(chat_id: int, message_id, text: str, reply_markup
 
 
 async def _process_payment_success(payment, good, user):
+    user_has_payments = await has_confirmed_payments(payment.tg_id)
+    if not await claim_payment(payment.id):
+        return
+
     panel = get_panel()
+    provisioned = False
 
     try:
         if payment.callback.startswith("upgrade_"):
-            if payment.confirmed:
-                return
             target = goods.get(payment.callback[len("upgrade_"):])
             panel_profile = await panel.set_subscription_data_limit(user.vpn_id, target['data_limit'])
             if panel_profile is None:
                 raise Exception("Panel returned None profile")
+            provisioned = True
 
-            await confirm_payment(payment.payment_id)
             await _send_or_edit_result(
                 payment.tg_id,
                 payment.message_id,
@@ -99,6 +104,7 @@ async def _process_payment_success(payment, good, user):
 
         if panel_profile is None:
             raise Exception("Panel returned None profile")
+        provisioned = True
 
         referee_bonus_days = 0
         if good.get("type") == "renew" and "months" in good:
@@ -113,8 +119,6 @@ async def _process_payment_success(payment, good, user):
                 get_payment_success_keyboard(payment.lang, payment.from_notification),
             )
         else:
-            await confirm_payment(payment.payment_id)
-            user_has_payments = await has_confirmed_payments(payment.tg_id)
             if user_has_payments:
                 if referee_bonus_days > 0:
                     text = get_i18n_string("message_payment_success_with_bonus", payment.lang).format(days=referee_bonus_days)
@@ -152,6 +156,12 @@ async def _process_payment_success(payment, good, user):
             f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",
             exc_info=True
         )
+        if not provisioned:
+            try:
+                await release_payment(payment.id)
+            except Exception as release_error:
+                logging.error(f"Failed to release payment {payment.payment_id}: {release_error}")
+        await notify_admins_payment_failure(payment.tg_id, payment.callback, payment.payment_id, provisioned, e)
         error_text = get_i18n_string("message_error", payment.lang)
         support_link = glv.config.get('SUPPORT_LINK', '')
         if support_link:

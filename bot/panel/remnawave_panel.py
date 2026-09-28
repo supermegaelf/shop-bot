@@ -52,12 +52,11 @@ class RemnawavePanel(Panel):
             return None
 
     async def check_if_user_exists(self, username) -> bool:
-        try:
-            response = await self.client.get(f"/users/by-username/{username}")
-            response.raise_for_status()
-            return True
-        except Exception:
+        response = await self.client.get(f"/users/by-username/{username}")
+        if response.status_code == 404:
             return False
+        response.raise_for_status()
+        return True
 
     async def get_panel_user(self, tg_id: int) -> PanelProfile:
         result = await get_vpn_user(tg_id)
