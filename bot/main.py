@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import logging
+import logging.handlers
 import sys
 from pathlib import Path
 from datetime import datetime, time
@@ -37,7 +38,16 @@ glv.storage = MemoryStorage()
 glv.dp = Dispatcher(storage=glv.storage)
 app = web.Application()
 WEBHOOK_SECRET_TOKEN = hashlib.sha256(glv.config['BOT_TOKEN'].encode()).hexdigest()
-logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
+Path("logs").mkdir(exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.handlers.TimedRotatingFileHandler("logs/bot.log", when="midnight", backupCount=90, encoding="utf-8"),
+    ],
+    force=True,
+)
 
 async def on_startup(bot: Bot):
     try:
@@ -110,7 +120,15 @@ async def main():
     _scheduler_tasks = {scheduler_task}
     scheduler_task.add_done_callback(_scheduler_tasks.discard)
     
-    await web._run_app(app, host="0.0.0.0", port=glv.config['WEBHOOK_PORT'])
+    await web._run_app(
+        app,
+        host="0.0.0.0",
+        port=glv.config['WEBHOOK_PORT'],
+        access_log_format='%a %t "%r" %s %b %Tfs "%{User-Agent}i"',
+    )
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.info("Bot stopped")
