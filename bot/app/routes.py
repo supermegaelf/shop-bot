@@ -26,7 +26,7 @@ from db.methods import (
     add_traffic_notification
 )
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
-from utils import webhook_data, goods, referrals
+from utils import webhook_data, goods, referrals, yookassa
 from utils import get_i18n_string
 from utils.admin_alert import notify_admins_payment_failure
 from panel import get_panel
@@ -215,13 +215,15 @@ async def check_yookassa_payment(request: Request):
     payment = await get_payment(data['id'], PaymentPlatform.YOOKASSA)
     if payment is None:
         return web.Response()
-    
-    if data['status'] in ['succeeded']:
+
+    status = await yookassa.get_payment_status(payment.payment_id)
+
+    if status == 'succeeded':
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
         await _process_payment_success(payment, good, user)
-    
-    if data['status'] == 'canceled':
+
+    if status == 'canceled':
         await delete_payment(payment.payment_id)
     
     return web.Response()

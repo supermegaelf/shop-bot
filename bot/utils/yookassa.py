@@ -59,3 +59,8 @@ async def create_payment(tg_id: int, callback: str, lang_code: str, amount_overr
         "amount": resp.amount.value,
         "payment_id": resp.id
     }
+
+async def get_payment_status(payment_id: str) -> str:
+    loop = asyncio.get_running_loop()
+    resp = await loop.run_in_executor(_executor, functools.partial(Payment.find_one, payment_id))
+    return resp.status
