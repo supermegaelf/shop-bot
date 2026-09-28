@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import logging
 import sys
 from pathlib import Path
@@ -35,11 +36,12 @@ glv.bot = Bot(
 glv.storage = MemoryStorage()
 glv.dp = Dispatcher(storage=glv.storage)
 app = web.Application()
+WEBHOOK_SECRET_TOKEN = hashlib.sha256(glv.config['BOT_TOKEN'].encode()).hexdigest()
 logging.basicConfig(level=logging.INFO, stream=sys.stdout,  format="%(asctime)s %(levelname)s %(message)s")
 
 async def on_startup(bot: Bot):
     try:
-        await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook")
+        await bot.set_webhook(f"{glv.config['WEBHOOK_URL']}/webhook", secret_token=WEBHOOK_SECRET_TOKEN)
     except Exception as e:
         logging.error(f"Failed to set webhook: {e}")
         logging.warning("Bot will continue without webhook update")
@@ -98,6 +100,7 @@ async def main():
     webhook_requests_handler = SimpleRequestHandler(
         dispatcher=glv.dp,
         bot=glv.bot,
+        secret_token=WEBHOOK_SECRET_TOKEN,
     )
     webhook_requests_handler.register(app, path="/webhook")
 
