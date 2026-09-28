@@ -24,6 +24,7 @@ from handlers.promo_management import register_promo_management
 from handlers.referrals import register_referrals
 from handlers.admin_referrals import register_admin_referrals
 from middlewares.db_check import DBCheck
+from middlewares.user_lock import UserLock
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
 from utils.traffic_checker import check_users_traffic
 from db.methods import cleanup_old_traffic_notifications
@@ -95,6 +96,7 @@ def setup_middlewares():
     i18n_middleware = SimpleI18nMiddleware(i18n=i18n)
     i18n_middleware.setup(glv.dp)
     
+    glv.dp.update.outer_middleware(UserLock())
     db_check = DBCheck()
     glv.dp.update.outer_middleware(db_check)
 
