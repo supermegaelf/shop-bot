@@ -37,6 +37,12 @@ services:
         volumes:
             - "./goods.json:/app/goods.json"
             - "./locales:/app/locales"
+            - "./logs:/app/logs"
+        logging:
+            driver: json-file
+            options:
+                max-size: "20m"
+                max-file: "5"
         dns:
             - 8.8.8.8
             - 1.1.1.1
