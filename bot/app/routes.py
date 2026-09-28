@@ -28,7 +28,7 @@ from db.methods import (
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods, referrals, yookassa
 from utils import get_i18n_string
-from utils.admin_alert import notify_admins_payment_failure
+from utils.admin_alert import notify_admins_payment_failure, describe_error
 from panel import get_panel
 
 import glv
@@ -68,6 +68,7 @@ async def _send_or_edit_result(chat_id: int, message_id, text: str, reply_markup
 async def _process_payment_success(payment, good, user):
     user_has_payments = await has_confirmed_payments(payment.tg_id)
     if not await claim_payment(payment.id):
+        logging.info(f"Payment {payment.payment_id} already processed, skipping duplicate notification")
         return
 
     panel = get_panel()
@@ -80,6 +81,7 @@ async def _process_payment_success(payment, good, user):
             if panel_profile is None:
                 raise Exception("Panel returned None profile")
             provisioned = True
+            logging.info(f"Payment {payment.payment_id} provisioned for user {payment.tg_id} ({payment.callback})")
 
             await _send_or_edit_result(
                 payment.tg_id,
@@ -105,6 +107,7 @@ async def _process_payment_success(payment, good, user):
         if panel_profile is None:
             raise Exception("Panel returned None profile")
         provisioned = True
+        logging.info(f"Payment {payment.payment_id} provisioned for user {payment.tg_id} ({payment.callback})")
 
         referee_bonus_days = 0
         if good.get("type") == "renew" and "months" in good:
@@ -153,7 +156,7 @@ async def _process_payment_success(payment, good, user):
                 logging.error(f"Failed to apply referral bonuses for user {payment.tg_id}: {ref_error}")
     except Exception as e:
         logging.error(
-            f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {e}",
+            f"Failed to process subscription for user {payment.tg_id} after payment {payment.payment_id}: {describe_error(e)}",
             exc_info=True
         )
         if not provisioned:
@@ -177,14 +180,19 @@ async def _process_payment_success(payment, good, user):
 async def check_crypto_payment(request: Request):
     client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For') or request.remote
     if client_ip not in ["91.227.144.54"]:
+        logging.warning(f"Cryptomus webhook rejected: IP {client_ip!r} not allowed")
         return web.Response(status=403)
     data = await request.json()
     if not webhook_data.check(data, glv.config['CRYPTO_TOKEN']):
+        logging.warning("Cryptomus webhook rejected: invalid signature")
         return web.Response(status=403)
     payment = await get_payment(data['order_id'], PaymentPlatform.CRYPTOMUS)
     if payment is None:
+        logging.warning(f"Cryptomus webhook for unknown order {data.get('order_id')!r}")
         return web.Response()
-    
+
+    logging.info(f"Cryptomus webhook: payment {payment.payment_id}, user {payment.tg_id}, {payment.callback}, status {data['status']!r}")
+
     if data['status'] in ['paid', 'paid_over']:
         good = goods.get(payment.callback)
         user = await get_vpn_user(payment.tg_id)
@@ -209,14 +217,17 @@ def _check_ip_in_subnets(client_ip: str, subnets: tuple) -> bool:
 async def check_yookassa_payment(request: Request):
     client_ip = request.headers.get('CF-Connecting-IP') or request.headers.get('X-Real-IP') or request.headers.get('X-Forwarded-For') or request.remote
     if not _check_ip_in_subnets(client_ip, YOOKASSA_IPS):
+        logging.warning(f"YooKassa webhook rejected: IP {client_ip!r} not allowed")
         return web.Response(status=403)
-    
+
     data = (await request.json())['object']
     payment = await get_payment(data['id'], PaymentPlatform.YOOKASSA)
     if payment is None:
+        logging.warning(f"YooKassa webhook for unknown payment {data.get('id')!r}")
         return web.Response()
 
     status = await yookassa.get_payment_status(payment.payment_id)
+    logging.info(f"YooKassa webhook: payment {payment.payment_id}, user {payment.tg_id}, {payment.callback}, status {status!r}")
 
     if status == 'succeeded':
         good = goods.get(payment.callback)
@@ -231,22 +242,23 @@ async def check_yookassa_payment(request: Request):
 async def notify_user(request: Request):
     signature = request.headers.get('x-remnawave-signature')
     if not signature:
+        logging.warning("Remnawave webhook rejected: missing signature")
         return web.Response(status=403)
     payload_bytes = await request.read()
     payload = json.loads(payload_bytes)
-    logging.info(f"payload: {payload}")
     webhook_secret = str(glv.config['WEBHOOK_SECRET']).encode('utf-8')
     computed_signature = hmac.new(
         key=webhook_secret,
         msg=payload_bytes,
         digestmod=hashlib.sha256
     ).hexdigest()
-    logging.info(f"sign: {signature}, computed:{computed_signature}")
     if not hmac.compare_digest(signature, computed_signature):
+        logging.warning("Remnawave webhook rejected: invalid signature")
         return web.Response(status=403)
     if payload['event'] not in ['user.bandwidth_usage_threshold_reached', 'user.expiration', 'user.expired', 'user.limited', 'user.not_connected']:
         return web.Response()
     vpn_id = payload['data']['username']
+    logging.info(f"Remnawave webhook: {payload['event']} for {vpn_id}")
     user = await get_marzban_profile_by_vpn_id(vpn_id)
     if user is None:
         logging.info(f"No user found id={vpn_id}")

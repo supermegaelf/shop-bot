@@ -7,7 +7,7 @@ from aiogram.utils.i18n import gettext as _
 
 from utils import goods, MessageCleanup, try_delete_message, referrals
 from utils.lang import get_i18n_string
-from utils.admin_alert import notify_admins_payment_failure
+from utils.admin_alert import notify_admins_payment_failure, describe_error
 from db.methods import (
     get_vpn_user,
     add_payment,
@@ -46,6 +46,10 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
 
 @router.message(F.successful_payment)
 async def success_payment(message: Message, state: FSMContext):
+    logging.info(
+        f"Stars payment: user {message.from_user.id}, {message.successful_payment.invoice_payload}, "
+        f"charge {message.successful_payment.telegram_payment_charge_id}, amount {message.successful_payment.total_amount}"
+    )
     payment = await get_pending_telegram_payment(
         message.from_user.id, message.successful_payment.invoice_payload
     )
@@ -76,7 +80,7 @@ async def success_payment(message: Message, state: FSMContext):
                 raise Exception("Panel returned None profile")
         except Exception as e:
             logging.error(
-                f"Failed to change tariff for user {message.from_user.id} after payment: {e}",
+                f"Failed to change tariff for user {message.from_user.id} after payment: {describe_error(e)}",
                 exc_info=True
             )
             await add_payment(
@@ -149,7 +153,7 @@ async def success_payment(message: Message, state: FSMContext):
             )
     except Exception as e:
         logging.error(
-            f"Failed to process subscription for user {message.from_user.id} after payment: {e}",
+            f"Failed to process subscription for user {message.from_user.id} after payment: {describe_error(e)}",
             exc_info=True
         )
         await add_payment(
