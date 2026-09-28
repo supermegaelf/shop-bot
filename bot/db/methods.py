@@ -132,9 +132,15 @@ async def get_pending_telegram_payment(tg_id: int, callback: str) -> Payments:
         payment: Payments = (await conn.execute(sql_q)).fetchone()
     return payment
 
-async def confirm_payment(payment_id):
+async def claim_payment(payment_id) -> bool:
     async with engine.begin() as conn:
-        sql_q = update(Payments).where(Payments.payment_id == payment_id).values(confirmed=True)
+        sql_q = update(Payments).where(Payments.payment_id == payment_id, Payments.confirmed == False).values(confirmed=True)
+        result = await conn.execute(sql_q)
+    return result.rowcount > 0
+
+async def release_payment(payment_id):
+    async with engine.begin() as conn:
+        sql_q = update(Payments).where(Payments.payment_id == payment_id).values(confirmed=False)
         await conn.execute(sql_q)
 
 async def delete_payment(payment_id):
