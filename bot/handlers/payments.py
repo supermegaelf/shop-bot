@@ -7,6 +7,7 @@ from aiogram.utils.i18n import gettext as _
 
 from utils import goods, MessageCleanup, try_delete_message, referrals
 from utils.lang import get_i18n_string
+from utils.admin_alert import notify_admins_payment_failure
 from db.methods import (
     get_vpn_user,
     add_payment,
@@ -82,6 +83,7 @@ async def success_payment(message: Message, state: FSMContext):
                 message.from_user.id, payload, message.from_user.language_code,
                 charge_id, PaymentPlatform.TELEGRAM, False, from_notification=from_notification,
             )
+            await notify_admins_payment_failure(message.from_user.id, payload, charge_id, False, e)
             await cleanup.send_important(
                 chat_id=message.from_user.id,
                 text=_("message_error") + "\n\n" + _("Please contact support. Your payment has been registered."),
@@ -99,6 +101,7 @@ async def success_payment(message: Message, state: FSMContext):
         )
         return
 
+    provisioned = False
     try:
         if good["type"] == "renew":
             is_trial = await is_test_subscription(message.from_user.id)
@@ -115,6 +118,7 @@ async def success_payment(message: Message, state: FSMContext):
 
         if panel_profile is None:
             raise Exception("Panel returned None profile")
+        provisioned = True
 
         referee_bonus_days = 0
         if good.get("type") == "renew" and "months" in good:
@@ -156,6 +160,9 @@ async def success_payment(message: Message, state: FSMContext):
             PaymentPlatform.TELEGRAM,
             False,
             from_notification=from_notification,
+        )
+        await notify_admins_payment_failure(
+            message.from_user.id, good["callback"], message.successful_payment.telegram_payment_charge_id, provisioned, e
         )
         await cleanup.send_important(
             chat_id=message.from_user.id,
