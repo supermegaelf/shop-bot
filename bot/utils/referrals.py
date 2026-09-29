@@ -2,7 +2,7 @@ import secrets
 import string
 import math
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict
 from sqlalchemy import select, func, insert, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +11,7 @@ from db.models import VPNUsers, ReferralBonus, Payments
 from db.methods import engine, get_vpn_user
 from utils.ephemeral import EphemeralNotification
 from utils.lang import get_i18n_string
+from utils.admin_alert import describe_error, notify_admins_referral_failure
 from keyboards.referral import get_referral_notification_keyboard
 import glv
 
@@ -83,6 +84,23 @@ async def get_referee_bonus_days(referee_id: int, purchase_days: int) -> int:
         return 0
     return max(1, math.ceil(purchase_days * referee_percent / 100))
 
+async def _extend_panel_user(panel, vpn_id: str, days: int) -> bool:
+    response = await panel.client.get(f"/users/by-username/{vpn_id}")
+    if response.status_code == 404:
+        return False
+    response.raise_for_status()
+    user_data = response.json()['response']
+    expire = datetime.fromisoformat(user_data['expireAt'].replace('Z', '+00:00'))
+    update_payload = {
+        'id': user_data['id'],
+        'expireAt': (max(expire, datetime.now(timezone.utc)) + timedelta(days=days)).isoformat().replace('+00:00', 'Z')
+    }
+    if user_data.get('status') == 'EXPIRED':
+        update_payload['status'] = 'ACTIVE'
+    update_response = await panel.client.patch("/users", json=update_payload)
+    update_response.raise_for_status()
+    return True
+
 async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id: int = None, lang: str = 'ru') -> Dict:
     inviter_percent = glv.config.get('REFERRAL_BONUS_PERCENT_INVITER', 10)
     referee_percent = glv.config.get('REFERRAL_BONUS_PERCENT_REFEREE', 5)
@@ -112,56 +130,46 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
     try:
         from panel import get_panel
         panel = get_panel()
+        failures = []
 
         inviter_user = await get_vpn_user(inviter_id)
         if inviter_user and inviter_user.vpn_id:
+            inviter_extended = False
             try:
-                inviter_profile = await panel.get_panel_user(inviter_id)
-                if inviter_profile and inviter_profile.expire:
-                    new_expire = inviter_profile.expire + timedelta(days=bonus_days_inviter)
-                    user_data = await panel._get_user_by_username(inviter_user.vpn_id)
-                    if user_data:
-                        update_payload = {
-                            'uuid': user_data['uuid'],
-                            'expireAt': new_expire.isoformat().replace('+00:00', 'Z')
-                        }
-                        await panel.client.patch("/users", json=update_payload)
-
-                        try:
-                            inviter_chat = await glv.bot.get_chat(inviter_id)
-                            inviter_lang = inviter_chat.language_code or 'ru'
-                        except:
-                            inviter_lang = 'ru'
-
-                        text = get_i18n_string("referral_notification_inviter", inviter_lang).format(
-                            days=bonus_days_inviter
-                        )
-                        keyboard = get_referral_notification_keyboard(inviter_lang)
-                        await EphemeralNotification.send_ephemeral(
-                            bot=glv.bot,
-                            chat_id=inviter_id,
-                            text=text,
-                            reply_markup=keyboard,
-                            lang=inviter_lang
-                        )
+                inviter_extended = await _extend_panel_user(panel, inviter_user.vpn_id, bonus_days_inviter)
             except Exception as e:
-                logging.error(f"Failed to apply bonus to inviter {inviter_id}: {e}")
+                logging.error(f"Failed to apply bonus to inviter {inviter_id}: {describe_error(e)}")
+                failures.append(f"Пригласившему {inviter_id} +{bonus_days_inviter} дн.: {describe_error(e)}")
+
+            if inviter_extended:
+                try:
+                    try:
+                        inviter_chat = await glv.bot.get_chat(inviter_id)
+                        inviter_lang = inviter_chat.language_code or 'ru'
+                    except:
+                        inviter_lang = 'ru'
+
+                    text = get_i18n_string("referral_notification_inviter", inviter_lang).format(
+                        days=bonus_days_inviter
+                    )
+                    keyboard = get_referral_notification_keyboard(inviter_lang)
+                    await EphemeralNotification.send_ephemeral(
+                        bot=glv.bot,
+                        chat_id=inviter_id,
+                        text=text,
+                        reply_markup=keyboard,
+                        lang=inviter_lang
+                    )
+                except Exception as e:
+                    logging.error(f"Failed to notify inviter {inviter_id} about referral bonus: {e}")
 
         referee_user = await get_vpn_user(referee_id)
         if referee_user and referee_user.vpn_id:
             try:
-                referee_profile = await panel.get_panel_user(referee_id)
-                if referee_profile and referee_profile.expire:
-                    new_expire = referee_profile.expire + timedelta(days=bonus_days_referee)
-                    user_data = await panel._get_user_by_username(referee_user.vpn_id)
-                    if user_data:
-                        update_payload = {
-                            'uuid': user_data['uuid'],
-                            'expireAt': new_expire.isoformat().replace('+00:00', 'Z')
-                        }
-                        await panel.client.patch("/users", json=update_payload)
+                await _extend_panel_user(panel, referee_user.vpn_id, bonus_days_referee)
             except Exception as e:
-                logging.error(f"Failed to apply bonus to referee {referee_id}: {e}")
+                logging.error(f"Failed to apply bonus to referee {referee_id}: {describe_error(e)}")
+                failures.append(f"Приглашённому {referee_id} +{bonus_days_referee} дн.: {describe_error(e)}")
 
         async with engine.begin() as conn:
             await conn.execute(
@@ -175,7 +183,11 @@ async def apply_referral_bonuses(referee_id: int, purchase_days: int, payment_id
                     created_at=datetime.now()
                 )
             )
-        logging.info(f"Referral bonus applied: inviter={inviter_id} (+{bonus_days_inviter}d), referee={referee_id} (+{bonus_days_referee}d), purchase={purchase_days}d, payment_id={payment_id}")
+
+        if failures:
+            await notify_admins_referral_failure(referee_id, payment_id, failures)
+        else:
+            logging.info(f"Referral bonus applied: inviter={inviter_id} (+{bonus_days_inviter}d), referee={referee_id} (+{bonus_days_referee}d), purchase={purchase_days}d, payment_id={payment_id}")
 
     except Exception as e:
         logging.error(f"Failed to apply referral bonuses: {e}")
