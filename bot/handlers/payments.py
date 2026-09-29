@@ -16,6 +16,7 @@ from db.methods import (
     disable_trial,
     use_all_promo_codes,
     has_confirmed_payments,
+    get_confirmed_payment_callbacks,
     get_payment,
     get_pending_telegram_payment,
 )
@@ -74,8 +75,12 @@ async def success_payment(message: Message, state: FSMContext):
     if payload.startswith("upgrade_"):
         target = goods.get(payload[len("upgrade_"):])
         charge_id = message.successful_payment.telegram_payment_charge_id
+        current_tariff = goods.get_current_tariff(await get_confirmed_payment_callbacks(message.from_user.id))
         try:
-            panel_profile = await panel.set_subscription_data_limit(user.vpn_id, target["data_limit"])
+            if not current_tariff or target["data_limit"] <= current_tariff["data_limit"]:
+                raise Exception(f"Cannot upgrade from {current_tariff.get('callback')} to {target['callback']}")
+            extra_limit = target["data_limit"] - current_tariff["data_limit"]
+            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, extra_limit)
             if panel_profile is None:
                 raise Exception("Panel returned None profile")
         except Exception as e:

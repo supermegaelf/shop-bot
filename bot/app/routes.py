@@ -22,6 +22,7 @@ from db.methods import (
     is_test_subscription,
     use_all_promo_codes,
     has_confirmed_payments,
+    get_confirmed_payment_callbacks,
     get_last_traffic_notification,
     add_traffic_notification
 )
@@ -67,6 +68,7 @@ async def _send_or_edit_result(chat_id: int, message_id, text: str, reply_markup
 
 async def _process_payment_success(payment, good, user):
     user_has_payments = await has_confirmed_payments(payment.tg_id)
+    current_tariff = goods.get_current_tariff(await get_confirmed_payment_callbacks(payment.tg_id))
     if not await claim_payment(payment.id):
         logging.info(f"Payment {payment.payment_id} already processed, skipping duplicate notification")
         return
@@ -77,7 +79,10 @@ async def _process_payment_success(payment, good, user):
     try:
         if payment.callback.startswith("upgrade_"):
             target = goods.get(payment.callback[len("upgrade_"):])
-            panel_profile = await panel.set_subscription_data_limit(user.vpn_id, target['data_limit'])
+            if not current_tariff or target['data_limit'] <= current_tariff['data_limit']:
+                raise Exception(f"Cannot upgrade from {current_tariff.get('callback')} to {target['callback']}")
+            extra_limit = target['data_limit'] - current_tariff['data_limit']
+            panel_profile = await panel.update_subscription_data_limit(user.vpn_id, extra_limit)
             if panel_profile is None:
                 raise Exception("Panel returned None profile")
             provisioned = True
