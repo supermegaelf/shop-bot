@@ -10,13 +10,14 @@ def get_upgrade_menu_keyboard(current: dict, options: list) -> InlineKeyboardMar
 
     for good in options:
         surcharge = goods.get_upgrade_price(current, good, "ru")
-        builder.row(InlineKeyboardButton(
+        builder.add(InlineKeyboardButton(
             text=_("{title} – {price_ru} ₽").format(
                 title=good["title"],
                 price_ru=int(surcharge)
             ),
             callback_data=f"upg_{good['callback']}"
         ))
+    builder.adjust(2 if len(options) % 2 == 0 else 1)
 
     builder.row(InlineKeyboardButton(text=_("button_back"), callback_data="back_to_subscription"))
 

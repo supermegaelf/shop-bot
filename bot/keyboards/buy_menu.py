@@ -11,14 +11,15 @@ async def get_buy_menu_keyboard(tg_id: int, months: int, purchase_type: str) -> 
     discount = await get_user_promo_discount(tg_id)
 
     for good in filtered_goods:
-        builder.row(InlineKeyboardButton(
+        builder.add(InlineKeyboardButton(
             text=_("{title} – {price_ru} ₽").format(
                 title=good['title'],
                 price_ru = int(good['price']['ru'] * (1 - discount / 100))
-            ) + (f" (-{discount}%)" if discount else ""), 
+            ) + (f" (-{discount}%)" if discount else ""),
             callback_data=good['callback'])
         )
-    
+    builder.adjust(2 if len(filtered_goods) % 2 == 0 else 1)
+
     back_callback = "back_to_subscription" if purchase_type == "update" else "payment"
     builder.row(InlineKeyboardButton(text=_("button_back"), callback_data=back_callback))
     
