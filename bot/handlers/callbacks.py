@@ -8,7 +8,7 @@ import segno
 from aiogram import Router, F, Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice, InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _
+from aiogram.utils.i18n import gettext as _, get_i18n
 
 from keyboards import (
     get_main_menu_keyboard,
@@ -47,10 +47,18 @@ MONTHS_RU = {
     9: "сен", 10: "окт", 11: "ноя", 12: "дек"
 }
 
+MONTHS_EN = {
+    1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",
+    5: "May", 6: "Jun", 7: "Jul", 8: "Aug",
+    9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+}
+
 def _format_expire_date(date):
     if not date:
         return "∞"
-    return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
+    if get_i18n().current_locale == "ru":
+        return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
+    return f"{MONTHS_EN[date.month]} {date.day:02d}, {date.year}"
 
 def _format_traffic_reset(panel_profile):
     if not panel_profile or not panel_profile.data_limit or panel_profile.status not in ("active", "limited"):
