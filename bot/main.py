@@ -26,7 +26,6 @@ from handlers.admin_referrals import register_admin_referrals
 from middlewares.db_check import DBCheck
 from middlewares.user_lock import UserLock
 from app.routes import check_crypto_payment, check_yookassa_payment, notify_user
-from utils.traffic_checker import check_users_traffic
 from db.methods import cleanup_old_traffic_notifications
 import glv
 
