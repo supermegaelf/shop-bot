@@ -1,7 +1,7 @@
 import asyncio
 import ipaddress
 import logging
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 import hmac
 import hashlib
 import json
@@ -29,6 +29,7 @@ from db.methods import (
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods, referrals, yookassa
 from utils import get_i18n_string
+from utils.dates import MONTHS_RU_GENITIVE, MONTHS_EN_FULL, next_traffic_reset
 from utils.admin_alert import notify_admins_payment_failure, describe_error
 from panel import get_panel
 
@@ -275,24 +276,10 @@ async def notify_user(request: Request):
     return web.Response()
 
 
-MONTHS_RU_GENITIVE = {
-    1: "января", 2: "февраля", 3: "марта", 4: "апреля",
-    5: "мая", 6: "июня", 7: "июля", 8: "августа",
-    9: "сентября", 10: "октября", 11: "ноября", 12: "декабря"
-}
-
-MONTHS_EN_FULL = {
-    1: "January", 2: "February", 3: "March", 4: "April",
-    5: "May", 6: "June", 7: "July", 8: "August",
-    9: "September", 10: "October", 11: "November", 12: "December"
-}
-
-
-def _format_traffic_reset(user_data: dict, lang) -> str:
-    now = datetime.now(UTC)
-    next_reset = datetime(now.year + now.month // 12, now.month % 12 + 1, 1, tzinfo=UTC)
+def _format_traffic_reset(user_data: dict, lang: str) -> str:
     expire_at = user_data.get('expireAt')
-    if expire_at and datetime.fromisoformat(expire_at.replace('Z', '+00:00')) < next_reset:
+    next_reset = next_traffic_reset(datetime.fromisoformat(expire_at.replace('Z', '+00:00')) if expire_at else None)
+    if not next_reset:
         return ""
     if lang == 'ru':
         date = f"{next_reset.day} {MONTHS_RU_GENITIVE[next_reset.month]}"

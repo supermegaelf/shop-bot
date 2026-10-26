@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 from io import BytesIO
 import logging
 import asyncio
@@ -35,23 +35,12 @@ from db.methods import (
     get_confirmed_payment_callbacks,
 )
 from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message, safe_answer
+from utils.dates import MONTHS_RU, MONTHS_EN, next_traffic_reset
 from panel import get_panel
 from filters import IsAdminCallbackFilter
 import glv
 
 router = Router(name="callbacks-router")
-
-MONTHS_RU = {
-    1: "янв", 2: "фев", 3: "мар", 4: "апр",
-    5: "мая", 6: "июн", 7: "июл", 8: "авг",
-    9: "сен", 10: "окт", 11: "ноя", 12: "дек"
-}
-
-MONTHS_EN = {
-    1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",
-    5: "May", 6: "Jun", 7: "Jul", 8: "Aug",
-    9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
-}
 
 def _format_expire_date(date):
     if not date:
@@ -63,9 +52,8 @@ def _format_expire_date(date):
 def _format_traffic_reset(panel_profile):
     if not panel_profile or not panel_profile.data_limit or panel_profile.status not in ("active", "limited"):
         return ""
-    now = datetime.now(UTC)
-    next_reset = datetime(now.year + now.month // 12, now.month % 12 + 1, 1, tzinfo=UTC)
-    if panel_profile.expire and panel_profile.expire < next_reset:
+    next_reset = next_traffic_reset(panel_profile.expire)
+    if not next_reset:
         return ""
     return _("traffic_reset").format(date=_format_expire_date(next_reset))
 
@@ -91,7 +79,7 @@ def _format_profile_data(panel_profile):
         data_used = "–"
         data_limit = "–"
         show_buy_traffic_button = False
-
+    
     return {
         "url": url,
         "status": status,
