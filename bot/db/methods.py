@@ -270,19 +270,15 @@ async def get_user_messages(tg_id: int) -> dict:
         'important': None
     }
     
-    seen_single = set()
-    
     for row in results:
         msg_type = row.message_type
         msg_id = row.message_id
-        
+
         if msg_type in ['navigation', 'notification']:
             if msg_id not in messages[msg_type]:
                 messages[msg_type].append(msg_id)
         else:
-            if msg_type not in seen_single:
-                messages[msg_type] = msg_id
-                seen_single.add(msg_type)
+            messages[msg_type] = msg_id
     
     return messages
 
