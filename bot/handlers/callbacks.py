@@ -147,7 +147,7 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
     profile_data = _format_profile_data(panel_profile)
 
     _current_tariff, upgrade_options = await _get_upgrade_context(callback.from_user.id)
-    can_change_tariff = bool(upgrade_options) and panel_profile is not None and panel_profile.status != "expired"
+    can_change_tariff = bool(upgrade_options) and panel_profile is not None and not panel_profile.is_expired
 
     keyboard = get_subscription_details_keyboard(
         profile_data["url"],
@@ -187,6 +187,16 @@ async def callback_month_amount_select(callback: CallbackQuery, state: FSMContex
     )
 
 
+async def _send_topup_requires_active_subscription(callback: CallbackQuery, state: FSMContext):
+    cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+    await cleanup.send_navigation(
+        chat_id=callback.from_user.id,
+        text=_("message_topup_requires_active_subscription"),
+        reply_markup=get_renew_subscription_keyboard(callback.from_user.language_code),
+        reuse_message=callback.message,
+    )
+
+
 @router.callback_query(F.data == "extend_data_limit")
 async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext):
     panel = get_panel()
@@ -198,13 +208,7 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
     await safe_answer(callback)
 
     if panel_profile.is_expired:
-        cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
-        await cleanup.send_navigation(
-            chat_id=callback.from_user.id,
-            text=_("message_topup_requires_active_subscription"),
-            reply_markup=get_renew_subscription_keyboard(callback.from_user.language_code),
-            reuse_message=callback.message,
-        )
+        await _send_topup_requires_active_subscription(callback, state)
         return
 
     filtered_goods = [
@@ -248,7 +252,7 @@ async def callback_extend_data_limit_notification(
 async def callback_change_tariff(callback: CallbackQuery, state: FSMContext):
     panel = get_panel()
     panel_profile = await panel.get_panel_user(callback.from_user.id)
-    if panel_profile is None or panel_profile.status == "expired":
+    if panel_profile is None or panel_profile.is_expired:
         await safe_answer(callback, _("message_no_upgrade_available"), show_alert=True)
         return
 
@@ -568,6 +572,12 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
 
     good = goods.get(callback.data)
 
+    if good.get("type") == "update":
+        panel_profile = await get_panel().get_panel_user(callback.from_user.id)
+        if panel_profile is not None and panel_profile.is_expired:
+            await _send_topup_requires_active_subscription(callback, state)
+            return
+
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
@@ -651,7 +661,7 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
     profile_data = _format_profile_data(panel_profile)
 
     _current_tariff, upgrade_options = await _get_upgrade_context(callback.from_user.id)
-    can_change_tariff = bool(upgrade_options) and panel_profile is not None and panel_profile.status != "expired"
+    can_change_tariff = bool(upgrade_options) and panel_profile is not None and not panel_profile.is_expired
 
     keyboard = get_subscription_details_keyboard(
         profile_data["url"],
