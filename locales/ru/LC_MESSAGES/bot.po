@@ -228,10 +228,16 @@ msgstr ""
 
 msgid "subscription_details"
 msgstr ""
-"Статус подписки: {status}\n\n"
+"Подписка\n"
+"Статус: {status}\n"
 "Действует до: {expire_date} 📅\n\n"
-"Трафик: {data_used} ГБ / {data_limit} ГБ 🌍\n\n"
+"Трафик\n"
+"Месячный: {data_used} ГБ / {data_limit} ГБ 📊\n"
+"{traffic_reset}\n"
 "Выберите пункт ⬇️"
+
+msgid "traffic_reset"
+msgstr "Обновится: {date} 🔄\n"
 
 msgid "share_qr_instruction"
 msgstr ""

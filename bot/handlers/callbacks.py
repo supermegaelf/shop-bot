@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from io import BytesIO
 import logging
 import asyncio
@@ -52,6 +52,15 @@ def _format_expire_date(date):
         return "∞"
     return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
 
+def _format_traffic_reset(panel_profile):
+    if not panel_profile or not panel_profile.data_limit or panel_profile.status not in ("active", "limited"):
+        return ""
+    now = datetime.now(UTC)
+    next_reset = datetime(now.year + now.month // 12, now.month % 12 + 1, 1, tzinfo=UTC)
+    if panel_profile.expire and panel_profile.expire < next_reset:
+        return ""
+    return _("traffic_reset").format(date=_format_expire_date(next_reset))
+
 def _format_profile_data(panel_profile):
     if panel_profile:
         url = panel_profile.subscription_url
@@ -74,13 +83,14 @@ def _format_profile_data(panel_profile):
         data_used = "–"
         data_limit = "–"
         show_buy_traffic_button = False
-    
+
     return {
         "url": url,
         "status": status,
         "expire_date": expire_date,
         "data_used": data_used,
         "data_limit": data_limit,
+        "traffic_reset": _format_traffic_reset(panel_profile),
         "show_buy_traffic_button": show_buy_traffic_button,
     }
 
@@ -155,6 +165,7 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
             expire_date=profile_data["expire_date"],
             data_used=profile_data["data_used"],
             data_limit=profile_data["data_limit"],
+            traffic_reset=profile_data["traffic_reset"],
         ),
         reply_markup=keyboard,
         reuse_message=callback.message,
@@ -654,6 +665,7 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
             expire_date=profile_data["expire_date"],
             data_used=profile_data["data_used"],
             data_limit=profile_data["data_limit"],
+            traffic_reset=profile_data["traffic_reset"],
         ),
         reply_markup=keyboard,
         reuse_message=reuse_message,
