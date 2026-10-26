@@ -24,7 +24,8 @@ msgid "message_select_payment_method"
 msgstr "Select payment method ⬇️"
 
 msgid "message_select_traffic_amount"
-msgstr "Select the appropriate amount of traffic ⬇️"
+msgstr "Extra traffic is added to your monthly limit and stays until you renew your subscription.\n\n"
+"Select the appropriate amount of traffic ⬇️"
 
 msgid "message_traffic_renewal_info"
 msgstr "Traffic is updated monthly on the 1st.\n\n"

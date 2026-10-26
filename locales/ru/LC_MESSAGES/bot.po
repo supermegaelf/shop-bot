@@ -24,7 +24,8 @@ msgid "message_select_payment_method"
 msgstr "Выберите способ оплаты ⬇️"
 
 msgid "message_select_traffic_amount"
-msgstr "Выберите подходящий объём трафика ⬇️"
+msgstr "Докупленный трафик прибавляется к месячному лимиту и сохраняется до продления подписки.\n\n"
+"Выберите подходящий объём трафика ⬇️"
 
 msgid "message_traffic_renewal_info"
 msgstr "Трафик обновляется ежемесячно 1 числа.\n\n"
