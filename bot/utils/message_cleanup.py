@@ -187,6 +187,36 @@ class MessageCleanup:
         
         return deleted_from_telegram
 
+    async def _edit_message(self, chat_id: int, message_id: int, text: str, reply_markup: Optional[InlineKeyboardMarkup], **kwargs) -> bool:
+        try:
+            await asyncio.wait_for(
+                self.bot.edit_message_text(
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    text=text,
+                    reply_markup=reply_markup,
+                    **kwargs
+                ),
+                timeout=5.0
+            )
+            if self.debug:
+                logging.info(f"Cleanup: edited message {message_id} in chat {chat_id}")
+            return True
+        except asyncio.TimeoutError:
+            if self.debug:
+                logging.warning(f"Cleanup: timeout editing message {message_id} in chat {chat_id}")
+            return False
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e).lower():
+                return True
+            if self.debug:
+                logging.warning(f"Cleanup: TelegramBadRequest editing message {message_id} in chat {chat_id}: {e}")
+            return False
+        except Exception as e:
+            if self.debug:
+                logging.warning(f"Cleanup: failed to edit message {message_id} in chat {chat_id}: {e}")
+            return False
+
     async def _delete_messages(self, chat_id: int, message_ids: List[int], message_type: Optional[str] = None):
         if not message_ids:
             return
@@ -381,7 +411,11 @@ class MessageCleanup:
         messages = await self._get_messages_state(chat_id)
         existing_profile = messages.get('profile')
         if existing_profile and (reuse_message is None or existing_profile != reuse_message.message_id):
-            await self._delete_message(chat_id, existing_profile, 'profile')
+            deleted = await self._delete_message(chat_id, existing_profile, 'profile')
+            if not deleted and reuse_message is not None:
+                if await self._edit_message(chat_id, existing_profile, text, reply_markup, **kwargs):
+                    await self._delete_message(chat_id, reuse_message.message_id, None)
+                    return existing_profile
             messages['profile'] = None
             await self._save_messages_state(messages)
 
