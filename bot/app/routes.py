@@ -29,6 +29,7 @@ from db.methods import (
 from keyboards import get_main_menu_keyboard, get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_payment_success_keyboard
 from utils import webhook_data, goods, referrals, yookassa
 from utils import get_i18n_string
+from utils.dates import MONTHS_RU_GENITIVE, MONTHS_EN_FULL, next_traffic_reset
 from utils.admin_alert import notify_admins_payment_failure, describe_error
 from panel import get_panel
 
@@ -275,6 +276,18 @@ async def notify_user(request: Request):
     return web.Response()
 
 
+def _format_traffic_reset(user_data: dict, lang: str) -> str:
+    expire_at = user_data.get('expireAt')
+    next_reset = next_traffic_reset(datetime.fromisoformat(expire_at.replace('Z', '+00:00')) if expire_at else None)
+    if not next_reset:
+        return ""
+    if lang == 'ru':
+        date = f"{next_reset.day} {MONTHS_RU_GENITIVE[next_reset.month]}"
+    else:
+        date = f"{MONTHS_EN_FULL[next_reset.month]} {next_reset.day}"
+    return get_i18n_string("notification_traffic_reset", lang).format(date=date)
+
+
 async def _process_notification(payload: dict, user) -> None:
     from utils.ephemeral import EphemeralNotification
     from db.methods import save_user_message
@@ -307,7 +320,11 @@ async def _process_notification(payload: dict, user) -> None:
                         return
 
                 remaining_percent = 100 - threshold
-                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(name=chat_member.user.first_name, amount=remaining_percent)
+                message = get_i18n_string("message_reached_usage_percent", chat_member.user.language_code).format(
+                    name=chat_member.user.first_name,
+                    amount=remaining_percent,
+                    traffic_reset=_format_traffic_reset(payload['data'], chat_member.user.language_code)
+                )
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
 
             case "user.expiration":
@@ -340,7 +357,10 @@ async def _process_notification(payload: dict, user) -> None:
                 keyboard = get_renew_subscription_keyboard(chat_member.user.language_code, back=False, from_notification=True)
 
             case "user.limited":
-                message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(name=chat_member.user.first_name)
+                message = get_i18n_string("message_user_limited", chat_member.user.language_code).format(
+                    name=chat_member.user.first_name,
+                    traffic_reset=_format_traffic_reset(payload['data'], chat_member.user.language_code)
+                )
                 keyboard = get_buy_more_traffic_keyboard(chat_member.user.language_code, back=False, from_notification=True)
 
             case "user.not_connected":

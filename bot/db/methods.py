@@ -334,12 +334,6 @@ async def add_traffic_notification(tg_id: int, notification_type: str):
         )
         await conn.execute(sql_query)
 
-async def get_all_active_users():
-    async with engine.connect() as conn:
-        sql_query = select(VPNUsers).where(VPNUsers.test.isnot(None))
-        result: list[VPNUsers] = (await conn.execute(sql_query)).fetchall()
-        return result
-
 async def cleanup_old_traffic_notifications(days: int = 30):
     cutoff_date = datetime.now() - timedelta(days=days)
     async with engine.begin() as conn:

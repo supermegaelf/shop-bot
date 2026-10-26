@@ -8,7 +8,7 @@ import segno
 from aiogram import Router, F, Dispatcher
 from aiogram.types import CallbackQuery, LabeledPrice, InlineKeyboardMarkup, InlineKeyboardButton, BufferedInputFile
 from aiogram.fsm.context import FSMContext
-from aiogram.utils.i18n import gettext as _
+from aiogram.utils.i18n import gettext as _, get_i18n
 
 from keyboards import (
     get_main_menu_keyboard,
@@ -35,22 +35,27 @@ from db.methods import (
     get_confirmed_payment_callbacks,
 )
 from utils import goods, yookassa, cryptomus, MessageCleanup, MessageType, try_delete_message, safe_answer
+from utils.dates import MONTHS_RU, MONTHS_EN, next_traffic_reset
 from panel import get_panel
 from filters import IsAdminCallbackFilter
 import glv
 
 router = Router(name="callbacks-router")
 
-MONTHS_RU = {
-    1: "янв", 2: "фев", 3: "мар", 4: "апр",
-    5: "мая", 6: "июн", 7: "июл", 8: "авг",
-    9: "сен", 10: "окт", 11: "ноя", 12: "дек"
-}
-
 def _format_expire_date(date):
     if not date:
         return "∞"
-    return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
+    if get_i18n().current_locale == "ru":
+        return f"{date.day:02d} {MONTHS_RU[date.month]} {date.year}"
+    return f"{MONTHS_EN[date.month]} {date.day:02d}, {date.year}"
+
+def _format_traffic_reset(panel_profile):
+    if not panel_profile or not panel_profile.data_limit or panel_profile.status not in ("active", "limited"):
+        return ""
+    next_reset = next_traffic_reset(panel_profile.expire)
+    if not next_reset:
+        return ""
+    return _("traffic_reset").format(date=_format_expire_date(next_reset))
 
 def _format_profile_data(panel_profile):
     if panel_profile:
@@ -81,6 +86,7 @@ def _format_profile_data(panel_profile):
         "expire_date": expire_date,
         "data_used": data_used,
         "data_limit": data_limit,
+        "traffic_reset": _format_traffic_reset(panel_profile),
         "show_buy_traffic_button": show_buy_traffic_button,
     }
 
@@ -155,6 +161,7 @@ async def callback_subscription_details(callback: CallbackQuery, state: FSMConte
             expire_date=profile_data["expire_date"],
             data_used=profile_data["data_used"],
             data_limit=profile_data["data_limit"],
+            traffic_reset=profile_data["traffic_reset"],
         ),
         reply_markup=keyboard,
         reuse_message=callback.message,
@@ -654,6 +661,7 @@ async def callback_back_to_subscription(callback: CallbackQuery, state: FSMConte
             expire_date=profile_data["expire_date"],
             data_used=profile_data["data_used"],
             data_limit=profile_data["data_limit"],
+            traffic_reset=profile_data["traffic_reset"],
         ),
         reply_markup=keyboard,
         reuse_message=reuse_message,
