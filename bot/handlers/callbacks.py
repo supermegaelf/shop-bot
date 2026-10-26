@@ -26,6 +26,7 @@ from keyboards import (
     get_broadcast_dismiss_keyboard,
     get_subscription_details_keyboard,
     get_upgrade_menu_keyboard,
+    get_renew_subscription_keyboard,
 )
 from db.methods import (
     is_trial_available,
@@ -70,6 +71,7 @@ def _format_profile_data(panel_profile):
         )
         show_buy_traffic_button = (
             panel_profile.data_limit
+            and not panel_profile.is_expired
             and (panel_profile.used_traffic / panel_profile.data_limit) > 0.75
         )
     else:
@@ -194,6 +196,16 @@ async def callback_extend_data_limit(callback: CallbackQuery, state: FSMContext)
         return
 
     await safe_answer(callback)
+
+    if panel_profile.is_expired:
+        cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
+        await cleanup.send_navigation(
+            chat_id=callback.from_user.id,
+            text=_("message_topup_requires_active_subscription"),
+            reply_markup=get_renew_subscription_keyboard(callback.from_user.language_code),
+            reuse_message=callback.message,
+        )
+        return
 
     filtered_goods = [
         good

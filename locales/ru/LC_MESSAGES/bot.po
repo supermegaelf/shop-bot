@@ -162,6 +162,10 @@ msgstr "Выберите новый объём трафика для смены 
 msgid "message_no_upgrade_available"
 msgstr "Смена тарифа сейчас недоступна ⛔️"
 
+msgid "message_topup_requires_active_subscription"
+msgstr "Ваша подписка истекла ⌛️\n\n"
+"Докупить трафик можно только к активной подписке — сначала продлите её."
+
 msgid "message_tariff_changed"
 msgstr ""
 "Тариф успешно изменён ✅\n\n"
