@@ -237,6 +237,10 @@ class RemnawavePanel(Panel):
             if not user_data:
                 raise Exception("User not found in response")
             user_id = user_data['id']
+            expire_at = user_data.get('expireAt')
+            expired_by_date = expire_at and datetime.fromisoformat(expire_at.replace('Z', '+00:00')) < datetime.now(UTC)
+            if user_data['status'] == 'EXPIRED' or expired_by_date:
+                raise Exception("Subscription expired, traffic not added")
             current_limit = user_data.get('trafficLimitBytes', 0)
 
             update_payload = {

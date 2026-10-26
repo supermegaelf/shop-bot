@@ -40,6 +40,19 @@ async def pre_checkout_handler(query: PreCheckoutQuery):
                 ok=False,
             )
             return
+        payload = query.invoice_payload
+        is_upgrade = payload.startswith("upgrade_")
+        if is_upgrade or goods.get(payload).get("type") == "update":
+            panel_profile = await get_panel().get_panel_user(query.from_user.id)
+            if panel_profile is None:
+                await query.answer(_("message_error"), ok=False)
+                return
+            if panel_profile.is_expired:
+                await query.answer(
+                    _("message_no_upgrade_available") if is_upgrade else _("message_topup_requires_active_subscription"),
+                    ok=False,
+                )
+                return
         await query.answer(ok=True)
     except Exception as e:
         logging.warning(f"Failed to answer pre_checkout_query {query.id}: {e}")
