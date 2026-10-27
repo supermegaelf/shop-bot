@@ -145,7 +145,7 @@ msgid "{months} months – from {price} ₽"
 msgstr ""
 
 msgid "button_card"
-msgstr "Card / SBP 💳"
+msgstr "Card / SBP 🇷🇺"
 
 msgid "button_cryptocurrency"
 msgstr "Cryptocurrency 💲"
