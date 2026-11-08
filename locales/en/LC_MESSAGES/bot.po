@@ -23,6 +23,9 @@ msgstr ""
 msgid "message_select_payment_method"
 msgstr "Select payment method ⬇️"
 
+msgid "message_payment_methods_unavailable"
+msgstr "Payment methods are currently unavailable. Please contact <a href=\"{link}\">support</a>."
+
 msgid "message_select_traffic_amount"
 msgstr "Extra traffic is added to your monthly limit and stays until you renew your subscription.\n\n"
 "Select the appropriate amount of traffic ⬇️"

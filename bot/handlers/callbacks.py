@@ -12,7 +12,7 @@ from aiogram.utils.i18n import gettext as _, get_i18n
 
 from keyboards import (
     get_main_menu_keyboard,
-    get_payment_keyboard,
+    get_payment_menu,
     get_pay_keyboard,
     get_buy_menu_keyboard,
     get_xtr_pay_keyboard,
@@ -290,12 +290,13 @@ async def callback_upgrade_select(callback: CallbackQuery, state: FSMContext):
         "type": "upgrade",
         "months": target["months"],
     }
+    text, keyboard = get_payment_menu(synthetic_good)
 
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        text=_("message_select_payment_method"),
-        reply_markup=get_payment_keyboard(synthetic_good),
+        text=text,
+        reply_markup=keyboard,
         reuse_message=callback.message,
     )
 
@@ -578,11 +579,12 @@ async def callback_payment_method_select(callback: CallbackQuery, state: FSMCont
             await _send_topup_requires_active_subscription(callback, state)
             return
 
+    text, keyboard = get_payment_menu(good)
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     await cleanup.send_navigation(
         chat_id=callback.from_user.id,
-        text=_("message_select_payment_method"),
-        reply_markup=get_payment_keyboard(good),
+        text=text,
+        reply_markup=keyboard,
         reuse_message=callback.message,
     )
 
@@ -706,6 +708,7 @@ async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
     else:
         good = goods.get(good_callback)
 
+    text, keyboard = get_payment_menu(good)
     cleanup = MessageCleanup(glv.bot, state, glv.MESSAGE_CLEANUP_DEBUG)
     
     messages = await cleanup._get_messages_state(callback.from_user.id)
@@ -721,14 +724,14 @@ async def callback_back_to_payment(callback: CallbackQuery, state: FSMContext):
         await try_delete_message(callback.message)
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
-            text=_("message_select_payment_method"),
-            reply_markup=get_payment_keyboard(good),
+            text=text,
+            reply_markup=keyboard,
         )
     else:
         await cleanup.send_navigation(
             chat_id=callback.from_user.id,
-            text=_("message_select_payment_method"),
-            reply_markup=get_payment_keyboard(good),
+            text=text,
+            reply_markup=keyboard,
             reuse_message=callback.message,
         )
 
