@@ -43,7 +43,7 @@ def get_install_subscription_keyboard(subscription_url, lang='en') -> InlineKeyb
         ])
     kb.append([
         InlineKeyboardButton(
-            text=get_i18n_string("button_dismiss", lang),
+            text=get_i18n_string("button_back", lang),
             callback_data="dismiss_after_install"
         )
     ])
