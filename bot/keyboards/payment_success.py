@@ -16,7 +16,7 @@ def get_payment_success_keyboard(
     kb = [
         [
             InlineKeyboardButton(
-                text=get_i18n_string("button_dismiss", lang) if lang else "Dismiss ✖️",
+                text=get_i18n_string("button_back", lang) if lang else "⬅️ Back",
                 callback_data=callback_data,
             )
         ],
