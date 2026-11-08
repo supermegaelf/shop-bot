@@ -35,15 +35,16 @@ router = Router(name="payment-router")
 @router.pre_checkout_query()
 async def pre_checkout_handler(query: PreCheckoutQuery):
     try:
-        if goods.get(query.invoice_payload) is None:
+        payload = query.invoice_payload
+        is_upgrade = payload.startswith("upgrade_")
+        good = goods.get(payload[len("upgrade_"):] if is_upgrade else payload)
+        if not good:
             await query.answer(
                 _("Error: Invalid product type.\nPlease contact the support team."),
                 ok=False,
             )
             return
-        payload = query.invoice_payload
-        is_upgrade = payload.startswith("upgrade_")
-        if is_upgrade or goods.get(payload).get("type") == "update":
+        if is_upgrade or good.get("type") == "update":
             panel_profile = await get_panel().get_panel_user(query.from_user.id)
             if panel_profile is None:
                 await query.answer(_("message_error"), ok=False)
