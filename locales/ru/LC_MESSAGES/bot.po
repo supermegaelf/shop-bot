@@ -41,7 +41,7 @@ msgid "message_new_subscription_created"
 msgstr ""
 "Подписка активирована ✅\n️\n"
 "Благодарим за ваш выбор ❤️\n️\n"
-"Чтобы начать пользоваться VPN, нажмите на кнопку ниже ⬇️"
+"Чтобы подключить VPN, нажмите на кнопку ниже ⬇️"
 
 msgid "message_payment_success"
 msgstr ""
