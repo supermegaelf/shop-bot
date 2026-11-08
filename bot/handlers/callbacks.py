@@ -913,7 +913,13 @@ async def _run_broadcast(admin_id: int, broadcast_message: str, started_message_
         if user.tg_id in admin_ids:
             continue
         try:
-            dismiss_keyboard = get_broadcast_dismiss_keyboard(lang='ru')
+            try:
+                chat_member = await glv.bot.get_chat_member(user.tg_id, user.tg_id)
+                lang = chat_member.user.language_code or 'en'
+            except Exception as e:
+                logging.warning(f"Failed to get language for broadcast recipient {user.tg_id}: {e}")
+                lang = 'en'
+            dismiss_keyboard = get_broadcast_dismiss_keyboard(lang=lang)
             await glv.bot.send_message(
                 user.tg_id,
                 broadcast_message,

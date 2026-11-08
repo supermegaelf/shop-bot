@@ -35,7 +35,7 @@ msgid "\n\nFollow the link below to install VPN ⬇️\n\n{link}"
 msgstr ""
 
 msgid "message_subscription_access"
-msgstr "Your subscription is available in the <i>«Access to VPN 🏄🏻‍♂️»</i> section."
+msgstr "Your subscription is available in the “Subscription ⭐️” section."
 
 msgid "message_new_subscription_created"
 msgstr ""
@@ -105,7 +105,7 @@ msgid "button_pay_action"
 msgstr "Pay"
 
 msgid "message_select_payment_period"
-msgstr "Select payment period ⬇️"
+msgstr "Select a subscription period ⬇️"
 
 msgid "message_select_action"
 msgstr "Select option ⬇️"
@@ -122,7 +122,7 @@ msgstr "<b>1. What is a VPN?</b>\n\n"
 "<b>2. Why is a free VPN dangerous?</b>\n\n"
 "Free services sell your data, show ads, and use your device's resources.\n\n"
 "<b>3. Can you monitor my traffic?</b>\n\n"
-"No, the traffic is hidden and encrypted by the technologies we use. We do not track your activities — our task is to provide you with unlimited internet access.\n\n"
+"No, the traffic is hidden and encrypted by the technologies we use. We do not track your activities — our task is to provide you with internet access through a VPN.\n\n"
 "<b>4. How many devices can I connect?</b>\n\n"
 "You can connect any number of devices, the limitation only applies to the amount of traffic."
 
@@ -174,6 +174,15 @@ msgstr ""
 
 msgid "message_error"
 msgstr "Oops! Something went wrong..."
+
+msgid "message_payment_processing_error"
+msgstr "An error occurred while processing your payment. Your payment has been registered. Please contact <a href=\"{link}\">support</a>."
+
+msgid "Error: Invalid product type.\nPlease contact the support team."
+msgstr "Error: Invalid product type.\nPlease contact the support team."
+
+msgid "Failed to activate promo code. Please try again or contact support."
+msgstr "Failed to activate promo code. Please try again or contact support."
 
 msgid "message_reached_usage_percent"
 msgstr ""
@@ -376,7 +385,7 @@ msgid "referral_how_title"
 msgstr "How to get bonus?"
 
 msgid "referral_how_it_works"
-msgstr "1. Click <i>«Share 🔗»</i> ⬇️\n2. Choose a friend you want to invite.\n3. After each of their payments, you both get bonus days 🎁"
+msgstr "1. Click <i>«Share 🔗»</i> ⬇️\n2. Choose a friend you want to invite.\n3. Every time your friend buys or renews a subscription, you both receive bonus days 🎁"
 
 msgid "referral_share_button"
 msgstr "Share 🔗"
@@ -385,7 +394,7 @@ msgid "referral_inline_message"
 msgstr "\n\nFollow the link below, install VPN and get bonus days after payment ⬇️\n\n{referral_link}"
 
 msgid "referral_notification_inviter"
-msgstr "Friend purchased subscription 🎉\n\nBonus days: <b>+{days}</b> 🎁"
+msgstr "Your friend paid for their subscription 🎉\n\nBonus days: <b>+{days}</b> 🎁"
 
 msgid "referral_notification_referee"
 msgstr "You received a bonus for subscribing via referral link 🎁\n\nDays credited: {days}"
@@ -418,7 +427,10 @@ msgid "admin_referral_referee_item"
 msgstr "{index}. {username} (ID: {user_id})\npurchases: {purchases} 💳 | days earned: {days} 🎁"
 
 msgid "admin_referral_no_referrals"
-msgstr "No active referrals 🥲"
+msgstr "No invited users yet 🥲"
+
+msgid "admin_referral_no_referrers"
+msgstr "No referrers yet 🥲"
 
 msgid "message_expires_in_48_hours"
 msgstr ""

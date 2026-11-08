@@ -1,4 +1,5 @@
 import logging
+from html import escape
 
 from aiogram import Router, Dispatcher, F
 from aiogram.types import Message, PreCheckoutQuery
@@ -108,7 +109,9 @@ async def success_payment(message: Message, state: FSMContext):
             await notify_admins_payment_failure(message.from_user.id, payload, charge_id, False, e)
             await cleanup.send_important(
                 chat_id=message.from_user.id,
-                text=_("message_error") + "\n\n" + _("Please contact support. Your payment has been registered."),
+                text=_("message_payment_processing_error").format(
+                    link=escape(glv.config["SUPPORT_LINK"], quote=True)
+                ),
                 reply_markup=await get_main_menu_keyboard(user_id=message.from_user.id)
             )
             return
@@ -188,7 +191,9 @@ async def success_payment(message: Message, state: FSMContext):
         )
         await cleanup.send_important(
             chat_id=message.from_user.id,
-            text=_("message_error") + "\n\n" + _("Please contact support. Your payment has been registered."),
+            text=_("message_payment_processing_error").format(
+                link=escape(glv.config["SUPPORT_LINK"], quote=True)
+            ),
             reply_markup=await get_main_menu_keyboard(user_id=message.from_user.id)
         )
         return

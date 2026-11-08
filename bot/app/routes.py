@@ -2,6 +2,7 @@ import asyncio
 import ipaddress
 import logging
 from datetime import datetime, timedelta
+from html import escape
 import hmac
 import hashlib
 import json
@@ -171,10 +172,9 @@ async def _process_payment_success(payment, good, user):
             except Exception as release_error:
                 logging.error(f"Failed to release payment {payment.payment_id}: {release_error}")
         await notify_admins_payment_failure(payment.tg_id, payment.callback, payment.payment_id, provisioned, e)
-        error_text = get_i18n_string("message_error", payment.lang)
-        support_link = glv.config.get('SUPPORT_LINK', '')
-        if support_link:
-            error_text += f"\n\nPlease contact support. Your payment has been registered."
+        error_text = get_i18n_string("message_payment_processing_error", payment.lang).format(
+            link=escape(glv.config["SUPPORT_LINK"], quote=True)
+        )
         try:
             await glv.bot.send_message(
                 payment.tg_id,
