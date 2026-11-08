@@ -43,7 +43,7 @@ msgstr "Your subscription is available in the “Subscription ⭐️” section.
 msgid "message_new_subscription_created"
 msgstr ""
 "Subscription activated ✅\n️\n"
-"Thanks for your choice ❤️\n️\n"
+"Thank you for choosing us ❤️\n️\n"
 "To connect to VPN, click the button below ⬇️"
 
 msgid "message_payment_success"
@@ -69,7 +69,7 @@ msgid "button_vpn_access"
 msgstr "Start 🚀"
 
 msgid "button_frequent_questions"
-msgstr "Frequent questions 📝"
+msgstr "Frequently asked questions 📝"
 
 msgid "button_help"
 msgstr "Help ❤️"
@@ -117,7 +117,7 @@ msgid "button_vpn_not_working"
 msgstr "VPN doesn't work ⛔️"
 
 msgid "button_other_question"
-msgstr "Ask question 🧑🏻‍💻"
+msgstr "Ask a question 🧑🏻‍💻"
 
 msgid "message_frequent_questions"
 msgstr "<b>1. What is a VPN?</b>\n\n"
@@ -142,7 +142,7 @@ msgid "expired"
 msgstr "expired ⛔️"
 
 msgid "on_hold"
-msgstr "on_hold ⚠️"
+msgstr "On hold ⚠️"
 
 msgid "{months} months – from {price} ₽"
 msgstr ""
@@ -224,11 +224,11 @@ msgstr ""
 
 msgid "message_promo_expired"
 msgstr ""
-"Promo code expired ⛔️\n\n"
+"This promo code has expired ⛔️\n\n"
 "Please use another one."
 
 msgid "message_promo_already_activated"
-msgstr "This promo code has already been activated ⛔️"
+msgstr "You've already activated this promo code ⛔️"
 
 msgid "message_promo_activated"
 msgstr "{discount}% discount activated ✅"
@@ -340,7 +340,7 @@ msgstr ""
 msgid "message_invalid_discount"
 msgstr ""
 "Invalid discount amount ⛔️\n\n" 
-"Use format: from 1 to 100 ⬇️"
+"Enter a whole number from 1 to 100 ⬇️"
 
 msgid "message_invalid_date_format"
 msgstr ""
@@ -385,7 +385,7 @@ msgid "referral_earned_days"
 msgstr "Bonus days received: <b>{days}</b>"
 
 msgid "referral_how_title"
-msgstr "How to get bonus?"
+msgstr "How do I earn bonus days?"
 
 msgid "referral_how_it_works"
 msgstr "1. Click <i>«Share 🔗»</i> ⬇️\n2. Choose a friend you want to invite.\n3. Every time your friend buys or renews a subscription, you both receive bonus days 🎁"

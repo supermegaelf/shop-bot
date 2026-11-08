@@ -224,11 +224,11 @@ msgstr ""
 
 msgid "message_promo_expired"
 msgstr ""
-"Промокод истёк ⛔️\n\n"
+"Срок действия промокода истёк ⛔️\n\n"
 "Пожалуйста, используйте другой."
 
 msgid "message_promo_already_activated"
-msgstr "Этот промокод уже был активирован ⛔️"
+msgstr "Вы уже активировали этот промокод ⛔️"
 
 msgid "message_promo_activated"
 msgstr "Скидка {discount}% активирована ✅"
@@ -340,7 +340,7 @@ msgstr ""
 msgid "message_invalid_discount"
 msgstr ""
 "Некорректный размер скидки ⛔️\n\n" 
-"Используйте формат: от 1 до 100 ⬇️"
+"Введите целое число от 1 до 100 ⬇️"
 
 msgid "message_invalid_date_format"
 msgstr ""
