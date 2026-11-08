@@ -1,6 +1,6 @@
 from .main_menu import get_main_menu_keyboard
 from .buy_menu import get_buy_menu_keyboard
-from .payments import get_payment_keyboard
+from .payments import get_payment_menu
 from .pay import get_pay_keyboard
 from .user_profile import get_buy_more_traffic_keyboard, get_renew_subscription_keyboard, get_install_subscription_keyboard, get_subscription_details_keyboard
 from .xtr_pay import get_xtr_pay_keyboard
