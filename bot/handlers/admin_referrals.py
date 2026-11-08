@@ -72,7 +72,7 @@ async def callback_admin_referral_list_page(callback: CallbackQuery, state: FSMC
     has_referrers = bool(data['referrers'])
     
     if not has_referrers:
-        text = get_i18n_string("admin_referral_no_referrals", lang)
+        text = get_i18n_string("admin_referral_no_referrers", lang)
     else:
         text = ""
         for i, ref in enumerate(data['referrers'], start=1):

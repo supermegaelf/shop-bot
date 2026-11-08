@@ -35,7 +35,7 @@ msgid "\n\nFollow the link below to install VPN ⬇️\n\n{link}"
 msgstr "\n\nПерейдите по ссылке ниже, чтобы установить VPN ⬇️\n\n{link}"
 
 msgid "message_subscription_access"
-msgstr "Ваша подписка доступна в разделе <i>«Доступ к VPN 🏄🏻‍♂️»</i>."
+msgstr "Ваша подписка доступна в разделе «Подписка ⭐️»."
 
 msgid "message_new_subscription_created"
 msgstr ""
@@ -105,7 +105,7 @@ msgid "button_pay_action"
 msgstr "Оплатить"
 
 msgid "message_select_payment_period"
-msgstr "Выберете период оплаты ⬇️"
+msgstr "Выберите срок подписки ⬇️"
 
 msgid "message_select_action"
 msgstr "Выберите пункт ⬇️"
@@ -122,7 +122,7 @@ msgstr "<b>1. Что такое VPN?</b>\n\n"
 "<b>2. Почему бесплатный VPN — это опасно?</b>\n\n"
 "Бесплатные сервисы продают ваши данные, показывают рекламу и используют ресурсы устройства.\n\n"
 "<b>3. Можете ли вы просматривать мой трафик?</b>\n\n"
-"Нет, трафик скрыт и зашифрован технологиями, которые мы используем. Мы не отслеживаем ваши действия — наша задача обеспечить вам неограниченный доступ к интернету.\n\n"
+"Нет, трафик скрыт и зашифрован технологиями, которые мы используем. Мы не отслеживаем ваши действия — наша задача обеспечить вам доступ к интернету через VPN.\n\n"
 "<b>4. Сколько устройств я могу подключить?</b>\n\n"
 "Вы можете подключить любое количество устройств, ограничение распространяется только на объём трафика."
 
@@ -174,6 +174,15 @@ msgstr ""
 
 msgid "message_error"
 msgstr "Упс! Что-то пошло не так..."
+
+msgid "message_payment_processing_error"
+msgstr "При обработке оплаты произошла ошибка. Платёж зарегистрирован. Пожалуйста, напишите в <a href=\"{link}\">поддержку</a>."
+
+msgid "Error: Invalid product type.\nPlease contact the support team."
+msgstr "Не удалось определить тариф.\nПожалуйста, напишите в поддержку."
+
+msgid "Failed to activate promo code. Please try again or contact support."
+msgstr "Не удалось активировать промокод. Попробуйте ещё раз или напишите в поддержку."
 
 msgid "message_reached_usage_percent"
 msgstr ""
@@ -376,7 +385,7 @@ msgid "referral_how_title"
 msgstr "Как получить бонус?"
 
 msgid "referral_how_it_works"
-msgstr "1. Нажмите <i>«Поделиться 🔗»</i> ⬇️\n2. Выберите друга, которого хотите пригласить.\n3. После каждой его оплаты вы оба получите бонусные дни 🎁"
+msgstr "1. Нажмите <i>«Поделиться 🔗»</i> ⬇️\n2. Выберите друга, которого хотите пригласить.\n3. Каждый раз, когда друг покупает или продлевает подписку, вы оба получаете бонусные дни 🎁"
 
 msgid "referral_share_button"
 msgstr "Поделиться 🔗"
@@ -385,7 +394,7 @@ msgid "referral_inline_message"
 msgstr "\n\nПерейдите по ссылке ниже, установите VPN и получите бонусные дни после оплаты ⬇️\n\n{referral_link}"
 
 msgid "referral_notification_inviter"
-msgstr "Друг оформил подписку 🎉\n\nБонусные дни: <b>+{days}</b> 🎁"
+msgstr "Друг оплатил подписку 🎉\n\nБонусные дни: <b>+{days}</b> 🎁"
 
 msgid "referral_notification_referee"
 msgstr "Вы получили бонус за подписку по реферальной ссылке 🎁\n\nНачислено дней: {days}"
@@ -418,7 +427,10 @@ msgid "admin_referral_referee_item"
 msgstr "{index}. {username} (ID: {user_id})\nпокупки: {purchases} 💳 | принёс дней: {days} 🎁"
 
 msgid "admin_referral_no_referrals"
-msgstr "Активных рефералов нет 🥲"
+msgstr "Приглашённых пользователей пока нет 🥲"
+
+msgid "admin_referral_no_referrers"
+msgstr "Рефереров пока нет 🥲"
 
 msgid "message_expires_in_48_hours"
 msgstr ""
